@@ -1,8 +1,8 @@
-module Option
+module Filter
 
 open System
 
-type Option =
+type Filter =
     | MinTime         of TimeSpan
     | MaxTime         of TimeSpan
     | ArriveBefore    of TimeSpan

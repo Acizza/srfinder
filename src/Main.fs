@@ -3,7 +3,7 @@ module Main
 open FSharp.Collections.ParallelSeq
 open System
 open Route
-open Option
+open Filter
 
 /// Convert a decimal containing hours to it's hour:minute representation
 let decToTime hours =
@@ -38,10 +38,10 @@ let processRoutes vaID options =
 [<EntryPoint>]
 let main args =
     match args |> Array.toList with
-    | [] -> Console.WriteLine "Usage: <VA id> <options>"
+    | [] -> Console.WriteLine "Usage: <VA id> <filters>"
     | vaID::xs ->
-        let options = Option.readAll xs
-        match options with
-        | [] -> Console.WriteLine "No options specified"
-        | _ -> processRoutes vaID options
+        let filters = Filter.readAll xs
+        match filters with
+        | [] -> Console.WriteLine "No filters specified"
+        | _ -> processRoutes vaID filters
     0
