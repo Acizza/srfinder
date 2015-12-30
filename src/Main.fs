@@ -24,7 +24,7 @@ let processRoutes vaID options =
             | {Route.origin = o}, OriginAirport a   -> o = a
             | {Route.dest = d},   DestAirport a     -> d = a
 
-        Route.parseAll "http://fscloud-infotool.de/index.php?page=vasystem&subpage=vadetails&id=10277"
+        Route.parseAll vaID
         |> PSeq.filter (fun r -> Seq.forall (fun o -> filter (r, o)) options)
         |> PSeq.sortBy (fun r -> r.time.TotalMinutes)
 
