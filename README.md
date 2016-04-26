@@ -5,8 +5,9 @@ Usage
 
 The basic input layout looks like this:
 ```
-./FFilter.exe <departure ICAO> <filters>
+./FFilter.exe <departure ICAO> <cruise speed in mach> <filters>
 ```
+(note: the typical cruise speed for a commercial jet is around mach 0.77 - 0.83)
 
 The *filters* parameter can include as many filters as you want. The filters you can use are as follows:
 
@@ -15,23 +16,29 @@ Name     | Value                | Description
 min      | Time, in hours       | Only display routes that are at least x hours long
 max      | Time, in hours       | Only display routes that are x hours long at most
 arrivebf | Time, in hours       | Only display routes that will make you arrive at or before the specified time from now
-oc       | Two-letter continent | Only display routes that originate from the specified continent
-dc       | Two-letter continent | Only display routes that arrive at the specified continent
+dc       | Two-letter continent | Only display routes that originate from the specified continent
+ac       | Two-letter continent | Only display routes that arrive at the specified continent
 dest     | ICAO code            | Only display routes that arrive at the specified airport
+type     | closed, heliport, small, medium, large | Only display routes that are one of the specified airport types
 
 Here are several examples of the filters in action:
 
 * To display routes that are at least 2 hours long and less than 4 and a half hours long:
 ```
-./FFilter.exe <depature> -min 2 -max 4.5
+./FFilter.exe <depature> <mach> -min 2 -max 4.5
 ```
 
 * To display routes that will make you arrive at or before 5 PM local time:
 ```
-./FFilter.exe <departure> -arrivebf 17
+./FFilter.exe <departure> <mach> -arrivebf 17
 ```
 
 * To display routes that originate in North America and arrive in Europe:
 ```
-./FFilter.exe <departure> -oc NA -dc EU
+./FFilter.exe <departure> <mach> -dc NA -ac EU
 ```
+
+Credits
+=======
+
+* [OurAirports](http://ourairports.com) - providing the airports.csv file
