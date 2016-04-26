@@ -46,8 +46,8 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src/Filter.fs" />
     <Compile Include="src/Airport.fs" />
+    <Compile Include="src/Filter.fs" />
     <Compile Include="src/Main.fs" />
     <None Include="App.config" />
   </ItemGroup>
@@ -82,17 +82,6 @@
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
       <ItemGroup>
-        <Reference Include="FSharp.Collections.ParallelSeq">
-          <HintPath>packages\FSharp.Collections.ParallelSeq\lib\net40\FSharp.Collections.ParallelSeq.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
-      <ItemGroup>
         <Reference Include="FSharp.Data">
           <HintPath>packages\FSharp.Data\lib\net40\FSharp.Data.dll</HintPath>
           <Private>True</Private>
@@ -107,6 +96,17 @@
       <ItemGroup>
         <Reference Include="FSharp.Data">
           <HintPath>packages\FSharp.Data\lib\portable-net40+sl5+wp8+win8\FSharp.Data.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
+      <ItemGroup>
+        <Reference Include="Streams">
+          <HintPath>packages\Streams\lib\net45\Streams.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>

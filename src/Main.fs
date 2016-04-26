@@ -1,8 +1,29 @@
 module Main
 
-open FSharp.Collections.ParallelSeq
 open System
 open Filter
+open Airport
+open Nessos.Streams
+
+let filterAirports options mach airports =
+    let (|TimeBetween|) (dInfo, aInfo) = Airport.timeBetween mach dInfo aInfo
+    let (|Arrival|) = snd
+
+    let filter = function
+        | TimeBetween t, MinTime m          -> t >= m
+        | TimeBetween t, MaxTime m          -> t <= m
+        | TimeBetween t, ArriveBefore lt    -> DateTime.Now.TimeOfDay + t <= lt
+        | Arrival aInfo, DepartureContinent c
+        | Arrival aInfo, ArrivalContinent c -> aInfo.Continent = c
+        | Arrival aInfo, ArrivalAirport a   -> aInfo.ICAO = a
+        | Arrival aInfo, AirportType t      -> aInfo.Type = t
+
+    airports
+    |> ParStream.filter (fun (dInfo, aInfo) ->
+        List.forall (fun o ->
+            filter ((dInfo, aInfo), o)
+        ) options
+    )
 
 /// Convert a decimal containing hours to it's hour:minute representation
 let decToTime hours =
@@ -11,39 +32,50 @@ let decToTime hours =
         (floor hours |> int)
         (floor minutes |> int)
 
-let processRoutes vaID options =
-    let airports = Airport.load "airports.csv"
-    (*
-    let routes =
-        let filter = function
-            | {Route.Time = t},   MinTime m         -> t >= m
-            | {Route.Time = t},   MaxTime m         -> t <= m
-            | {Route.Time = t},   ArriveBefore lt   -> DateTime.Now.TimeOfDay + t <= lt
-            | {Route.Origin = o}, OriginContinent c -> Airport.exists o c airports
-            | {Route.Dest = d},   DestContinent c   -> Airport.exists d c airports
-            | {Route.Origin = o}, OriginAirport a   -> o = a
-            | {Route.Dest = d},   DestAirport a     -> d = a
+let processRoutes origin mach options =
+    let filterAll =
+        ParStream.ofSeq
+        >> ParStream.unordered
+        >> filterAirports options mach
 
-        Route.parseAll vaID
-        |> PSeq.filter (fun r -> Seq.forall (fun o -> filter (r, o)) options)
-        |> PSeq.sortBy (fun r -> r.Time.TotalMinutes)
+    let display =
+        ParStream.sortByDescending ((<||) (Airport.timeBetween mach))
+        >> ParStream.toArray
+        >> Array.iter (fun (d, a) ->
+            printfn "*****\nName: %s\nICAO: %s\nTime: %s\nDist: %.0fnm\n*****\n"
+                a.Name
+                a.ICAO
+                (decToTime (Airport.timeBetween mach d a).TotalHours)
+                (Airport.distance d a * 0.000539957) // TODO: Handle unit conversion better..
+        )
 
-    for r in routes do
-        printfn "Origin: %s\nDest: %s\nTime: %s\nRoute: %s\n"
-            r.Origin
-            r.Dest
-            (decToTime <| r.Time.TotalHours)
-            r.Route
-    *)
-    ()
+    let airports  = Airport.loadAll "airports.csv"
+    let departure = Seq.tryFind (fun a -> a.ICAO = origin) airports
+
+    match departure with
+    | Some dep ->
+        airports
+        |> Seq.filter (fun a -> a.ICAO <> dep.ICAO)
+        |> Seq.map (fun a -> (dep, a))
+        |> filterAll
+        |> display
+    | None -> ()
 
 [<EntryPoint>]
 let main args =
+    let tryParse f x =
+        match f x with
+        | (true, v) -> Some v
+        | (false, _) -> None
+
+    let (|Double|_|) = tryParse Double.TryParse
+
     match args |> Array.toList with
-    | [] -> Console.WriteLine "Usage: <VA id> <filters>"
-    | vaID::xs ->
+    | origin::Double mach::xs ->
         let filters = Filter.readAll xs
         match filters with
         | [] -> Console.WriteLine "No filters specified"
-        | _ -> processRoutes vaID filters
+        | _ -> processRoutes origin mach filters
+    | [] | _ -> Console.WriteLine "Usage: <departure ICAO> <cruise speed> <filters>"
+
     0
