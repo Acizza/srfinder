@@ -4,6 +4,7 @@ open System
 open Filter
 open Airport
 open Nessos.Streams
+open Util.Convert
 
 let filterAirports options mach airports =
     let (|TimeBetween|) (dInfo, aInfo) = Airport.timeBetween mach dInfo aInfo
@@ -46,7 +47,7 @@ let processRoutes origin mach options =
                 a.Name
                 a.ICAO
                 (decToTime (Airport.timeBetween mach d a).TotalHours)
-                (Airport.distance d a * 0.000539957) // TODO: Handle unit conversion better..
+                (Airport.distance d a |> Meter.toNauticalMiles)
         )
 
     let airports  = Airport.loadAll "airports.csv"

@@ -46,6 +46,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src/Util.fs" />
     <Compile Include="src/Airport.fs" />
     <Compile Include="src/Filter.fs" />
     <Compile Include="src/Main.fs" />
