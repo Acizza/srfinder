@@ -1,6 +1,7 @@
 module Filter
 
 open System
+open Util.Type
 
 type Filter =
     | MinTime            of TimeSpan
@@ -21,20 +22,27 @@ let readAll args =
         | "large"    -> Some Airport.Large
         | _ -> None
 
-    let rec readAllRec = function
-        | (name:string)::value::xs when name.StartsWith "-" ->
-            let opt =
-                match name.[1..] with
-                | "min"      -> MinTime (TimeSpan.FromHours (float value)) |> Some
-                | "max"      -> MaxTime (TimeSpan.FromHours (float value)) |> Some
-                | "arrivebf" -> ArriveBefore (TimeSpan.FromHours (float value)) |> Some
-                | "dc"       -> DepartureContinent value |> Some
-                | "ac"       -> ArrivalContinent value |> Some
-                | "dest"     -> ArrivalAirport value |> Some
-                | "type"     -> readAirportType value |> Option.map AirportType
-                | _          -> None
-            opt::readAllRec xs
+    let (|Time|_|) (v : string) =
+        try
+            Some (TimeSpan.Parse v)
+        with
+        | _ ->
+            match v with
+            | Double n -> Some (TimeSpan.FromHours n)
+            | _        -> None
+
+    let rec parse = function
+        | (name : string) :: rest when name.StartsWith "-" ->
+            match name.[1..] :: rest with
+            | "min"      :: Time time :: xs -> Some (MinTime time)             :: parse xs
+            | "max"      :: Time time :: xs -> Some (MaxTime time)             :: parse xs
+            | "arrivebf" :: Time time :: xs -> Some (ArriveBefore time)        :: parse xs
+            | "dc"       :: value     :: xs -> Some (DepartureContinent value) :: parse xs
+            | "ac"       :: value     :: xs -> Some(ArrivalContinent value)    :: parse xs
+            | "dest"     :: value     :: xs -> Some (ArrivalAirport value)     :: parse xs
+            | "type"     :: value     :: xs -> (readAirportType value |> Option.map AirportType) :: parse xs
+            | _ -> []
         | _ -> []
 
-    readAllRec args
+    parse args
     |> List.choose id

@@ -5,6 +5,7 @@ open Filter
 open Airport
 open Nessos.Streams
 open Util.Convert
+open Util.Type
 
 let filterAirports options mach airports =
     let (|TimeBetween|) (dInfo, aInfo) = Airport.timeBetween mach dInfo aInfo
@@ -64,19 +65,12 @@ let processRoutes origin mach options =
 
 [<EntryPoint>]
 let main args =
-    let tryParse f x =
-        match f x with
-        | (true, v) -> Some v
-        | (false, _) -> None
-
-    let (|Double|_|) = tryParse Double.TryParse
-
     match args |> Array.toList with
-    | origin::Double mach::xs ->
+    | origin :: Double mach :: xs ->
         let filters = Filter.readAll xs
         match filters with
         | [] -> Console.WriteLine "No filters specified"
-        | _ -> processRoutes origin mach filters
+        | _  -> processRoutes origin mach filters
     | [] | _ -> Console.WriteLine "Usage: <departure ICAO> <cruise speed> <filters>"
 
     0
