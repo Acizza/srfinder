@@ -1,9 +1,14 @@
-module Filter
+module Argument
 
 open System
 open Util.Type
 
-type Filter =
+type SortType =
+    | Time
+    | Name
+    | ICAO
+
+type Argument =
     | MinTime            of TimeSpan
     | MaxTime            of TimeSpan
     | ArriveBefore       of TimeSpan
@@ -11,36 +16,48 @@ type Filter =
     | ArrivalContinent   of string
     | ArrivalAirport     of string
     | AirportType        of Airport.Type
+    | SortBy             of SortType
 
-/// Parses every parameter in the specified list that starts with '-'
-let readAll args =
-    let readAirportType = function
-        | "closed"   -> Some Airport.Closed
-        | "heliport" -> Some Airport.Heliport
-        | "small"    -> Some Airport.Small
-        | "medium"   -> Some Airport.Medium
-        | "large"    -> Some Airport.Large
-        | _ -> None
+let parseAirportType (v : string) =
+    match v.ToLower() with
+    | "closed"   -> Some Airport.Closed
+    | "heliport" -> Some Airport.Heliport
+    | "small"    -> Some Airport.Small
+    | "medium"   -> Some Airport.Medium
+    | "large"    -> Some Airport.Large
+    | _ -> None
 
-    let (|Time|_|) (v : string) =
+/// Parses every argument in the specified list that starts with '-'
+let parse args =
+    let (|Time|_|) v =
         try
             Some (TimeSpan.Parse v)
         with
         | _ ->
+            // Try to parse a decimal time instead
             match v with
             | Double n -> Some (TimeSpan.FromHours n)
             | _        -> None
 
     let rec parse = function
         | (name : string) :: rest when name.StartsWith "-" ->
-            match name.[1..] :: rest with
+            match name.[1..].ToLower() :: rest with
             | "min"      :: Time time :: xs -> Some (MinTime time)             :: parse xs
             | "max"      :: Time time :: xs -> Some (MaxTime time)             :: parse xs
             | "arrivebf" :: Time time :: xs -> Some (ArriveBefore time)        :: parse xs
             | "dc"       :: value     :: xs -> Some (DepartureContinent value) :: parse xs
             | "ac"       :: value     :: xs -> Some(ArrivalContinent value)    :: parse xs
             | "dest"     :: value     :: xs -> Some (ArrivalAirport value)     :: parse xs
-            | "type"     :: value     :: xs -> (readAirportType value |> Option.map AirportType) :: parse xs
+            | "type"     :: value     :: xs -> (parseAirportType value |> Option.map AirportType) :: parse xs
+            | "sort"     :: value     :: xs ->
+                let sortType =
+                    match value.ToLower() with
+                    | "time"     -> Some Time
+                    | "name"     -> Some Name
+                    | "icao"     -> Some ICAO
+                    | _          -> None
+
+                (sortType |> Option.map SortBy) :: parse xs
             | _ -> []
         | _ -> []
 
