@@ -7,7 +7,7 @@ The basic input layout looks like this:
 ```
 ./FFilter.exe <departure ICAO> <cruise speed in mach> <filters>
 ```
-(note: the typical cruise speed for a commercial jet is around mach 0.77 - 0.83)
+(note: the typical cruise speed for a commercial jet is around mach 0.73 - 0.83)
 
 The *filters* parameter can include as many filters as you want. The filters you can use are as follows:
 
@@ -20,6 +20,7 @@ dc       | Two-letter continent | Only display routes that originate from the sp
 ac       | Two-letter continent | Only display routes that arrive at the specified continent
 dest     | ICAO code            | Only display routes that arrive at the specified airport
 type     | closed, heliport, small, medium, large | Only display routes that are one of the specified airport types
+sort     | time, name, icao     | Sorts the output of the filtered routes by the specified type in descending order
 
 Here are several examples of the filters in action:
 
