@@ -1,4 +1,4 @@
-The purpose of this program is to automate the tedious process of finding an arrival airport that fulfills an arbitrary amount of conditions. Some conditions include: only taking X amount of time to reach it, being in a certain continent, being in a different continent and taking less than X hours to reach it, etc.
+The purpose of this program is to automate the tedious process of finding an arrival airport in flight simulators that meet an arbitrary amount of conditions. Some conditions include: only taking X amount of time to reach it, being in a certain continent, being in a different continent and taking less than X hours to reach it, etc.
 
 Usage
 =====
@@ -9,7 +9,7 @@ The basic input layout looks like this:
 ```
 (note: the typical cruise speed for a commercial jet is around mach 0.73 - 0.83)
 
-The *filters* parameter can include as many filters as you want. The filters you can use are as follows:
+The *filters* parameter can include as many filters as you want and can be combined in any order. The filters you can use are as follows:
 
 Name     | Value                | Description
 -------- | -------------------- | -----------
