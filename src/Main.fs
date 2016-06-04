@@ -2,7 +2,6 @@ module Main
 
 open Airport
 open Argument
-open Nessos.Streams
 open Util
 open Util.Type
 
@@ -19,7 +18,6 @@ let processRoutes origin mach options =
 
         airports
         |> Route.filter dep options mach
-        |> ParStream.toArray // Force the stream to finish to avoid a data race when displaying to the console
         |> Route.display sortType dep mach
     | None -> printfn "Departure ICAO \"%s\" not found" origin
 

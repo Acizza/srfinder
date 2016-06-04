@@ -3,7 +3,6 @@ module Route
 open Airport
 open Argument
 open System
-open Nessos.Streams
 open Util
 open Util.Convert
 
@@ -22,8 +21,7 @@ let filter departure options mach airports =
         | _,             SortBy _           -> true
 
     airports
-    |> ParStream.ofSeq
-    |> ParStream.filter (fun arpt ->
+    |> Seq.filter (fun arpt ->
         arpt.ICAO <> departure.ICAO &&
         List.forall (fun o -> filter ((departure, arpt), o)) options
     )
@@ -38,8 +36,8 @@ let display sortType departure mach airports =
         | ICAO -> compare y.ICAO x.ICAO
 
     airports
-    |> Array.sortWith sorter
-    |> Array.iter (fun arr ->
+    |> Seq.sortWith sorter
+    |> Seq.iter (fun arr ->
         printfn "*****\nName: %s\nICAO: %s\nTime: %s\nDist: %.0fnm\n*****\n"
             arr.Name
             arr.ICAO
