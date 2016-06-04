@@ -13,7 +13,7 @@ type Type =
     | Medium
     | Large
 
-type Info = {
+type Airport = {
     Name      : string
     ICAO      : string
     Coord     : Coord.T

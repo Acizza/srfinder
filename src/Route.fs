@@ -7,23 +7,22 @@ open Util
 open Util.Convert
 
 let filter departure options mach airports =
-    let (|TimeBetween|) (dInfo, aInfo) = Airport.timeBetween mach dInfo aInfo
-    let (|Arrival|) = snd
+    let (|TimeBetween|) = Airport.timeBetween mach departure
 
     let filter = function
-        | TimeBetween t, MinTime m          -> t >= m
-        | TimeBetween t, MaxTime m          -> t <= m
-        | TimeBetween t, ArriveBefore lt    -> DateTime.Now.TimeOfDay + t <= lt
-        | Arrival aInfo, DepartureContinent c
-        | Arrival aInfo, ArrivalContinent c -> aInfo.Continent = c
-        | Arrival aInfo, ArrivalAirport a   -> aInfo.ICAO = a
-        | Arrival aInfo, AirportType t      -> aInfo.Type = t
-        | _,             SortBy _           -> true
+        | TimeBetween t, MinTime m       -> t >= m
+        | TimeBetween t, MaxTime m       -> t <= m
+        | TimeBetween t, ArriveBefore lt -> DateTime.Now.TimeOfDay + t <= lt
+        | arrival, DepartureContinent c
+        | arrival, ArrivalContinent c    -> arrival.Continent = c
+        | arrival, ArrivalAirport a      -> arrival.ICAO = a
+        | arrival, AirportType t         -> arrival.Type = t
+        | _,             SortBy _        -> true
 
     airports
-    |> Seq.filter (fun arpt ->
-        arpt.ICAO <> departure.ICAO &&
-        List.forall (fun o -> filter ((departure, arpt), o)) options
+    |> Seq.filter (fun arrival ->
+        arrival.ICAO <> departure.ICAO &&
+        List.forall (fun option -> filter (arrival, option)) options
     )
 
 let display sortType departure mach airports =
