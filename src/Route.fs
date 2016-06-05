@@ -40,6 +40,6 @@ let display sortType departure mach airports =
         printfn "*****\nName: %s\nICAO: %s\nTime: %s\nDist: %.0fnm\n*****\n"
             arr.Name
             arr.ICAO
-            (formatTime (timeToArpt arr).TotalHours)
+            ((timeToArpt arr).ToString "h\:mm")
             (Airport.distance departure arr |> Meter.toNauticalMiles)
     )

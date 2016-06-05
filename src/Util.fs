@@ -43,10 +43,3 @@ module Coord =
 module Option =
     /// Flipped version of defaultArg
     let defaultArg x y = defaultArg y x
-
-/// Convert a decimal containing hours to its hour:minute representation
-let formatTime hours =
-    let minutes = (hours % 1.) * 60.
-    sprintf "%d:%02d"
-        (floor hours |> int)
-        (floor minutes |> int)
