@@ -20,7 +20,7 @@ let filter departure options mach airports =
         | _,             SortBy _        -> true
 
     airports
-    |> Seq.filter (fun arrival ->
+    |> Array.filter (fun arrival ->
         arrival.ICAO <> departure.ICAO &&
         List.forall (fun option -> filter (arrival, option)) options
     )
@@ -35,8 +35,8 @@ let display sortType departure mach airports =
         | ICAO -> compare y.ICAO x.ICAO
 
     airports
-    |> Seq.sortWith sorter
-    |> Seq.iter (fun arr ->
+    |> Array.sortWith sorter
+    |> Array.iter (fun arr ->
         printfn "*****\nName: %s\nICAO: %s\nTime: %s\nDist: %.0fnm\n*****\n"
             arr.Name
             arr.ICAO

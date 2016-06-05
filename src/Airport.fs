@@ -4,7 +4,7 @@ open FSharp.Data
 open System
 open Util
 
-type Airports = CsvProvider<"airports.csv">
+type Airports = CsvProvider<"airports.csv", CacheRows = false>
 
 type Type =
     | Closed

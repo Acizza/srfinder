@@ -6,8 +6,11 @@ open Util
 open Util.Type
 
 let processRoutes origin mach options =
-    let airports  = Airport.loadAll "airports.csv"
-    let departure = Seq.tryFind (fun a -> a.ICAO = origin) airports
+    let (departure, airports) =
+        Airport.loadAll "airports.csv"
+        |> Seq.toArray
+        |> Array.partition (fun a -> a.ICAO = origin)
+        |> fun (dep, airports) -> (Array.tryHead dep, airports)
 
     match departure with
     | Some dep ->

@@ -33,13 +33,10 @@ module Coord =
 
         let lat1 = toRads c1.Lat
         let lat2 = toRads c2.Lat
-        let lat  = toRads (c2.Lat - c1.Lat)
+        let lat  = lat2 - lat1
         let lon  = toRads (c2.Lon - c1.Lon)
 
-        let a = sin (lat / 2.) * sin (lat / 2.) +
-                cos lat1      * cos lat2      *
-                sin (lon / 2.) * sin (lon / 2.)
-
+        let a = sin (lat / 2.) ** 2. + cos lat1 * cos lat2 * sin (lon / 2.) ** 2.
         let c = 2. * atan2 (sqrt a) (sqrt (1. - a))
         r * c
 
