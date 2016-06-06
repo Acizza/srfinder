@@ -24,9 +24,9 @@ type Airport = {
 let distance from to' = Coord.distance from.Coord to'.Coord
 
 let timeBetween mach from to' =
-    let metersPerHour = 1.235e6
+    let metersPerSecond = 343.
     let distance = distance from to'
-    TimeSpan.FromHours(distance / (mach * metersPerHour))
+    TimeSpan.FromSeconds(distance / (mach * metersPerSecond))
 
 let readType = function
     | "closed"         -> Closed
