@@ -49,3 +49,8 @@ let loadAll (path : string) =
 
     (Airports.Load path).Rows
     |> Seq.map createInfo
+
+let getRandom =
+    let rng = new System.Random()
+    fun (airports : Airport array) ->
+        airports.[rng.Next(0, airports.Length)]

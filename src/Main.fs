@@ -5,10 +5,9 @@ open Argument
 open Util
 open Util.Type
 
-let processRoutes origin mach options =
+let processAirports origin mach options airports =
     let (departure, airports) =
-        Airport.loadAll "airports.csv"
-        |> Seq.toArray
+        airports
         |> Array.partition (fun a -> a.ICAO = origin)
         |> fun (dep, airports) -> (Array.tryHead dep, airports)
 
@@ -26,12 +25,24 @@ let processRoutes origin mach options =
 
 [<EntryPoint>]
 let main args =
+    let (|Arguments|_|) list =
+        match Argument.parse list with
+        | [] -> None
+        | xs -> Some xs
+
     match args |> Array.toList with
-    | origin :: Double mach :: xs ->
-        let args = Argument.parse xs
-        match args with
-        | [] -> printfn "No filters specified"
-        | _ -> processRoutes origin mach args
-    | [] | _ -> printfn "Usage: <departure ICAO> <cruise speed> <filters>"
+    | "find" :: origin :: Double mach :: Arguments args ->
+        Airport.loadAll "airports.csv"
+        |> Seq.toArray
+        |> processAirports origin mach args
+    | "random" :: Double mach :: Arguments args ->
+        let airports =
+            Airport.loadAll "airports.csv"
+            |> Seq.toArray
+
+        let origin = Airport.getRandom airports
+        processAirports origin.ICAO mach args airports
+    | mode :: _ -> printfn "Unknown mode \"%s\". Valid modes are \"find\" and \"random\"" mode
+    | _ -> printfn "Usage: <mode> <filters>"
 
     0

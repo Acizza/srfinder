@@ -34,6 +34,8 @@ let display sortType departure mach airports =
         | Name -> compare y.Name x.Name
         | ICAO -> compare y.ICAO x.ICAO
 
+    printfn "Routes from %s (%s):\n" departure.ICAO departure.Name
+
     airports
     |> Array.sortWith sorter
     |> Array.iter (fun arr ->
