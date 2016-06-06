@@ -31,12 +31,12 @@ let main args =
         | xs -> Some xs
 
     match args |> Array.toList with
-    | "arrival" :: origin :: Double mach :: Filters args ->
+    | "depart" :: origin :: Double mach :: Filters args ->
         Airport.loadAll "airports.csv"
         |> Seq.toArray
         |> processAirports origin mach args
-    | "arrival" :: _ -> printfn "arrival usage: <origin ICAO> <mach> <filters>"
-    | "random"  :: Double mach :: Filters args ->
+    | "depart" :: _ -> printfn "depart usage: <origin ICAO> <mach> <filters>"
+    | "random" :: Double mach :: Filters args ->
         let airports =
             Airport.loadAll "airports.csv"
             |> Seq.toArray
@@ -58,7 +58,7 @@ let main args =
 
         processAirports origin.ICAO mach args airports
     | "random" :: _ -> printfn "random usage: <mach> <filters>"
-    | mode     :: _ -> printfn "Unknown mode \"%s\". Valid modes are \"arrival\" and \"random\"" mode
+    | mode     :: _ -> printfn "Unknown mode \"%s\". Valid modes are \"depart\" and \"random\"" mode
     | _             -> printfn "Usage: <mode> <mode parameters> <filters>"
 
     0

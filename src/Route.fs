@@ -13,11 +13,11 @@ let filter departure options mach airports =
         | TimeBetween t, MinTime m       -> t >= m
         | TimeBetween t, MaxTime m       -> t <= m
         | TimeBetween t, ArriveBefore lt -> DateTime.Now.TimeOfDay + t <= lt
-        | arrival, DepartureContinent c
         | arrival, ArrivalContinent c    -> arrival.Continent = c
         | arrival, ArrivalAirport a      -> arrival.ICAO = a
         | arrival, ArrivalType t         -> arrival.Type = t
         | _, SortBy _
+        | _, DepartureContinent _
         | _, DepartureType _             -> true
 
     airports
