@@ -1,4 +1,4 @@
-module Argument
+module Filter
 
 open System
 open Util.Type
@@ -8,14 +8,15 @@ type SortType =
     | Name
     | ICAO
 
-type Argument =
+type Filter =
     | MinTime            of TimeSpan
     | MaxTime            of TimeSpan
     | ArriveBefore       of TimeSpan
     | DepartureContinent of string
     | ArrivalContinent   of string
     | ArrivalAirport     of string
-    | AirportType        of Airport.Type
+    | DepartureType      of Airport.Type
+    | ArrivalType        of Airport.Type
     | SortBy             of SortType
 
 let parseAirportType (v : string) =
@@ -45,10 +46,11 @@ let parse args =
             | "min"      :: Time time :: xs -> Some (MinTime time)             :: parse xs
             | "max"      :: Time time :: xs -> Some (MaxTime time)             :: parse xs
             | "arrivebf" :: Time time :: xs -> Some (ArriveBefore time)        :: parse xs
-            | "dc"       :: value     :: xs -> Some (DepartureContinent value) :: parse xs
-            | "ac"       :: value     :: xs -> Some(ArrivalContinent value)    :: parse xs
+            | "depcont"  :: value     :: xs -> Some (DepartureContinent value) :: parse xs
+            | "arrcont"  :: value     :: xs -> Some(ArrivalContinent value)    :: parse xs
             | "dest"     :: value     :: xs -> Some (ArrivalAirport value)     :: parse xs
-            | "type"     :: value     :: xs -> (parseAirportType value |> Option.map AirportType) :: parse xs
+            | "deptype"  :: value     :: xs -> (parseAirportType value |> Option.map DepartureType) :: parse xs
+            | "arrtype"  :: value     :: xs -> (parseAirportType value |> Option.map ArrivalType) :: parse xs
             | "sort"     :: value     :: xs ->
                 let sortType =
                     match value.ToLower() with

@@ -1,7 +1,7 @@
 module Main
 
 open Airport
-open Argument
+open Filter
 open Util
 open Util.Type
 
@@ -25,24 +25,40 @@ let processAirports origin mach options airports =
 
 [<EntryPoint>]
 let main args =
-    let (|Arguments|_|) list =
-        match Argument.parse list with
+    let (|Filters|_|) list =
+        match Filter.parse list with
         | [] -> None
         | xs -> Some xs
 
     match args |> Array.toList with
-    | "find" :: origin :: Double mach :: Arguments args ->
+    | "arrival" :: origin :: Double mach :: Filters args ->
         Airport.loadAll "airports.csv"
         |> Seq.toArray
         |> processAirports origin mach args
-    | "random" :: Double mach :: Arguments args ->
+    | "arrival" :: _ -> printfn "arrival usage: <origin ICAO> <mach> <filters>"
+    | "random"  :: Double mach :: Filters args ->
         let airports =
             Airport.loadAll "airports.csv"
             |> Seq.toArray
 
-        let origin = Airport.getRandom airports
+        let origin =
+            let rec loop () =
+                let arpt = Airport.getRandom airports
+
+                let validate = function
+                    | DepartureType t      when arpt.Type      <> t -> false
+                    | DepartureContinent c when arpt.Continent <> c -> false
+                    | _ -> true
+
+                if List.forall validate args
+                then arpt
+                else loop ()
+
+            loop ()
+
         processAirports origin.ICAO mach args airports
-    | mode :: _ -> printfn "Unknown mode \"%s\". Valid modes are \"find\" and \"random\"" mode
-    | _ -> printfn "Usage: <mode> <filters>"
+    | "random" :: _ -> printfn "random usage: <mach> <filters>"
+    | mode     :: _ -> printfn "Unknown mode \"%s\". Valid modes are \"arrival\" and \"random\"" mode
+    | _             -> printfn "Usage: <mode> <mode parameters> <filters>"
 
     0

@@ -48,7 +48,7 @@
   <ItemGroup>
     <Compile Include="src/Util.fs" />
     <Compile Include="src/Airport.fs" />
-    <Compile Include="src/Argument.fs" />
+    <Compile Include="src/Filter.fs" />
     <Compile Include="src/Route.fs" />
     <Compile Include="src/Main.fs" />
     <None Include="App.config" />

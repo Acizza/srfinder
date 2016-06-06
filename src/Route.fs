@@ -1,7 +1,7 @@
 module Route
 
 open Airport
-open Argument
+open Filter
 open System
 open Util
 open Util.Convert
@@ -16,8 +16,9 @@ let filter departure options mach airports =
         | arrival, DepartureContinent c
         | arrival, ArrivalContinent c    -> arrival.Continent = c
         | arrival, ArrivalAirport a      -> arrival.ICAO = a
-        | arrival, AirportType t         -> arrival.Type = t
-        | _,             SortBy _        -> true
+        | arrival, ArrivalType t         -> arrival.Type = t
+        | _, SortBy _
+        | _, DepartureType _             -> true
 
     airports
     |> Array.filter (fun arrival ->
@@ -34,7 +35,10 @@ let display sortType departure mach airports =
         | Name -> compare y.Name x.Name
         | ICAO -> compare y.ICAO x.ICAO
 
-    printfn "Routes from %s (%s):\n" departure.ICAO departure.Name
+    printfn "Displaying %d routes from %s (%s):\n"
+        (Array.length airports)
+        departure.ICAO
+        departure.Name
 
     airports
     |> Array.sortWith sorter
