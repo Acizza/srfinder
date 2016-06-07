@@ -13,11 +13,12 @@ type CmdArguments =
     | [<PrintLabels>] Min          of hours:string
     | [<PrintLabels>] Max          of hours:string
     | [<PrintLabels>] ArriveBefore of hour:string
-    | DepCont      of string
-    | ArrCont      of string
-    | DepType      of string
-    | ArrType      of string
-    | Sort         of string
+    | [<PrintLabels>] Arrival      of icao:string
+    | DepCont of string
+    | ArrCont of string
+    | DepType of string
+    | ArrType of string
+    | Sort    of string
     with
         interface IArgParserTemplate with
             member s.Usage =
@@ -27,6 +28,7 @@ type CmdArguments =
                 | Min _          -> "specify the minimum time for routes"
                 | Max _          -> "specify the maximum time for routes"
                 | ArriveBefore _ -> "set the local time that routes must arrive by"
+                | Arrival _      -> "set the arrival airport"
                 | DepCont _      -> "set the continent for the departure airport"
                 | ArrCont _      -> "set the continent for the arrival airport"
                 | DepType _      -> "set the type of airport for the departure"
@@ -75,6 +77,7 @@ let processAirports args =
             | Min          (Time t)   -> Filter.MinTime t            |> Some
             | Max          (Time t)   -> Filter.MaxTime t            |> Some
             | ArriveBefore (Time t)   -> Filter.ArriveBefore t       |> Some
+            | Arrival icao            -> Filter.ArrivalAirport icao  |> Some
             | DepCont c               -> Filter.DepartureContinent c |> Some
             | ArrCont c               -> Filter.ArrivalContinent c   |> Some
             | DepType (AirportType t) -> Filter.DepartureType t      |> Some
