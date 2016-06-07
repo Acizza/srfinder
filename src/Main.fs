@@ -1,47 +1,95 @@
 module Main
 
 open Airport
-open Filter
+open Argu
+open Route
+open System
 open Util
 open Util.Type
 
-let processAirports origin mach options airports =
-    let (departure, airports) =
-        airports
-        |> Array.partition (fun a -> a.ICAO = origin)
-        |> fun (dep, airports) -> (Array.tryHead dep, airports)
+type CmdArguments =
+    | [<PrintLabels>] Departure    of icao:string
+    | [<Mandatory>]   Mach         of double
+    | [<PrintLabels>] Min          of hours:string
+    | [<PrintLabels>] Max          of hours:string
+    | [<PrintLabels>] ArriveBefore of hour:string
+    | DepCont      of string
+    | ArrCont      of string
+    | DepType      of string
+    | ArrType      of string
+    | Sort         of string
+    with
+        interface IArgParserTemplate with
+            member s.Usage =
+                match s with
+                | Departure _    -> "specify a departure airport"
+                | Mach _         -> "set the cruising speed"
+                | Min _          -> "specify the minimum time for routes"
+                | Max _          -> "specify the maximum time for routes"
+                | ArriveBefore _ -> "set the local time that routes must arrive by"
+                | DepCont _      -> "set the continent for the departure airport"
+                | ArrCont _      -> "set the continent for the arrival airport"
+                | DepType _      -> "set the type of airport for the departure"
+                | ArrType _      -> "set the type of airport for the arrival"
+                | Sort _         -> "specify how routes should be displayed"
 
-    match departure with
-    | Some dep ->
-        let sortType =
-            options
-            |> List.tryPick (function | SortBy x -> Some x | _ -> None)
-            |> Option.defaultArg Time
+let (|Time|_|) v =
+    match TimeSpan.TryParse v with
+    | (true, x) -> Some x
+    | (false, _) ->
+        // Try to parse a decimal time instead
+        match v with
+        | Double n -> Some (TimeSpan.FromHours n)
+        | _        -> None
 
-        airports
-        |> Route.filter dep options mach
-        |> Route.display sortType dep mach
-    | None -> printfn "Departure ICAO \"%s\" not found" origin
+let (|AirportType|_|) (v : string) =
+    match v.ToLower() with
+    | "closed"   -> Some Airport.Closed
+    | "heliport" -> Some Airport.Heliport
+    | "small"    -> Some Airport.Small
+    | "medium"   -> Some Airport.Medium
+    | "large"    -> Some Airport.Large
+    | _ -> None
 
-[<EntryPoint>]
-let main args =
-    let (|Filters|_|) list =
-        match Filter.parse list with
-        | [] -> None
-        | xs -> Some xs
+let (|Sorter|_|) (v : string) =
+    match v.ToLower() with
+    | "time"     -> Some Time
+    | "name"     -> Some Name
+    | "icao"     -> Some ICAO
+    | _          -> None
 
-    match args |> Array.toList with
-    | "depart" :: origin :: Double mach :: Filters args ->
+let readArguments args =
+    let parser = ArgumentParser.Create<CmdArguments>()
+    try
+        parser.Parse(args).GetAllResults() |> Some
+    with
+    | :? ArgumentException ->
+        parser.Usage() |> eprintfn "Usage:%s"
+        None
+    | _ -> None
+
+let processAirports args =
+    let filters =
+        args
+        |> List.choose (function
+            | Min          (Time t)   -> Filter.MinTime t            |> Some
+            | Max          (Time t)   -> Filter.MaxTime t            |> Some
+            | ArriveBefore (Time t)   -> Filter.ArriveBefore t       |> Some
+            | DepCont c               -> Filter.DepartureContinent c |> Some
+            | ArrCont c               -> Filter.ArrivalContinent c   |> Some
+            | DepType (AirportType t) -> Filter.DepartureType t      |> Some
+            | ArrType (AirportType t) -> Filter.ArrivalType t        |> Some
+            | Sort    (Sorter s)      -> Filter.SortBy s             |> Some
+            | _ -> None
+        )
+
+    let airports =
         Airport.loadAll "airports.csv"
         |> Seq.toArray
-        |> processAirports origin mach args
-    | "depart" :: _ -> printfn "depart usage: <origin ICAO> <mach> <filters>"
-    | "random" :: Double mach :: Filters args ->
-        let airports =
-            Airport.loadAll "airports.csv"
-            |> Seq.toArray
 
-        let origin =
+    let departure =
+        List.tryPick (function | Departure d -> Some d | _ -> None) args
+        |> Option.defaultArg (
             let rec loop () =
                 let arpt = Airport.getRandom airports
 
@@ -50,15 +98,20 @@ let main args =
                     | DepartureContinent c when arpt.Continent <> c -> false
                     | _ -> true
 
-                if List.forall validate args
+                if List.forall validate filters
                 then arpt
                 else loop ()
 
-            loop ()
+            (loop ()).ICAO
+        )
 
-        processAirports origin.ICAO mach args airports
-    | "random" :: _ -> printfn "random usage: <mach> <filters>"
-    | mode     :: _ -> printfn "Unknown mode \"%s\". Valid modes are \"depart\" and \"random\"" mode
-    | _             -> printfn "Usage: <mode> <mode parameters> <filters>"
+    let mach = List.pick (function | Mach m -> Some m | _ -> None) args
+    Route.filterAndDisplay departure mach filters airports
+
+[<EntryPoint>]
+let main args =
+    args
+    |> readArguments
+    |> Option.iter processAirports
 
     0

@@ -1,10 +1,25 @@
 module Route
 
 open Airport
-open Filter
 open System
 open Util
 open Util.Convert
+
+type SortType =
+    | Time
+    | Name
+    | ICAO
+
+type Filter =
+    | MinTime            of TimeSpan
+    | MaxTime            of TimeSpan
+    | ArriveBefore       of TimeSpan
+    | DepartureContinent of string
+    | ArrivalContinent   of string
+    | ArrivalAirport     of string
+    | DepartureType      of Airport.Type
+    | ArrivalType        of Airport.Type
+    | SortBy             of SortType
 
 let filter departure options mach airports =
     let (|TimeBetween|) = Airport.timeBetween mach departure
@@ -49,3 +64,21 @@ let display sortType departure mach airports =
             ((timeToArpt arr).ToString "h\:mm")
             (Airport.distance departure arr |> Meter.toNauticalMiles)
     )
+
+let filterAndDisplay origin mach filters airports =
+    let (departure, airports) =
+        airports
+        |> Array.partition (fun a -> a.ICAO = origin)
+        |> fun (dep, airports) -> (Array.tryHead dep, airports)
+
+    match departure with
+    | Some dep ->
+        let sortType =
+            filters
+            |> List.tryPick (function | SortBy x -> Some x | _ -> None)
+            |> Option.defaultArg Time
+
+        airports
+        |> filter dep filters mach
+        |> display sortType dep mach
+    | None -> printfn "Departure ICAO \"%s\" not found" origin
