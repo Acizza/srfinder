@@ -93,9 +93,14 @@ let processAirports args =
     let mach      = List.pick (function | Mach m -> Some m | _ -> None) args
     let departure = List.tryPick (function | Departure d -> Some d | _ -> None) args
 
-    match departure with
-    | Some d -> Route.filterAndDisplay d mach filters airports
-    | None   -> Route.displayRandom mach filters airports 10
+    let result =
+        match departure with
+        | Some d -> Route.filterAndDisplay d mach filters airports
+        | None   -> Route.displayRandom mach filters airports 10
+
+    match result with
+    | Success _   -> ()
+    | Failure msg -> eprintfn "Failure during route processing: %s" msg
 
 [<EntryPoint>]
 let main args =

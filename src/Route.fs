@@ -78,11 +78,11 @@ let filterAndDisplay origin mach filters airports =
 
     match departure with
     | Some dep ->
-        let sortType = getSortType filters
         airports
         |> filter dep filters mach
-        |> display sortType dep mach
-    | None -> printfn "Departure ICAO \"%s\" not found" origin
+        |> display (getSortType filters) dep mach
+        Success ()
+    | None -> Failure (sprintf "Departure ICAO \"%s\" not found" origin)
 
 let rec randomDeparture filters airports =
     let arpt = Airport.getRandom airports
@@ -97,11 +97,13 @@ let rec randomDeparture filters airports =
     else randomDeparture filters airports
 
 let rec displayRandom mach filters airports = function
-    | 0 -> printfn "No routes found"
+    | 0 -> Failure "No routes found"
     | maxTries ->
         let departure = randomDeparture filters airports
         let routes    = filter departure filters mach airports
 
         match routes.Length with
         | 0 -> displayRandom mach filters airports (maxTries - 1)
-        | _ -> display (getSortType filters) departure mach routes
+        | _ ->
+            display (getSortType filters) departure mach routes
+            Success ()

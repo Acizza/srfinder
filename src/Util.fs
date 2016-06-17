@@ -43,3 +43,7 @@ module Coord =
 module Option =
     /// Flipped version of defaultArg
     let defaultArg x y = defaultArg y x
+
+type Result<'a, 'b> =
+    | Success of 'a
+    | Failure of 'b
