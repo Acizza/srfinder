@@ -21,6 +21,11 @@ type Filter =
     | ArrivalType        of Airport.Type
     | SortBy             of SortType
 
+let getSortType filters =
+    filters
+    |> List.tryPick (function | SortBy x -> Some x | _ -> None)
+    |> Option.defaultArg Time
+
 let filter departure options mach airports =
     let (|TimeBetween|) = Airport.timeBetween mach departure
 
@@ -73,12 +78,30 @@ let filterAndDisplay origin mach filters airports =
 
     match departure with
     | Some dep ->
-        let sortType =
-            filters
-            |> List.tryPick (function | SortBy x -> Some x | _ -> None)
-            |> Option.defaultArg Time
-
+        let sortType = getSortType filters
         airports
         |> filter dep filters mach
         |> display sortType dep mach
     | None -> printfn "Departure ICAO \"%s\" not found" origin
+
+let rec randomDeparture filters airports =
+    let arpt = Airport.getRandom airports
+
+    let validate = function
+        | DepartureType t      when arpt.Type      <> t -> false
+        | DepartureContinent c when arpt.Continent <> c -> false
+        | _ -> true
+
+    if List.forall validate filters
+    then arpt
+    else randomDeparture filters airports
+
+let rec displayRandom mach filters airports = function
+    | 0 -> printfn "No routes found"
+    | maxTries ->
+        let departure = randomDeparture filters airports
+        let routes    = filter departure filters mach airports
+
+        match routes.Length with
+        | 0 -> displayRandom mach filters airports (maxTries - 1)
+        | _ -> display (getSortType filters) departure mach routes

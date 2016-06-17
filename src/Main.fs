@@ -90,26 +90,12 @@ let processAirports args =
         Airport.loadAll "airports.csv"
         |> Seq.toArray
 
-    let departure =
-        List.tryPick (function | Departure d -> Some d | _ -> None) args
-        |> Option.defaultArg (
-            let rec loop () =
-                let arpt = Airport.getRandom airports
+    let mach      = List.pick (function | Mach m -> Some m | _ -> None) args
+    let departure = List.tryPick (function | Departure d -> Some d | _ -> None) args
 
-                let validate = function
-                    | DepartureType t      when arpt.Type      <> t -> false
-                    | DepartureContinent c when arpt.Continent <> c -> false
-                    | _ -> true
-
-                if List.forall validate filters
-                then arpt
-                else loop ()
-
-            (loop ()).ICAO
-        )
-
-    let mach = List.pick (function | Mach m -> Some m | _ -> None) args
-    Route.filterAndDisplay departure mach filters airports
+    match departure with
+    | Some d -> Route.filterAndDisplay d mach filters airports
+    | None   -> Route.displayRandom mach filters airports 10
 
 [<EntryPoint>]
 let main args =
