@@ -52,11 +52,6 @@
     <Compile Include="src/Main.fs" />
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="airports.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
   </PropertyGroup>

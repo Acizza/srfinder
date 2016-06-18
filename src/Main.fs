@@ -65,6 +65,11 @@ let readArguments args =
         None
     | _ -> None
 
+let airportDataPath =
+    sprintf "%s%s"
+        AppDomain.CurrentDomain.BaseDirectory
+        "airports.csv"
+
 let processAirports args =
     let filters =
         args
@@ -81,7 +86,7 @@ let processAirports args =
         )
 
     let airports =
-        Airport.loadAll "airports.csv"
+        Airport.loadAll airportDataPath
         |> Seq.toArray
 
     let routeInfo = {
@@ -111,6 +116,14 @@ let processAirports args =
 
 [<EntryPoint>]
 let main args =
+    match Airport.isOldDataFile airportDataPath with
+    | true ->
+        printfn "Airport data out of date. Updating.."
+        match Airport.tryUpdateDataFile airportDataPath with
+        | Success _   -> ()
+        | Failure msg -> eprintfn "Error updating airport data: %s" msg
+    | false -> ()
+
     args
     |> readArguments
     |> Option.iter processAirports

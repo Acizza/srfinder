@@ -2,9 +2,12 @@ module Airport
 
 open FSharp.Data
 open System
+open System.IO
+open System.Net
 open Util
 
-type Airports = CsvProvider<"airports.csv", CacheRows = false>
+type Airports = CsvProvider<Schema = ",Ident (string),Type (string),Name (string),Lat (float),Lon (float),,Continent (string)",
+                            CacheRows = false, HasHeaders = false>
 
 type Type =
     | Closed
@@ -41,16 +44,29 @@ let loadAll (path : string) =
         Name  = x.Name
         ICAO  = x.Ident
         Coord = Coord.create
-                    (double x.Latitude_deg)
-                    (double x.Longitude_deg)
+                    (double x.Lat)
+                    (double x.Lon)
         Type      = readType x.Type
         Continent = x.Continent
     }
 
     (Airports.Load path).Rows
+    |> Seq.tail // Skip the row containing the headers
     |> Seq.map createInfo
 
 let getRandom =
     let rng = new System.Random()
     fun (airports : Airport array) ->
         airports.[rng.Next(0, airports.Length)]
+
+let isOldDataFile path =
+    let info = FileInfo path
+    not info.Exists || (DateTime.UtcNow - info.LastWriteTimeUtc).TotalDays > 30.
+
+let tryUpdateDataFile path =
+    try
+        use wc = new WebClient()
+        wc.DownloadFile("http://ourairports.com/data/airports.csv", path)
+        Success ()
+    with
+    | ex -> Failure ex.Message
