@@ -14,11 +14,12 @@ type CmdArguments =
     | [<PrintLabels>] Max          of hours:string
     | [<PrintLabels>] ArriveBefore of hour:string
     | [<PrintLabels>] Arrival      of icao:string
-    | DepCont of string
-    | ArrCont of string
-    | DepType of string
-    | ArrType of string
-    | Sort    of string
+    | DepCont   of string
+    | ArrCont   of string
+    | DepType   of string
+    | ArrType   of string
+    | Sort      of string
+    | SortOrder of string
     with
         interface IArgParserTemplate with
             member s.Usage =
@@ -34,6 +35,7 @@ type CmdArguments =
                 | DepType _      -> "set the type of airport for the departure"
                 | ArrType _      -> "set the type of airport for the arrival"
                 | Sort _         -> "specify how routes should be displayed"
+                | SortOrder _    -> "specifiy if you want routes displayed in ascending or descending order"
 
 let (|Time|_|) v =
     match TimeSpan.TryParse v with
@@ -52,13 +54,6 @@ let (|AirportType|_|) (v : string) =
     | "medium"   -> Some Airport.Medium
     | "large"    -> Some Airport.Large
     | _ -> None
-
-let (|Sorter|_|) (v : string) =
-    match v.ToLower() with
-    | "time"     -> Some Time
-    | "name"     -> Some Name
-    | "icao"     -> Some ICAO
-    | _          -> None
 
 let readArguments args =
     let parser = ArgumentParser.Create<CmdArguments>()
@@ -82,7 +77,6 @@ let processAirports args =
             | ArrCont c               -> Filter.ArrivalContinent c   |> Some
             | DepType (AirportType t) -> Filter.DepartureType t      |> Some
             | ArrType (AirportType t) -> Filter.ArrivalType t        |> Some
-            | Sort    (Sorter s)      -> Filter.SortBy s             |> Some
             | _ -> None
         )
 
@@ -93,10 +87,22 @@ let processAirports args =
     let mach      = List.pick (function | Mach m -> Some m | _ -> None) args
     let departure = List.tryPick (function | Departure d -> Some d | _ -> None) args
 
+    let sortType =
+        args
+        |> List.tryPick (function | Sort s -> Some s | _ -> None)
+        |> Option.bind Route.getSortType
+        |> Option.defaultArg Time
+
+    let sortOrder =
+        args
+        |> List.tryPick (function | SortOrder o -> Some o | _ -> None)
+        |> Option.bind Route.getSortOrder
+        |> Option.defaultArg Ascending
+
     let result =
         match departure with
-        | Some d -> Route.filterAndDisplay d mach filters airports
-        | None   -> Route.displayRandom mach filters airports 10
+        | Some d -> Route.filterAndDisplay sortType sortOrder d mach filters airports
+        | None   -> Route.displayRandom sortType sortOrder mach filters airports 10
 
     match result with
     | Success _   -> ()

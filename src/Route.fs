@@ -10,6 +10,10 @@ type SortType =
     | Name
     | ICAO
 
+type SortOrder =
+    | Ascending
+    | Descending
+
 type Filter =
     | MinTime            of TimeSpan
     | MaxTime            of TimeSpan
@@ -19,12 +23,19 @@ type Filter =
     | ArrivalAirport     of string
     | DepartureType      of Airport.Type
     | ArrivalType        of Airport.Type
-    | SortBy             of SortType
 
-let getSortType filters =
-    filters
-    |> List.tryPick (function | SortBy x -> Some x | _ -> None)
-    |> Option.defaultArg Time
+let getSortType (v : string) =
+    match v.ToLower() with
+    | "time"     -> Some Time
+    | "name"     -> Some Name
+    | "icao"     -> Some ICAO
+    | _          -> None
+
+let getSortOrder (v : string) =
+    match v.ToLower() with
+    | "ascending"  -> Some Ascending
+    | "descending" -> Some Descending
+    | _            -> None
 
 let filter departure options mach airports =
     let (|TimeBetween|) = Airport.timeBetween mach departure
@@ -36,7 +47,6 @@ let filter departure options mach airports =
         | arrival, ArrivalContinent c    -> arrival.Continent = c
         | arrival, ArrivalAirport a      -> arrival.ICAO = a
         | arrival, ArrivalType t         -> arrival.Type = t
-        | _, SortBy _
         | _, DepartureContinent _
         | _, DepartureType _             -> true
 
@@ -46,14 +56,19 @@ let filter departure options mach airports =
         List.forall (fun option -> filter (arrival, option)) options
     )
 
-let display sortType departure mach airports =
+let display sortType sortOrder departure mach airports =
     let timeToArpt = Airport.timeBetween mach departure
 
     let sorter x y =
+        let (x, y) =
+            if sortOrder = Descending
+            then (y, x)
+            else (x, y)
+
         match sortType with
         | Time -> compare (timeToArpt y) (timeToArpt x)
-        | Name -> compare y.Name x.Name
-        | ICAO -> compare y.ICAO x.ICAO
+        | Name -> compare x.Name y.Name
+        | ICAO -> compare x.ICAO y.ICAO
 
     printfn "Displaying %d routes from %s (%s):\n"
         (Array.length airports)
@@ -70,7 +85,7 @@ let display sortType departure mach airports =
             (Airport.distance departure arr |> Meter.toNauticalMiles)
     )
 
-let filterAndDisplay origin mach filters airports =
+let filterAndDisplay sortType sortOrder origin mach filters airports =
     let (departure, airports) =
         airports
         |> Array.partition (fun a -> a.ICAO = origin)
@@ -80,7 +95,7 @@ let filterAndDisplay origin mach filters airports =
     | Some dep ->
         airports
         |> filter dep filters mach
-        |> display (getSortType filters) dep mach
+        |> display sortType sortOrder dep mach
         Success ()
     | None -> Failure (sprintf "Departure ICAO \"%s\" not found" origin)
 
@@ -96,14 +111,14 @@ let rec randomDeparture filters airports =
     then arpt
     else randomDeparture filters airports
 
-let rec displayRandom mach filters airports = function
+let rec displayRandom sortType sortOrder mach filters airports = function
     | 0 -> Failure "No routes found"
     | maxTries ->
         let departure = randomDeparture filters airports
         let routes    = filter departure filters mach airports
 
         match routes.Length with
-        | 0 -> displayRandom mach filters airports (maxTries - 1)
+        | 0 -> displayRandom sortType sortOrder mach filters airports (maxTries - 1)
         | _ ->
-            display (getSortType filters) departure mach routes
+            display sortType sortOrder departure mach routes
             Success ()
