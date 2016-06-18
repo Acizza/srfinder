@@ -84,25 +84,26 @@ let processAirports args =
         Airport.loadAll "airports.csv"
         |> Seq.toArray
 
-    let mach      = List.pick (function | Mach m -> Some m | _ -> None) args
-    let departure = List.tryPick (function | Departure d -> Some d | _ -> None) args
-
-    let sortType =
-        args
-        |> List.tryPick (function | Sort s -> Some s | _ -> None)
-        |> Option.bind Route.getSortType
-        |> Option.defaultArg Time
-
-    let sortOrder =
-        args
-        |> List.tryPick (function | SortOrder o -> Some o | _ -> None)
-        |> Option.bind Route.getSortOrder
-        |> Option.defaultArg Ascending
+    let routeInfo = {
+        Mach     = List.pick (function | Mach m -> Some m | _ -> None) args
+        Filters  = filters
+        SortType =
+            args
+            |> List.tryPick (function | Sort s -> Some s | _ -> None)
+            |> Option.bind Route.getSortType
+            |> Option.defaultArg Time
+        SortOrder =
+            args
+            |> List.tryPick (function | SortOrder o -> Some o | _ -> None)
+            |> Option.bind Route.getSortOrder
+            |> Option.defaultArg Ascending
+    }
 
     let result =
+        let departure = List.tryPick (function | Departure d -> Some d | _ -> None) args
         match departure with
-        | Some d -> Route.filterAndDisplay sortType sortOrder d mach filters airports
-        | None   -> Route.displayRandom sortType sortOrder mach filters airports 10
+        | Some dep -> Route.filterAndDisplay routeInfo dep airports
+        | None     -> Route.displayRandom routeInfo airports 10
 
     match result with
     | Success _   -> ()
