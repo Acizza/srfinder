@@ -17,7 +17,8 @@ arrcont   | Two-letter continent   | Only display routes that arrive at the spec
 dest      | ICAO code              | Only display routes that arrive at the specified airport
 deptype   | closed, heliport, small, medium, large | Only display departures that are one of the specified airport types
 arrtype   | closed, heliport, small, medium, large | Only display arrivals that are one of the specified airport types
-sort      | time, name, icao       | Sorts the output of the filtered routes by the specified type in descending order
+sort      | time, name, icao       | Sorts the output of the filtered routes by the specified type
+sortorder | ascending, descending  | Specifies the sorting order routes will be displayed as
 
 Usage Examples
 ==============
