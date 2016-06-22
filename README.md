@@ -5,20 +5,22 @@ Usage
 
 The following table contains all of the arguments you can use (note: you **always** have to provide the mach argument):
 
-Name      | Value                  | Description
---------- | ---------------------- | -----------
-departure | ICAO code              | If this argument is present, the ICAO code specified will be used as the departure airport instead of being chosen randomly
-mach      | cruising speed         | Affects route times
-min       | Time, in hours         | Only display routes that are at least x hours long
-max       | Time, in hours         | Only display routes that are x hours long at most
+Name       | Value                  | Description
+---------- | ---------------------- | -----------
+departure  | ICAO code              | If this argument is present, the ICAO code specified will be used as the departure airport instead of being chosen randomly
+mach       | cruising speed         | Affects route times
+min        | Time, in hours         | Only display routes that are at least x hours long
+max        | Time, in hours         | Only display routes that are x hours long at most
 arrivebefore | Hour in 24-hour format | Only display routes that will make you arrive at or before the specified time from now
-depcont   | Two-letter continent   | Only display routes that originate from the specified continent
-arrcont   | Two-letter continent   | Only display routes that arrive at the specified continent
-dest      | ICAO code              | Only display routes that arrive at the specified airport
-deptype   | closed, heliport, small, medium, large | Only display departures that are one of the specified airport types
-arrtype   | closed, heliport, small, medium, large | Only display arrivals that are one of the specified airport types
-sort      | time, name, icao       | Sorts the output of the filtered routes by the specified type
-sortorder | ascending, descending  | Specifies the sorting order routes will be displayed as
+depcont    | Two-letter continent   | Only display routes that originate from the specified continent
+arrcont    | Two-letter continent   | Only display routes that arrive at the specified continent
+dest       | ICAO code              | Only display routes that arrive at the specified airport
+deptype    | closed, heliport, small, medium, large | Only display departures that are one of the specified airport types
+arrtype    | closed, heliport, small, medium, large | Only display arrivals that are one of the specified airport types
+sort       | time, name, icao       | Sorts the output of the filtered routes by the specified type
+sortorder  | ascending, descending  | Specifies the sorting order routes will be displayed as
+autoupdate | true, false            | Specifies whether or not the program should automatically update the airport data
+maxroutes  | non-negative number    | Specifies the maximum number of processed routes that will display
 
 Usage Examples
 ==============
