@@ -14,12 +14,13 @@ type CmdArguments =
     | [<PrintLabels>] Max          of hours:string
     | [<PrintLabels>] ArriveBefore of hour:string
     | [<PrintLabels>] Arrival      of icao:string
-    | DepCont   of string
-    | ArrCont   of string
-    | DepType   of string
-    | ArrType   of string
-    | Sort      of string
-    | SortOrder of string
+    | DepCont    of string
+    | ArrCont    of string
+    | DepType    of string
+    | ArrType    of string
+    | Sort       of string
+    | SortOrder  of string
+    | AutoUpdate of bool
     with
         interface IArgParserTemplate with
             member s.Usage =
@@ -36,6 +37,7 @@ type CmdArguments =
                 | ArrType _      -> "set the type of airport for the arrival"
                 | Sort _         -> "specify how routes should be displayed"
                 | SortOrder _    -> "specifiy if you want routes displayed in ascending or descending order"
+                | AutoUpdate _   -> "set whether or not airport data will be automatically updated"
 
 let (|Time|_|) v =
     match TimeSpan.TryParse v with
@@ -58,7 +60,7 @@ let (|AirportType|_|) (v : string) =
 let readArguments args =
     let parser = ArgumentParser.Create<CmdArguments>()
     try
-        parser.Parse(args).GetAllResults() |> Some
+        parser.Parse(args) |> Some
     with
     | :? ArgumentException ->
         parser.Usage() |> eprintfn "Usage:%s"
@@ -114,8 +116,7 @@ let processAirports args =
     | Success _   -> ()
     | Failure msg -> eprintfn "Failure during route processing: %s" msg
 
-[<EntryPoint>]
-let main args =
+let checkAndupdateAirportData () =
     match Airport.isOldDataFile airportDataPath with
     | true ->
         printfn "Airport data out of date. Updating.."
@@ -124,8 +125,16 @@ let main args =
         | Failure msg -> eprintfn "Error updating airport data: %s" msg
     | false -> ()
 
-    args
-    |> readArguments
-    |> Option.iter processAirports
+[<EntryPoint>]
+let main args =
+    match readArguments args with
+    | Some results ->
+        let autoUpdateEnabled = results.GetResult(<@ AutoUpdate @>, defaultValue = true)
+        if autoUpdateEnabled then
+            checkAndupdateAirportData ()
+
+        results.GetAllResults()
+        |> processAirports
+    | None -> ()
 
     0
