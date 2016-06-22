@@ -44,6 +44,13 @@ module Option =
     /// Flipped version of defaultArg
     let defaultArg x y = defaultArg y x
 
+module Array =
+    /// Returns the first N elements of the array, or the entire array if N is larger than its length
+    let upTo n array =
+        if n >= Array.length array
+        then array
+        else Array.take n array
+
 type Result<'a, 'b> =
     | Success of 'a
     | Failure of 'b

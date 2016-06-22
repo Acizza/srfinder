@@ -63,7 +63,7 @@ let filter info departure airports =
         List.forall (fun option -> filter (arrival, option)) info.Filters
     )
 
-let display info departure airports =
+let display maxRoutes info departure airports =
     let timeToArpt = Airport.timeBetween info.Mach departure
 
     let sorter x y =
@@ -77,13 +77,29 @@ let display info departure airports =
         | Name -> compare x.Name y.Name
         | ICAO -> compare x.ICAO y.ICAO
 
-    printfn "Displaying %d routes from %s (%s):\n"
-        (Array.length airports)
+    let takeMax =
+        match maxRoutes with
+        | Some m -> Array.upTo m
+        | None   -> id
+
+    let processedAirports =
+        airports
+        |> Array.sortWith sorter
+        |> takeMax
+
+    let numRoutesStr =
+        match maxRoutes with
+        | Some m -> sprintf "%d of %d"
+                        <| Array.length processedAirports
+                        <| Array.length airports
+        | None   -> sprintf "%d" (Array.length airports)
+
+    printfn "Displaying %s routes from %s (%s):\n"
+        numRoutesStr
         departure.ICAO
         departure.Name
 
-    airports
-    |> Array.sortWith sorter
+    processedAirports
     |> Array.iter (fun arr ->
         printfn "*****\nName: %s\nICAO: %s\nTime: %s\nDist: %.0fnm\n*****\n"
             arr.Name
@@ -92,7 +108,7 @@ let display info departure airports =
             (Airport.distance departure arr |> Meter.toNauticalMiles)
     )
 
-let filterAndDisplay info origin airports =
+let filterAndDisplay maxRoutes info origin airports =
     let (departure, airports) =
         airports
         |> Array.partition (fun a -> a.ICAO = origin)
@@ -102,7 +118,7 @@ let filterAndDisplay info origin airports =
     | Some dep ->
         airports
         |> filter info dep
-        |> display info dep
+        |> display maxRoutes info dep
         Success ()
     | None -> Failure (sprintf "Departure ICAO \"%s\" not found" origin)
 
@@ -118,14 +134,14 @@ let rec randomDeparture filters airports =
     then arpt
     else randomDeparture filters airports
 
-let rec displayRandom info airports = function
+let rec displayRandom maxRoutes info airports = function
     | 0 -> Failure "No routes found"
     | maxTries ->
         let departure = randomDeparture info.Filters airports
         let routes    = filter info departure airports
 
         match routes.Length with
-        | 0 -> displayRandom info airports (maxTries - 1)
+        | 0 -> displayRandom maxRoutes info airports (maxTries - 1)
         | _ ->
-            display info departure routes
+            display maxRoutes info departure routes
             Success ()

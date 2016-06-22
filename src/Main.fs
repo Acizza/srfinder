@@ -21,6 +21,7 @@ type CmdArguments =
     | Sort       of string
     | SortOrder  of string
     | AutoUpdate of bool
+    | MaxRoutes  of int
     with
         interface IArgParserTemplate with
             member s.Usage =
@@ -38,6 +39,7 @@ type CmdArguments =
                 | Sort _         -> "specify how routes should be displayed"
                 | SortOrder _    -> "specifiy if you want routes displayed in ascending or descending order"
                 | AutoUpdate _   -> "set whether or not airport data will be automatically updated"
+                | MaxRoutes _    -> "set the maximum number of routes to display"
 
 let (|Time|_|) v =
     match TimeSpan.TryParse v with
@@ -108,9 +110,11 @@ let processAirports args =
 
     let result =
         let departure = List.tryPick (function | Departure d -> Some d | _ -> None) args
+        let maxRoutes = List.tryPick (function | MaxRoutes m -> Some m | _ -> None) args
+
         match departure with
-        | Some dep -> Route.filterAndDisplay routeInfo dep airports
-        | None     -> Route.displayRandom routeInfo airports 10
+        | Some dep -> Route.filterAndDisplay maxRoutes routeInfo dep airports
+        | None     -> Route.displayRandom maxRoutes routeInfo airports 10
 
     match result with
     | Success _   -> ()
