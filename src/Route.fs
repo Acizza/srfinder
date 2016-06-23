@@ -73,7 +73,7 @@ let display maxRoutes info departure airports =
             else (x, y)
 
         match info.SortType with
-        | Time -> compare (timeToArpt y) (timeToArpt x)
+        | Time -> compare (timeToArpt x) (timeToArpt y)
         | Name -> compare x.Name y.Name
         | ICAO -> compare x.ICAO y.ICAO
 

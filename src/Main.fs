@@ -113,7 +113,7 @@ let processAirports (args : ParseResults<_>) =
             args
             |> tryGetArgValue <@ SortOrder @>
             |> Option.bind Route.getSortOrder
-            |> Option.defaultArg Ascending
+            |> Option.defaultArg Descending
     }
 
     let result =
