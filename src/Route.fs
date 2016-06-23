@@ -122,26 +122,33 @@ let filterAndDisplay maxRoutes info origin airports =
         Success ()
     | None -> Failure (sprintf "Departure ICAO \"%s\" not found" origin)
 
-let rec randomDeparture filters airports =
-    let arpt = Airport.getRandom airports
+let randomDeparture filters airports =
+    let rec randomDepartureRec = function
+        | 0 -> Failure "Failed to find a suitable departure airport"
+        | maxTries ->
+            let arpt = Airport.getRandom airports
 
-    let validate = function
-        | DepartureType t      when arpt.Type      <> t -> false
-        | DepartureContinent c when arpt.Continent <> c -> false
-        | _ -> true
+            let validate = function
+                | DepartureType t      when arpt.Type      <> t -> false
+                | DepartureContinent c when arpt.Continent <> c -> false
+                | _ -> true
 
-    if List.forall validate filters
-    then arpt
-    else randomDeparture filters airports
+            if List.forall validate filters
+            then Success arpt
+            else randomDepartureRec (maxTries - 1)
+
+    randomDepartureRec airports.Length
 
 let rec displayRandom maxRoutes info airports = function
     | 0 -> Failure "No routes found"
     | maxTries ->
-        let departure = randomDeparture info.Filters airports
-        let routes    = filter info departure airports
+        match randomDeparture info.Filters airports with
+        | Success dep ->
+            let routes = filter info dep airports
 
-        match routes.Length with
-        | 0 -> displayRandom maxRoutes info airports (maxTries - 1)
-        | _ ->
-            display maxRoutes info departure routes
-            Success ()
+            match routes.Length with
+            | 0 -> displayRandom maxRoutes info airports (maxTries - 1)
+            | _ ->
+                display maxRoutes info dep routes
+                Success ()
+        | Failure msg -> Failure msg
