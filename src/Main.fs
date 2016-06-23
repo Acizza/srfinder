@@ -41,6 +41,14 @@ type CmdArguments =
                 | AutoUpdate _   -> "set whether or not airport data will be automatically updated"
                 | MaxRoutes _    -> "set the maximum number of routes to display"
 
+//** These serve as a hack to get the type system to automatically infer the type of args when called
+let getArgValue (arg : Quotations.Expr<('Field -> _)>) (args : ParseResults<_>) =
+    args.GetResult arg
+
+let tryGetArgValue (arg : Quotations.Expr<('Field -> _)>) (args : ParseResults<_>) =
+    args.TryGetResult arg
+//**
+
 let (|Time|_|) v =
     match TimeSpan.TryParse v with
     | (true, x) -> Some x
@@ -74,9 +82,9 @@ let airportDataPath =
         AppDomain.CurrentDomain.BaseDirectory
         "airports.csv"
 
-let processAirports args =
+let processAirports (args : ParseResults<_>) =
     let filters =
-        args
+        args.GetAllResults()
         |> List.choose (function
             | Min          (Time t)   -> Filter.MinTime t            |> Some
             | Max          (Time t)   -> Filter.MaxTime t            |> Some
@@ -94,23 +102,23 @@ let processAirports args =
         |> Seq.toArray
 
     let routeInfo = {
-        Mach     = List.pick (function | Mach m -> Some m | _ -> None) args
+        Mach     = getArgValue <@ Mach @> args
         Filters  = filters
         SortType =
             args
-            |> List.tryPick (function | Sort s -> Some s | _ -> None)
+            |> tryGetArgValue <@ Sort @>
             |> Option.bind Route.getSortType
             |> Option.defaultArg Time
         SortOrder =
             args
-            |> List.tryPick (function | SortOrder o -> Some o | _ -> None)
+            |> tryGetArgValue <@ SortOrder @>
             |> Option.bind Route.getSortOrder
             |> Option.defaultArg Ascending
     }
 
     let result =
-        let departure = List.tryPick (function | Departure d -> Some d | _ -> None) args
-        let maxRoutes = List.tryPick (function | MaxRoutes m -> Some m | _ -> None) args
+        let departure = tryGetArgValue <@ Departure @> args
+        let maxRoutes = tryGetArgValue <@ MaxRoutes @> args
 
         match departure with
         | Some dep -> Route.filterAndDisplay maxRoutes routeInfo dep airports
@@ -133,12 +141,14 @@ let checkAndupdateAirportData () =
 let main args =
     match readArguments args with
     | Some results ->
-        let autoUpdateEnabled = results.GetResult(<@ AutoUpdate @>, defaultValue = true)
+        let autoUpdateEnabled =
+            tryGetArgValue (<@ AutoUpdate @>) results
+            |> Option.defaultArg true
+
         if autoUpdateEnabled then
             checkAndupdateAirportData ()
 
-        results.GetAllResults()
-        |> processAirports
+        processAirports results
     | None -> ()
 
     0
