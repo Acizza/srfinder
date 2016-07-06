@@ -5,6 +5,7 @@ open System
 open System.IO
 open System.Net
 open Util
+open Util.Result
 
 type Airports = CsvProvider<Schema = ",Ident (string),Type (string),Name (string),Lat (float),Lon (float),,Continent (string)",
                             CacheRows = false, HasHeaders = false>
@@ -54,11 +55,6 @@ let loadAll (path : string) =
     |> Seq.tail // Skip the row containing the headers
     |> Seq.map createInfo
 
-let getRandom =
-    let rng = new System.Random()
-    fun (airports : Airport array) ->
-        airports.[rng.Next(0, airports.Length)]
-
 let isOldDataFile path =
     let info = FileInfo path
     not info.Exists || (DateTime.UtcNow - info.LastWriteTimeUtc).TotalDays > 30.
@@ -70,3 +66,5 @@ let tryUpdateDataFile path =
         Success ()
     with
     | ex -> Failure ex.Message
+
+let findFromICAO icao = Array.tryFind (fun a -> a.ICAO = icao)

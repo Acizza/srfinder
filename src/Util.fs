@@ -44,6 +44,10 @@ module Option =
     /// Flipped version of defaultArg
     let defaultArg x y = defaultArg y x
 
+    let bindNone x = function
+        | Some a -> Some a
+        | None   -> x
+
 module Array =
     /// Returns the first N elements of the array, or the entire array if N is larger than its length
     let upTo n array =
@@ -51,6 +55,17 @@ module Array =
         then array
         else Array.take n array
 
-type Result<'a, 'b> =
-    | Success of 'a
-    | Failure of 'b
+    /// Returns a random element of the specified array
+    let random<'a> =
+        let rng = new Random()
+        fun (array : array<'a>) ->
+            array.[rng.Next(0, array.Length)]
+
+module Result =
+    type Result<'a, 'b> =
+        | Success of 'a
+        | Failure of 'b
+
+    let map f = function
+        | Success x -> Success (f x)
+        | Failure x -> Failure x
