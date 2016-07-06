@@ -21,6 +21,7 @@ sort       | time, name, icao       | Sorts the output of the filtered routes by
 sortorder  | ascending, descending  | Specifies the sorting order routes will be displayed as
 autoupdate | true, false            | Specifies whether or not the program should automatically update the airport data
 maxroutes  | non-negative number    | Specifies the maximum number of processed routes that will display
+numlegs    | non-negative number    | Will find a specified number of legs that meet the other specified conditions
 
 Usage Examples
 ==============
