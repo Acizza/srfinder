@@ -32,15 +32,15 @@ let timeBetween mach from to' =
     let distance = distance from to'
     TimeSpan.FromSeconds(distance / (mach * metersPerSecond))
 
-let readType = function
-    | "closed"         -> Closed
-    | "heliport"       -> Heliport
-    | "small_airport"  -> Small
-    | "medium_airport" -> Medium
-    | "large_airport"  -> Large
-    | _                -> Closed
-
 let loadAll (path : string) =
+    let readType = function
+        | "closed"         -> Closed
+        | "heliport"       -> Heliport
+        | "small_airport"  -> Small
+        | "medium_airport" -> Medium
+        | "large_airport"  -> Large
+        | _                -> Closed
+
     let createInfo (x : Airports.Row) = {
         Name  = x.Name
         ICAO  = x.Ident

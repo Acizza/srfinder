@@ -32,19 +32,6 @@ type RouteInfo = {
     SortOrder : SortOrder
 }
 
-let getSortType (v : string) =
-    match v.ToLower() with
-    | "time"     -> Some Time
-    | "name"     -> Some Name
-    | "icao"     -> Some ICAO
-    | _          -> None
-
-let getSortOrder (v : string) =
-    match v.ToLower() with
-    | "ascending"  -> Some Ascending
-    | "descending" -> Some Descending
-    | _            -> None
-
 let filterArrivals info departure airports =
     let (|TimeBetween|) = Airport.timeBetween info.Mach departure
 

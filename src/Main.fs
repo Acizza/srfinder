@@ -47,12 +47,10 @@ let processAirports args =
         SortType =
             args
             |> Args.tryGetValue <@ Sort @>
-            |> Option.bind Route.getSortType
             |> Option.defaultArg Time
         SortOrder =
             args
             |> Args.tryGetValue <@ SortOrder @>
-            |> Option.bind Route.getSortOrder
             |> Option.defaultArg Descending
     }
 
