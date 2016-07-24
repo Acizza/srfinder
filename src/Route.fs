@@ -120,6 +120,7 @@ module Leg =
         >> display maxRoutes info dep
 
 module Segment =
+    /// Finds the specified number of legs and returns them in form [(x, y); (y, z)]
     let find numLegs info departure airports =
         let rec findRec lastDep = function
             | 0 -> []
@@ -131,12 +132,7 @@ module Segment =
         match findRec departure (numLegs + 1) with
         | []  -> Failure "No flight segment found"
         | [_] -> Failure "Flight segment too short"
-        | seg ->
-            // Group the legs into [(x, y); (y, z)] form for easy iteration
-            List.zip
-                seg.[..seg.Length-2]
-                (List.tail seg)
-            |> Success
+        | seg -> Success (List.pairwise seg)
 
     let display legs info airports =
         let timeToArpt = Airport.timeBetween info.Mach
