@@ -29,16 +29,11 @@ let dispatchMode routeInfo depICAO airports mode =
             Route.Segment.findAndDisplay numLegs routeInfo dep airports
     | None -> Failure "No departure airport found"
 
-let airportDataPath =
-    sprintf "%s%s"
-        AppDomain.CurrentDomain.BaseDirectory
-        "airports.csv"
-
 let processAirports args =
     let filters = Args.parseFilters args
 
     let airports =
-        Airport.loadAll airportDataPath
+        Airport.loadAll DataFile.path
         |> Seq.toArray
 
     let routeInfo = {
@@ -60,20 +55,11 @@ let processAirports args =
         | None     -> Leg (Args.tryGetValue <@ MaxRoutes @> args)
 
     let departure = Args.tryGetValue <@ Departure @> args
-
-    let result = dispatchMode routeInfo departure airports mode
+    let result    = dispatchMode routeInfo departure airports mode
+    
     match result with
     | Success _   -> ()
     | Failure msg -> eprintfn "Failure during route processing: %s" msg
-
-let checkAndupdateAirportData () =
-    match Airport.isOldDataFile airportDataPath with
-    | true ->
-        printfn "Airport data out of date. Updating.."
-        match Airport.tryUpdateDataFile airportDataPath with
-        | Success _   -> ()
-        | Failure msg -> eprintfn "Error updating airport data: %s" msg
-    | false -> ()
 
 [<EntryPoint>]
 let main args =
@@ -84,7 +70,9 @@ let main args =
             |> Option.defaultArg true
 
         if autoUpdateEnabled then
-            checkAndupdateAirportData ()
+            match DataFile.verifyAndUpdate () with
+            | Success _   -> ()
+            | Failure msg -> eprintfn "Error updating airport data: %s" msg
 
         processAirports results
     | None -> ()

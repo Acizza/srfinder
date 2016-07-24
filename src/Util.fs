@@ -69,3 +69,9 @@ module Result =
     let map f = function
         | Success x -> Success (f x)
         | Failure x -> Failure x
+
+/// Returns a path relative to the location of the program's executable
+let localPath path =
+    System.IO.Path.Combine(
+        AppDomain.CurrentDomain.BaseDirectory,
+        path)

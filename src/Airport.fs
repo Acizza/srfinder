@@ -26,6 +26,7 @@ type Airport = {
 }
 
 let distance from to' = Coord.distance from.Coord to'.Coord
+let findFromICAO icao = Array.tryFind (fun a -> a.ICAO = icao)
 
 let timeBetween mach from to' =
     let metersPerSecond = 343.
@@ -55,16 +56,27 @@ let loadAll (path : string) =
     |> Seq.tail // Skip the row containing the headers
     |> Seq.map createInfo
 
-let isOldDataFile path =
-    let info = FileInfo path
-    not info.Exists || (DateTime.UtcNow - info.LastWriteTimeUtc).TotalDays > 30.
+module DataFile =
+    let name = "airports.csv"
+    let path = Util.localPath name
 
-let tryUpdateDataFile path =
-    try
-        use wc = new WebClient()
-        wc.DownloadFile("http://ourairports.com/data/airports.csv", path)
-        Success ()
-    with
-    | ex -> Failure ex.Message
+    let isOld path =
+        let info = FileInfo path
+        not info.Exists || (DateTime.UtcNow - info.LastWriteTimeUtc).TotalDays > 30.
 
-let findFromICAO icao = Array.tryFind (fun a -> a.ICAO = icao)
+    let update () =
+        try
+            use wc = new WebClient()
+            wc.DownloadFile(
+                sprintf "http://ourairports.com/data/%s" name,
+                path)
+            Success ()
+        with
+        | ex -> Failure ex.Message
+
+    let verifyAndUpdate () =
+        match isOld path with
+        | true ->
+            printfn "Airport data out of date. Updating.."
+            update ()
+        | false -> Success ()
