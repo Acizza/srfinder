@@ -66,7 +66,10 @@ let randomDeparture filters airports =
 
 module private Util =
     /// Formats a TimeSpan into an hour:minute formatted string
-    let formatTime (t : TimeSpan) = t.ToString "h\:mm"
+    let formatTime (t : TimeSpan) =
+        sprintf "%02d:%02d"
+            (int t.TotalHours)
+            t.Minutes
 
 module Leg =
     let display maxRoutes info departure airports =
