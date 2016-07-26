@@ -7,7 +7,6 @@ open Route
 open System
 open Util
 open Util.Type
-open Util.Result
 
 type ProcessMode =
     | Leg     of maxRoutes:int option
@@ -24,10 +23,10 @@ let dispatchMode routeInfo depICAO airports mode =
         match mode with
         | Leg maxRoutes ->
             Route.Leg.filterAndDisplay maxRoutes routeInfo dep airports
-            Success ()
+            Ok ()
         | Segment numLegs ->
             Route.Segment.findAndDisplay numLegs routeInfo dep airports
-    | None -> Failure "No departure airport found"
+    | None -> Error "No departure airport found"
 
 let processAirports args =
     let filters = Args.parseFilters args
@@ -58,8 +57,8 @@ let processAirports args =
     let result    = dispatchMode routeInfo departure airports mode
     
     match result with
-    | Success _   -> ()
-    | Failure msg -> eprintfn "Failure during route processing: %s" msg
+    | Ok _      -> ()
+    | Error msg -> eprintfn "Failure during route processing: %s" msg
 
 [<EntryPoint>]
 let main args =
@@ -71,8 +70,8 @@ let main args =
 
         if autoUpdateEnabled then
             match DataFile.verifyAndUpdate () with
-            | Success _   -> ()
-            | Failure msg -> eprintfn "Error updating airport data: %s" msg
+            | Ok _      -> ()
+            | Error msg -> eprintfn "Error updating airport data: %s" msg
 
         processAirports results
     | None -> ()

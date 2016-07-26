@@ -62,13 +62,9 @@ module Array =
             array.[rng.Next(0, array.Length)]
 
 module Result =
-    type Result<'a, 'b> =
-        | Success of 'a
-        | Failure of 'b
-
     let map f = function
-        | Success x -> Success (f x)
-        | Failure x -> Failure x
+        | Ok    x -> Ok (f x)
+        | Error x -> Error x
 
 /// Returns a path relative to the location of the program's executable
 let localPath path =

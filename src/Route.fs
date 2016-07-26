@@ -4,7 +4,6 @@ open Airport
 open System
 open Util
 open Util.Convert
-open Util.Result
 
 type SortType =
     | Time
@@ -130,9 +129,9 @@ module Segment =
                 | arpts -> lastDep :: findRec (Array.random arpts) (numLegs - 1)
  
         match findRec departure (numLegs + 1) with
-        | []  -> Failure "No flight segment found"
-        | [_] -> Failure "Flight segment too short"
-        | seg -> Success (List.pairwise seg)
+        | []  -> Error "No flight segment found"
+        | [_] -> Error "Flight segment too short"
+        | seg -> Ok (List.pairwise seg)
 
     let display legs info airports =
         let timeToArpt = Airport.timeBetween info.Mach

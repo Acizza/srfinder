@@ -5,7 +5,6 @@ open System
 open System.IO
 open System.Net
 open Util
-open Util.Result
 
 type Airports = CsvProvider<Schema = ",Ident (string),Type (string),Name (string),Lat (float),Lon (float),,Continent (string)",
                             CacheRows = false, HasHeaders = false>
@@ -70,13 +69,13 @@ module DataFile =
             wc.DownloadFile(
                 sprintf "http://ourairports.com/data/%s" name,
                 path)
-            Success ()
+            Ok ()
         with
-        | ex -> Failure ex.Message
+        | ex -> Error ex.Message
 
     let verifyAndUpdate () =
         match isOld path with
         | true ->
             printfn "Airport data out of date. Updating.."
             update ()
-        | false -> Success ()
+        | false -> Ok ()
