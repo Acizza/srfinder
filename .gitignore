@@ -1,5 +1,2 @@
-bin/
-obj/
-packages/
-
-.paket/paket.exe
+target/
+**/*.rs.bk

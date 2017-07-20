@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Sim Route Finder</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=yes">
+        <link rel="stylesheet" href="/css/site.css">
+        <link rel="stylesheet" href="https://js.arcgis.com/4.4/esri/css/main.css">
+        <script src="https://js.arcgis.com/4.4/"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="js/site.js"></script>
+    </head>
+    <body>
+        <div id="sidebar">
+            <hr class="vertical" id="sidebar-edge">
+            <h3 id="name">Route Filters</h3>
+            <hr>
+            <form id="filters">
+                <span class="label">Mach Speed (required)</span><input type="text" name="mach" value="0.770" pattern="\.?\d*(\.\d+)?">
+                <br id="speed-separator">
+                <span class="label">Departure</span>
+                <div id="departure" class="box">
+                    <span class="label">ICAO</span>
+                    <input type="text" name="dep_icao" maxlength="4">
+                    <br>
+                    <span class="label">Size</span>
+                    <select name="dep_size">
+                        <option value="none"></option>
+                        <option value="large">Large</option>
+                        <option value="medium">Medium</option>
+                        <option value="small">Small</option>
+                        <option value="heliport">Heliport</option>
+                    </select>
+                </div>
+                <br>
+                <span class="label">Arrival</span>
+                <div id="arrival" class="box">
+                    <span class="label">ICAO</span>
+                    <input type="text" name="arr_icao" maxlength="4">
+                    <br>
+                    <span class="label">Size</span>
+                    <select name="arr_size">
+                        <option value="none"></option>
+                        <option value="large">Large</option>
+                        <option value="medium">Medium</option>
+                        <option value="small">Small</option>
+                        <option value="heliport">Heliport</option>
+                    </select>
+                </div>
+                <br>
+                <div id="find-center-div">
+                    <input id="find-button" type="submit" value="Find">
+                </div>
+            </form>
+        </div>
+        <div id="route-viewer">
+
+        </div>
+        <hr id="route-map-separator">
+        <div id="route-selector">
+            <table id="route-table">
+                <tr>
+                    <th>Departure</th>
+                    <th>Arrival</th>
+                    <th>Distance</th>
+                    <th>Time</th>
+                </tr>
+            </table>
+        </div>
+        <div id="mapDiv"></div>
+    </body>
+</html>
