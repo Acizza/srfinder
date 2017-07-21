@@ -5,7 +5,7 @@ extern crate time;
 use std::collections::HashMap;
 use std::env;
 use std::fs::{self, File};
-use std::io::{self, Read, Write};
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use super::{Airport, LatLon, Type, Runway, RunwayIdentifier, Frequencies};
 
@@ -116,20 +116,13 @@ impl DataFiles {
             None => println!("warning: extra comma no longer exists in {} file", RUNWAYS_FILE),
         }
 
-        self.save_data_to_file(RUNWAYS_FILE, &runways)?;
-        Ok(())
+        self.save_data_to_file(RUNWAYS_FILE, &runways)
     }
 
     pub fn get_new_data(&self) -> Result<()> {
-        match fs::create_dir(&self.data_dir) {
-            Ok(_) => (),
-            Err(e) => {
-                match e.kind() {
-                    io::ErrorKind::AlreadyExists => (),
-                    _ => bail!(e),
-                }
-            },
-        };
+        if !self.data_dir.exists() {
+            fs::create_dir(&self.data_dir)?;
+        }
 
         let client = reqwest::Client::new()?;
 
@@ -156,8 +149,14 @@ impl DataFiles {
 
         for airport in rdr.deserialize() {
             let mut data: HashMap<String, String> = airport?;
-
             let icao = data.get_field("ident")?;
+
+            // Get the airport type early so we can skip ones we don't care about (like balloon ports)
+            // and save a very small amount of time
+            let _type = match Type::parse(&data.get_field("type")?) {
+                Some(t) => t,
+                None    => continue,
+            };
 
             airports.push(Airport {
                 icao: icao.clone(),
@@ -165,10 +164,7 @@ impl DataFiles {
                     lat: data.get_field("latitude_deg")?.parse()?,
                     lon: data.get_field("longitude_deg")?.parse()?,
                 },
-                _type: match Type::parse(&data.get_field("type")?) {
-                    Some(t) => t,
-                    None    => continue,
-                },
+                _type:       _type,
                 runways:     runways.remove(&icao),
                 frequencies: frequencies.remove(&icao),
             });
