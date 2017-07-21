@@ -92,10 +92,9 @@ impl DataFiles {
     }
 
     fn save_data_to_file(&self, name: &str, data: &[u8]) -> Result<()> {
-        let mut path = self.data_dir.clone();
-        path.push(name);
-
+        let path = self.get_path_in_data(name);
         let mut file = File::create(path)?;
+        
         file.write_all(data)?;
         Ok(())
     }
