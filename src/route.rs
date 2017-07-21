@@ -1,21 +1,21 @@
 use ::rocket::request::LenientForm;
 use ::rocket_contrib::Json;
-use ::airport::{self, Airport};
+use ::airport::{self, Airport, Runway, RunwayIdentifier, Frequencies};
 
 #[derive(FromForm, Debug)]
 pub struct FilterData {
     mach: f32,
     dep_icao: Option<airport::ICAO>,
-    dep_size: Option<airport::Size>,
+    dep_type: Option<airport::Type>,
     arr_icao: Option<airport::ICAO>,
-    arr_size: Option<airport::Size>,
+    arr_type: Option<airport::Type>,
 }
 
 #[derive(Debug, Serialize)]
 pub struct Route {
     pub departure: Airport,
     pub arrival:   Airport,
-    pub distance:  f64,
+    pub distance:  f32,
 }
 
 impl Route {
@@ -30,7 +30,7 @@ impl Route {
         route
     }
 
-    pub fn calculate_distance(&self) -> f64 {
+    pub fn calculate_distance(&self) -> f32 {
         let radius = 3440.; // Earth's radius in nautical miles
 
         let lat1 = self.departure.pos.lat.to_radians();
@@ -51,23 +51,51 @@ pub fn parse_filters(filters: LenientForm<FilterData>) -> Json<Vec<Route>> {
     Json(vec![
         Route::create(
             Airport {
+                icao: "KSMF".into(),
                 pos: airport::LatLon::new(38.695, -121.589),
-                icao: airport::ICAO("KSMF".into()),
+                _type: airport::Type::Large,
+                runways: Some(vec![
+                    Runway {
+                        ident: RunwayIdentifier {
+                            north: "16R".into(),
+                            south: "34R".into(),
+                        },
+                        width: Some(150),
+                        length: Some(8600),
+                        closed: Some(false),
+                    }
+                ]),
+                frequencies: Some(Frequencies {
+                    ground:    Some("121.7".into()),
+                    tower:     Some("125.7".into()),
+                    departure: Some("125.25".into()),
+                    approach:  Some("125.25".into()),
+                    atis:      Some("128.4".into()),
+                }),
             },
             Airport {
                 pos: airport::LatLon::new(47.45, -122.3),
-                icao: airport::ICAO("KSEA".into()),
+                icao: "KSEA".into(),
+                _type: airport::Type::Large,
+                runways: Some(vec![
+                    Runway {
+                        ident: RunwayIdentifier {
+                            north: "16R".into(),
+                            south: "34R".into(),
+                        },
+                        width: Some(160),
+                        length: Some(8800),
+                        closed: Some(false),
+                    }
+                ]),
+                frequencies: Some(Frequencies {
+                    ground:    Some("121.7".into()),
+                    tower:     Some("125.7".into()),
+                    departure: Some("125.25".into()),
+                    approach:  Some("125.25".into()),
+                    atis:      Some("128.4".into()),
+                }),
             },
-        ),
-        Route::create(
-            Airport {
-                pos: airport::LatLon::new(37.62, -122.378),
-                icao: airport::ICAO("KSFO".into()),
-            },
-            Airport {
-                pos: airport::LatLon::new(40.64, -73.776),
-                icao: airport::ICAO("KJFK".into()),
-            }
         ),
     ])
 }
