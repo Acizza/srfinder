@@ -4,7 +4,7 @@ use std::ascii::AsciiExt;
 use ::rocket::http::RawStr;
 use ::rocket::request::FromFormValue;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct ICAO(pub String);
 
 impl<'v> FromFormValue<'v> for ICAO {
@@ -19,7 +19,7 @@ impl<'v> FromFormValue<'v> for ICAO {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum Type {
     Closed,
@@ -62,25 +62,19 @@ impl<'v> FromFormValue<'v> for Type {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct LatLon {
     pub lat: f32,
     pub lon: f32,
 }
 
-impl LatLon {
-    pub fn new(lat: f32, lon: f32) -> LatLon {
-        LatLon { lat, lon }
-    }
-}
-
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct RunwayIdentifier {
     pub north: String,
     pub south: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Runway {
     pub ident:  RunwayIdentifier,
     pub width:  Option<u32>,
@@ -88,7 +82,7 @@ pub struct Runway {
     pub closed: Option<bool>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Frequencies {
     pub ground:    Option<String>,
     pub tower:     Option<String>,
@@ -97,7 +91,7 @@ pub struct Frequencies {
     pub atis:      Option<String>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Airport {
     pub icao:       String,
     pub pos:        LatLon,

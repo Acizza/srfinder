@@ -1,15 +1,56 @@
+extern crate rand;
+
+use ::std::mem;
+use ::rocket::State;
 use ::rocket::request::LenientForm;
 use ::rocket_contrib::Json;
-use ::airport::{self, Airport, Runway, RunwayIdentifier, Frequencies};
+use ::airport::{self, Airport, ICAO};
+use self::rand::Rng;
 
-#[derive(FromForm, Debug)]
-pub struct FilterData {
+macro_rules! enum_with_form_parser {
+    (name = $name:ident, form = $form_ty:ty,
+        $($struct_variant:ident => $enum_variant:ident($type:ty),)*) => {
+
+        #[derive(Debug)]
+        enum $name {
+            $($enum_variant($type),)*
+        }
+
+        impl $name {
+            fn from_form(form: &$form_ty) -> Vec<$name> {
+                let mut found = Vec::new();
+
+                $(match form.$struct_variant {
+                    Some(ref v) => found.push($name::$enum_variant(v.clone())),
+                    None => (),
+                })*
+
+                found
+            }
+        }
+    };
+}
+
+#[derive(FromForm, Debug, Clone)]
+pub struct FilterForm {
     mach: f32,
-    dep_icao: Option<airport::ICAO>,
+    dep_icao: Option<ICAO>,
     dep_type: Option<airport::Type>,
-    arr_icao: Option<airport::ICAO>,
+    arr_icao: Option<ICAO>,
     arr_type: Option<airport::Type>,
 }
+
+enum_with_form_parser!(
+    name = AirportFilter,
+    form = FilterForm,
+        dep_type => Type(airport::Type),
+);
+
+enum_with_form_parser!(
+    name = RouteFilter,
+    form = FilterForm,
+        arr_type => ArrType(airport::Type),
+);
 
 #[derive(Debug, Serialize)]
 pub struct Route {
@@ -45,57 +86,89 @@ impl Route {
     }
 }
 
-#[post("/filter", data = "<filters>")]
-pub fn parse_filters(filters: LenientForm<FilterData>) -> Json<Vec<Route>> {
-    println!("{:?}", filters);
-    Json(vec![
-        Route::create(
-            Airport {
-                icao: "KSMF".into(),
-                pos: airport::LatLon::new(38.695, -121.589),
-                _type: airport::Type::Large,
-                runways: Some(vec![
-                    Runway {
-                        ident: RunwayIdentifier {
-                            north: "16R".into(),
-                            south: "34R".into(),
-                        },
-                        width: Some(150),
-                        length: Some(8600),
-                        closed: Some(false),
+fn airport_from_icao<'a>(icao: &str, airports: &'a [Airport]) -> Option<&'a Airport> {
+    airports.iter().find(|&airport| airport.icao == icao)
+}
+
+fn find_departure<'a>(form: &FilterForm, airports: &'a [Airport])
+    -> Option<&'a Airport> {
+
+    if let Some(ICAO(ref icao)) = form.dep_icao {
+        airport_from_icao(icao, &airports)
+    } else {
+        let filters = AirportFilter::from_form(&form);
+
+        let found = airports.iter()
+            .filter(|&airport| {
+                filters.iter().any(|ref filter| {
+                    use self::AirportFilter::*;
+
+                    match **filter {
+                        Type(ref _type) => airport._type == *_type,
                     }
-                ]),
-                frequencies: Some(Frequencies {
-                    ground:    Some("121.7".into()),
-                    tower:     Some("125.7".into()),
-                    departure: Some("125.25".into()),
-                    approach:  Some("125.25".into()),
-                    atis:      Some("128.4".into()),
-                }),
-            },
-            Airport {
-                pos: airport::LatLon::new(47.45, -122.3),
-                icao: "KSEA".into(),
-                _type: airport::Type::Large,
-                runways: Some(vec![
-                    Runway {
-                        ident: RunwayIdentifier {
-                            north: "16R".into(),
-                            south: "34R".into(),
-                        },
-                        width: Some(160),
-                        length: Some(8800),
-                        closed: Some(false),
+                })
+            })
+            .collect::<Vec<_>>();
+
+        if found.len() > 0 {
+            Some(found[rand::thread_rng().gen_range(0, found.len())])
+        } else {
+            None
+        }
+    }
+}
+
+// TODO: implement error handling
+#[post("/filter", data = "<form>")]
+pub fn filter_routes(form: LenientForm<FilterForm>, airports: State<Vec<Airport>>)
+    -> Json<Vec<Route>> {
+
+    let mut form = form.into_inner();
+
+    if let (Some(ICAO(dep_icao)), Some(ICAO(arr_icao)))
+        = (form.dep_icao.clone(), form.arr_icao.clone()) {
+
+        let dep = airport_from_icao(&dep_icao, &airports).unwrap();
+        let arr = airport_from_icao(&arr_icao, &airports).unwrap();
+
+        Json(vec![Route::create(dep.clone(), arr.clone())])
+    } else {
+        // If the arrival is set but the departure is not, we flip the arrival and departure
+        // to imitate filtering for just the arrival airport
+        let flipped_dep = form.dep_icao.is_none() && form.arr_icao.is_some();
+
+        if flipped_dep {
+            mem::swap(&mut form.dep_icao, &mut form.arr_icao);
+            mem::swap(&mut form.dep_type, &mut form.arr_type);
+        }
+
+        let filters   = RouteFilter::from_form(&form);
+        let departure = find_departure(&form, &airports).unwrap();
+
+        let mut routes = airports.iter()
+            .filter(|airport| {
+                filters.iter().any(|ref filter| {
+                    use self::RouteFilter::*;
+                    
+                    match **filter {
+                        ArrType(ref _type) => airport._type == *_type,
                     }
-                ]),
-                frequencies: Some(Frequencies {
-                    ground:    Some("121.7".into()),
-                    tower:     Some("125.7".into()),
-                    departure: Some("125.25".into()),
-                    approach:  Some("125.25".into()),
-                    atis:      Some("128.4".into()),
-                }),
-            },
-        ),
-    ])
+                })
+            })
+            .map(|arrival| {
+                if flipped_dep {
+                    Route::create(arrival.clone(), departure.clone())
+                } else {
+                    Route::create(departure.clone(), arrival.clone())
+                }
+            })
+            .collect::<Vec<_>>();
+
+        routes.sort_by_key(|route| route.distance as i32);
+        routes = routes.into_iter()
+                       .take(30)
+                       .collect::<Vec<_>>();
+
+        Json(routes)
+    }
 }
