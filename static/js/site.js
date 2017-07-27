@@ -76,6 +76,9 @@ $(document).ready(function() {
                 for(i = 0; i < routes.length; ++i) {
                     insertRoute(routes[i], mach);
                 }
+            },
+            error: function(req, errText, err) {
+                console.log("error filtering routes: " + req.responseText);
             }
         });
 
@@ -107,7 +110,7 @@ $(document).ready(function() {
         distRow.innerHTML = Math.round(route.distance) + " nm";
         
         var timeRow = row.insertCell(3);
-        timeRow.innerHTML = getRouteTime(route, mach);
+        timeRow.innerHTML = formatRouteTime(route.time, mach);
     }
 
     function addRouteLocation(pos, row) {
@@ -115,10 +118,7 @@ $(document).ready(function() {
         row.setAttribute("data-lon", pos.lon);
     }
 
-    const KNOTS_PER_MACH = 666.739;
-
-    function getRouteTime(route, mach) {
-        var time    = route.distance / (mach * KNOTS_PER_MACH);
+    function formatRouteTime(time, mach) {
         var hours   = Math.floor(time);
         var minutes = Math.floor((time - hours) * 60);
 

@@ -16,14 +16,17 @@
             <h3 id="name">Route Filters</h3>
             <hr>
             <form id="filters">
-                <span class="label">Mach Speed (required)</span><input type="text" name="mach" value="0.770" pattern="\.?\d*(\.\d+)?">
+                <span class="label">Mach Speed (required)</span>
+                <input type="text" name="mach" value="0.770" pattern="\.?\d*(\.\d+)?">
                 <br id="speed-separator">
                 <span class="label">Departure</span>
                 <div id="departure" class="box">
                     <span class="label">ICAO</span>
+                    <br>
                     <input type="text" name="dep_icao" maxlength="4">
                     <br>
                     <span class="label">Type</span>
+                    <br>
                     <select name="dep_type">
                         <option value="none"></option>
                         <option value="large">Large</option>
@@ -33,14 +36,20 @@
                         <option value="seaplanebase">Seaplane Base</option>
                         <option value="closed">Closed</option>
                     </select>
+                    <br>
+                    <span class="label">Runway Length</span>
+                    <br>
+                    <input type="text" name="dep_runway_len" placeholder="ex. >13000 or <10000" pattern="(<|>|=)?\d+">
                 </div>
                 <br>
                 <span class="label">Arrival</span>
                 <div id="arrival" class="box">
                     <span class="label">ICAO</span>
+                    <br>
                     <input type="text" name="arr_icao" maxlength="4">
                     <br>
                     <span class="label">Type</span>
+                    <br>
                     <select name="arr_type">
                         <option value="none"></option>
                         <option value="large">Large</option>
@@ -50,7 +59,18 @@
                         <option value="seaplanebase">Seaplane Base</option>
                         <option value="closed">Closed</option>
                     </select>
+                    <br>
+                    <span class="label">Runway Length</span>
+                    <br>
+                    <input type="text" name="arr_runway_len" placeholder="ex. >13000 or <10000" pattern="(<|>|=)?\d+">
                 </div>
+                <br>
+                <br>
+                <span class="label">Min Time</span>
+                <input type="text" name="min_time">
+                <br class="field-separator">
+                <span class="label">Max Time</span>
+                <input type="text" name="max_time">
                 <br>
                 <div id="find-center-div">
                     <input id="find-button" type="submit" value="Find">

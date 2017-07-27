@@ -39,6 +39,10 @@ hr#sidebar-edge {
     margin-bottom: 15%;
 }
 
+#filters .field-separator {
+    margin-bottom: 15px;
+}
+
 #filters #find-center-div {
     left: 0;
     height: 30px;
@@ -85,10 +89,6 @@ hr#sidebar-edge {
     margin-bottom: 5px;
 }
 
-#filters .box select {
-    margin-left: 2px;
-}
-
 #filters .box .label {
     font-size: 12px;
 }
@@ -113,26 +113,26 @@ input {
 #route-viewer {
     position: fixed;
     top: 0;
-    left: 275px;
-    width: 100%;
+    left: calc(50% + 275px / 2);
+    width: calc(50% - 275px / 2);
     height: 50%;
     background-color: #848a96;
 }
 
 #route-map-separator {
     position: fixed;
-    left: 275px;
+    left:   calc(50% + 275px / 2);
+    width:  calc(50% - 275px / 2);
     bottom: calc(50% - 8px);
-    width: 100%;
 }
 
 #route-selector {
     background-color: #32353a;
     position: fixed;
     left: 275px;
-    top: 50%;
+    top: 0;
     width: calc(50% - 275px / 2);
-    height: 50%;
+    height: 100%;
 }
 
 #route-selector #route-table {
