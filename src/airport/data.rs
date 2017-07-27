@@ -7,7 +7,7 @@ use std::env;
 use std::fs::{self, File};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
-use super::{Airport, LatLon, Type, Runway, RunwayIdentifier, Frequencies};
+use super::{Airport, LatLon, Type, Runway, RunwayIdentifier, Frequencies, Region};
 
 error_chain! {
     errors {
@@ -29,6 +29,7 @@ error_chain! {
 const DATA_HOME:        &str = "http://ourairports.com/data";
 const AIRPORTS_FILE:    &str = "airports.csv";
 const FREQUENCIES_FILE: &str = "airport-frequencies.csv";
+const COUNTRIES_FILE:   &str = "countries.csv";
 const RUNWAYS_FILE:     &str = "runways.csv";
 
 const DOWNLOAD_DATE_FILE: &str = "month-downloaded";
@@ -55,6 +56,12 @@ impl<V> HashMapExtras<V> for HashMap<String, V> {
             None    => bail!(ErrorKind::FieldNotFound(name.into())),
         }
     }
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct Country {
+    pub name:   String,
+    pub region: Region,
 }
 
 pub struct DataFiles {
@@ -128,6 +135,7 @@ impl DataFiles {
 
         self.download_and_save_data(&client, AIRPORTS_FILE)?;
         self.download_and_save_data(&client, FREQUENCIES_FILE)?;
+        self.download_and_save_data(&client, COUNTRIES_FILE)?;
         self.retrieve_runway_data(&client)?;
 
         let mut date_file = File::create(
@@ -167,6 +175,10 @@ impl DataFiles {
                 _type:       _type,
                 runways:     runways.remove(&icao),
                 frequencies: frequencies.remove(&icao),
+                region: Region {
+                    country:   data.get_field("iso_country")?,
+                    continent: data.get_field("continent")?,
+                },
             });
         }
 
@@ -233,6 +245,27 @@ impl DataFiles {
         }
 
         Ok(frequencies)
+    }
+
+    pub fn parse_countries(&self) -> Result<Vec<Country>> {
+        let mut rdr = csv::Reader::from_path(
+            self.get_path_in_data(COUNTRIES_FILE))?;
+
+        let mut countries = Vec::new();
+
+        for country in rdr.deserialize() {
+            let mut data: HashMap<String, String> = country?;
+
+            countries.push(Country {
+                name: data.get_field("name")?,
+                region: Region {
+                    country:   data.get_field("code")?,
+                    continent: data.get_field("continent")?,
+                },
+            });
+        }
+
+        Ok(countries)
     }
 
     fn get_path_in_data(&self, file: &str) -> PathBuf {

@@ -92,10 +92,17 @@ pub struct Frequencies {
 }
 
 #[derive(Debug, Serialize, Clone)]
+pub struct Region {
+    pub country:   String,
+    pub continent: String,
+}
+
+#[derive(Debug, Serialize, Clone)]
 pub struct Airport {
     pub icao:        String,
     pub pos:         LatLon,
     pub _type:       Type,
     pub runways:     Option<Vec<Runway>>,
     pub frequencies: Option<Frequencies>,
+    pub region:      Region,
 }

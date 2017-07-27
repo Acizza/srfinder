@@ -33,9 +33,11 @@ pub struct FilterForm {
     pub dep_icao:       Option<ICAO>,
     pub dep_type:       Option<airport::Type>,
     pub dep_runway_len: Option<RunwayLength>,
+    pub dep_country:    Option<String>,
     pub arr_icao:       Option<ICAO>,
     pub arr_type:       Option<airport::Type>,
     pub arr_runway_len: Option<RunwayLength>,
+    pub arr_country:    Option<String>,
     pub min_time:       Option<Time>,
     pub max_time:       Option<Time>,
 }
@@ -45,6 +47,7 @@ enum_with_form_parser!(
     form = FilterForm,
         dep_type       => Type(airport::Type),
         dep_runway_len => RunwayLength(RunwayLength),
+        dep_country    => Country(String),
 );
 
 enum_with_form_parser!(
@@ -52,6 +55,7 @@ enum_with_form_parser!(
     form = FilterForm,
         arr_type       => ArrType(airport::Type),
         arr_runway_len => ArrRunwayLength(RunwayLength),
+        arr_country    => ArrCountry(String),
         min_time       => MinTime(Time),
         max_time       => MaxTime(Time),
 );
