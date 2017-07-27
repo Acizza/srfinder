@@ -4,82 +4,86 @@
         <title>Sim Route Finder</title>
         <meta charset="utf-8">
         <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=yes">
-        <link rel="stylesheet" href="/css/site.css">
         <link rel="stylesheet" href="https://js.arcgis.com/4.4/esri/css/main.css">
-        <script src="https://js.arcgis.com/4.4/"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/0.7.0/css/perfect-scrollbar.min.css">
+        <link rel="stylesheet" href="/css/site.css">
         <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min.js"></script>
+        <script src="https://js.arcgis.com/4.4/"></script>
         <script src="js/site.js"></script>
     </head>
     <body>
         <div id="sidebar">
             <hr class="vertical" id="sidebar-edge">
             <h3 id="name">Route Filters</h3>
-            <hr>
+            <hr id="filter-separator">
             <form id="filters">
-                <span class="label">Mach Speed (required)</span>
-                <input type="text" name="mach" value="0.770" pattern="\.?\d*(\.\d+)?">
-                <br id="speed-separator">
-                <span class="label">Departure</span>
-                <div id="departure" class="box">
-                    <span class="label">ICAO</span>
+                <div id="scrollable">
+                    <span class="label">Mach Speed (required)</span>
+                    <input type="text" name="mach" value="0.770" pattern="\.?\d*(\.\d+)?">
+                    <br id="speed-separator">
+                    <span class="label">Departure</span>
+                    <div id="departure" class="box">
+                        <span class="label">ICAO</span>
+                        <br>
+                        <input type="text" name="dep_icao" maxlength="4">
+                        <br>
+                        <span class="label">Type</span>
+                        <br>
+                        <select name="dep_type">
+                            <option value="none"></option>
+                            <option value="large">Large</option>
+                            <option value="medium">Medium</option>
+                            <option value="small">Small</option>
+                            <option value="heliport">Heliport</option>
+                            <option value="seaplanebase">Seaplane Base</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                        <br>
+                        <span class="label">Runway Length</span>
+                        <br>
+                        <input type="text" name="dep_runway_len" placeholder="ex. >13000 or <10000" pattern="(<|>|=)?\d+">
+                        <br>
+                        <span class="label">Country</span>
+                        <br>
+                        <select name="dep_country"></select>
+                    </div>
                     <br>
-                    <input type="text" name="dep_icao" maxlength="4">
+                    <span class="label">Arrival</span>
+                    <div id="arrival" class="box">
+                        <span class="label">ICAO</span>
+                        <br>
+                        <input type="text" name="arr_icao" maxlength="4">
+                        <br>
+                        <span class="label">Type</span>
+                        <br>
+                        <select name="arr_type">
+                            <option value="none"></option>
+                            <option value="large">Large</option>
+                            <option value="medium">Medium</option>
+                            <option value="small">Small</option>
+                            <option value="heliport">Heliport</option>
+                            <option value="seaplanebase">Seaplane Base</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                        <br>
+                        <span class="label">Runway Length</span>
+                        <br>
+                        <input type="text" name="arr_runway_len" placeholder="ex. >13000 or <10000" pattern="(<|>|=)?\d+">
+                        <br>
+                        <span class="label">Country</span>
+                        <br>
+                        <select name="arr_country"></select>
+                    </div>
                     <br>
-                    <span class="label">Type</span>
                     <br>
-                    <select name="dep_type">
-                        <option value="none"></option>
-                        <option value="large">Large</option>
-                        <option value="medium">Medium</option>
-                        <option value="small">Small</option>
-                        <option value="heliport">Heliport</option>
-                        <option value="seaplanebase">Seaplane Base</option>
-                        <option value="closed">Closed</option>
-                    </select>
+                    <span class="label">Min Time</span>
+                    <input type="text" name="min_time">
+                    <br class="field-separator">
+                    <span class="label">Max Time</span>
+                    <input type="text" name="max_time">
                     <br>
-                    <span class="label">Runway Length</span>
-                    <br>
-                    <input type="text" name="dep_runway_len" placeholder="ex. >13000 or <10000" pattern="(<|>|=)?\d+">
-                    <br>
-                    <span class="label">Country</span>
-                    <br>
-                    <select name="dep_country"></select>
                 </div>
-                <br>
-                <span class="label">Arrival</span>
-                <div id="arrival" class="box">
-                    <span class="label">ICAO</span>
-                    <br>
-                    <input type="text" name="arr_icao" maxlength="4">
-                    <br>
-                    <span class="label">Type</span>
-                    <br>
-                    <select name="arr_type">
-                        <option value="none"></option>
-                        <option value="large">Large</option>
-                        <option value="medium">Medium</option>
-                        <option value="small">Small</option>
-                        <option value="heliport">Heliport</option>
-                        <option value="seaplanebase">Seaplane Base</option>
-                        <option value="closed">Closed</option>
-                    </select>
-                    <br>
-                    <span class="label">Runway Length</span>
-                    <br>
-                    <input type="text" name="arr_runway_len" placeholder="ex. >13000 or <10000" pattern="(<|>|=)?\d+">
-                    <br>
-                    <span class="label">Country</span>
-                    <br>
-                    <select name="arr_country"></select>
-                </div>
-                <br>
-                <br>
-                <span class="label">Min Time</span>
-                <input type="text" name="min_time">
-                <br class="field-separator">
-                <span class="label">Max Time</span>
-                <input type="text" name="max_time">
-                <br>
                 <div id="find-center-div">
                     <input id="find-button" type="submit" value="Find">
                 </div>

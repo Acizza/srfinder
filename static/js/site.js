@@ -62,6 +62,8 @@ require([
 });
 
 $(document).ready(function() {
+    $("#filters #scrollable").perfectScrollbar();
+
     $.ajax({
         type: 'get',
         url: '/countries',
