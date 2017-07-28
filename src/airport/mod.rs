@@ -91,6 +91,7 @@ pub struct Frequencies {
     pub atis:      Option<String>,
 }
 
+// TODO: add custom type to filter out empty strings
 #[derive(Debug, Serialize, Clone)]
 pub struct Region {
     pub country:   String,
@@ -100,6 +101,7 @@ pub struct Region {
 #[derive(Debug, Serialize, Clone)]
 pub struct Airport {
     pub icao:        String,
+    pub name:        String,
     pub pos:         LatLon,
     pub _type:       Type,
     pub runways:     Option<Vec<Runway>>,

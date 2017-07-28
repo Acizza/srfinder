@@ -1,3 +1,5 @@
+// TODO: cleanup
+
 require([
     "esri/Map",
     "esri/views/MapView",
@@ -62,11 +64,72 @@ require([
 
         drawRoute(depPoint, arrPoint, view);
     });
+
+    $("#route-table").on("click", ".route-data", function() {
+        resetScrollbar($("#route-viewer #scrollable"));
+
+        var route = routeData[$(this).index() - 1];
+        
+        if(setDepartureICAO != route.departure.icao) {
+            populateAirportInfo("#route-viewer #departure", route.departure);
+            setDepartureICAO = route.departure.icao;
+        }
+
+        populateAirportInfo("#route-viewer #arrival", route.arrival);
+    });
+
+    function populateAirportInfo(baseName, airport) {
+        $(baseName + " #name").text(airport.name);
+
+        if(airport.frequencies) {
+            var freqBase = baseName + " #freq-table";
+            var setFreq = function(name, val) {
+                $(freqBase + " #" + name).text(val || "n/a");
+            };
+
+            setFreq("atis", airport.frequencies.atis);
+            setFreq("ground", airport.frequencies.ground);
+            setFreq("tower", airport.frequencies.tower);
+            setFreq("dep", airport.frequencies.departure);
+            setFreq("app", airport.frequencies.approach);
+        }
+
+        if(airport.runways) {
+            var runwayTable = $(baseName + " #runway-table")[0];
+            clearTable(runwayTable);
+
+            for(i = 0; i < airport.runways.length; ++i) {
+                var runway = airport.runways[i];
+                var row = runwayTable.insertRow();
+                
+                var name = row.insertCell(0);
+                name.innerHTML = runway.ident.north + " / " + runway.ident.south;
+                name.className = "data-value";
+
+                var length = row.insertCell(1);
+                length.innerHTML = runway.length ? runway.length + " ft" : "n/a";
+                length.className = "data-value";
+
+                var width = row.insertCell(2);
+                width.innerHTML = runway.width ? runway.width + " ft" : "n/a";
+                width.className = "data-value";
+
+                var open = row.insertCell(3);
+                open.innerHTML = runway.closed ? "No" : "Yes";
+                open.className = "data-value";
+            }
+        }
+    }
 });
 
+var setDepartureICAO = null;
+var routeData = [];
+
 $(document).ready(function() {
+    var routeSelectorScrollbar = $("#route-selector #scrollable");
+
     $("#filters #scrollable").perfectScrollbar();
-    $("#route-selector #scrollable").perfectScrollbar();
+    routeSelectorScrollbar.perfectScrollbar();
     $("#route-viewer #scrollable").perfectScrollbar();
 
     $.ajax({
@@ -103,8 +166,14 @@ $(document).ready(function() {
             url:  '/filter',
             data: $(this).serialize(),
             success: function(routes) {
+                clearTable(routeTable[0]);
+                resetScrollbar(routeSelectorScrollbar);
+
+                routeData = [];
+
                 for(i = 0; i < routes.length; ++i) {
                     insertRoute(routes[i], mach);
+                    routeData.push(routes[i]);
                 }
             },
             error: function(req, errText, err) {
@@ -155,3 +224,14 @@ $(document).ready(function() {
         return hours + ":" + (minutes < 10 ? "0" + minutes : minutes);
     }
 });
+
+function clearTable(table) {
+    for(i = table.rows.length - 1; i > 0; --i) {
+        table.deleteRow(i);
+    }
+}
+
+function resetScrollbar(elem) {
+    elem.scrollTop(0);
+    elem.perfectScrollbar('update');
+}

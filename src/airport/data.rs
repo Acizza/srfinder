@@ -168,6 +168,7 @@ impl DataFiles {
 
             airports.push(Airport {
                 icao: icao.clone(),
+                name: data.get_field("name")?,
                 pos: LatLon {
                     lat: data.get_field("latitude_deg")?.parse()?,
                     lon: data.get_field("longitude_deg")?.parse()?,
