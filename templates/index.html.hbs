@@ -82,26 +82,123 @@
                     <br class="field-separator">
                     <span class="label">Max Time</span>
                     <input type="text" name="max_time">
-                    <br>
                 </div>
                 <div id="find-center-div">
                     <input id="find-button" type="submit" value="Find">
                 </div>
             </form>
         </div>
-        <div id="route-viewer">
-
-        </div>
         <hr id="route-map-separator">
         <div id="route-selector">
-            <table id="route-table">
-                <tr>
-                    <th>Departure</th>
-                    <th>Arrival</th>
-                    <th>Distance</th>
-                    <th>Time</th>
-                </tr>
-            </table>
+            <div id="scrollable">
+                <table id="route-table">
+                    <tr>
+                        <th>Departure</th>
+                        <th>Arrival</th>
+                        <th>Distance</th>
+                        <th>Time</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div id="route-viewer">
+            <div id="scrollable">
+                <div id="center">
+                    <div id="departure">
+                        <span class="label">Departure</span>
+                        <div id="dep-box" class="box">
+                            <span class="label">Name</span>
+                            <br>
+                            <span class="data-value">n/a</span>
+                            <br class="data-separator">
+                            <span class="label">Frequencies</span>
+                            <div id="frequencies" class="box">
+                                <table id="freq-table">
+                                    <tr>
+                                        <th class="label">ATIS</th>
+                                        <td class="data-value">n/a</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="label">Ground</th>
+                                        <td class="data-value">n/a</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="label">Tower</th>
+                                        <td class="data-value">n/a</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="label">Departure</th>
+                                        <td class="data-value">n/a</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="label">Arrival</th>
+                                        <td class="data-value">n/a</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <br class="data-separator">
+                            <span class="label">Runways</span>
+                            <div id="runways" class="box">
+                                <table id="runway-table">
+                                    <tr>
+                                        <th class="label">Name</th>
+                                        <th class="label">Length</th>
+                                        <th class="label">Width</th>
+                                        <th class="label">Open</th>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="arrival">
+                        <span class="label">Arrival</span>
+                        <div id="arr-box" class="box">
+                            <span class="label">Name</span>
+                            <br>
+                            <span class="data-value">n/a</span>
+                            <br class="data-separator">
+                            <span class="label">Frequencies</span>
+                            <div id="frequencies" class="box">
+                                <table id="freq-table">
+                                    <tr>
+                                        <th class="label">ATIS</th>
+                                        <td class="data-value">n/a</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="label">Ground</th>
+                                        <td class="data-value">n/a</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="label">Tower</th>
+                                        <td class="data-value">n/a</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="label">Departure</th>
+                                        <td class="data-value">n/a</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="label">Arrival</th>
+                                        <td class="data-value">n/a</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <br class="data-separator">
+                            <span class="label">Runways</span>
+                            <div id="runways" class="box">
+                                <table id="runway-table">
+                                    <tr>
+                                        <th class="label">Name</th>
+                                        <th class="label">Length</th>
+                                        <th class="label">Width</th>
+                                        <th class="label">Open</th>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr id="route-viewer-separator">
         </div>
         <div id="mapDiv"></div>
     </body>

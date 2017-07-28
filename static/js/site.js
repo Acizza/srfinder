@@ -49,6 +49,9 @@ require([
     });
 
     $("#route-table").on("mouseenter", ".route-data", function() {
+        $('.highlight').removeClass('highlight');
+        $(this).addClass('highlight');
+
         view.graphics.removeAll();
 
         var departure = $(this).children(".departure");
@@ -63,6 +66,8 @@ require([
 
 $(document).ready(function() {
     $("#filters #scrollable").perfectScrollbar();
+    $("#route-selector #scrollable").perfectScrollbar();
+    $("#route-viewer #scrollable").perfectScrollbar();
 
     $.ajax({
         type: 'get',
