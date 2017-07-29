@@ -63,7 +63,7 @@ impl Route {
             match **filter {
                 ArrType(ref _type)       => self.arrival._type == *_type,
                 ArrRunwayLength(ref len) => len.any_match(&self.arrival.runways),
-                ArrCountry(ref country)  => self.arrival.region.country == country.as_str(),
+                ArrCountry(ref country)  => self.arrival.region.code == country.as_str(),
                 MinTime(Time(min_time))  => self.time >= min_time,
                 MaxTime(Time(max_time))  => self.time <= max_time,
             }
@@ -137,7 +137,7 @@ impl<'a> FindAirport<'a> for &'a [Airport] {
                 match **filter {
                     Type(ref _type)       => airport._type == *_type,
                     RunwayLength(ref len) => len.any_match(&airport.runways),
-                    Country(ref country)  => airport.region.country == country.as_str(),
+                    Country(ref country)  => airport.region.code == country.as_str(),
                 }
             })
         })

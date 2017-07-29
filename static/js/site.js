@@ -133,29 +133,7 @@ $(document).ready(function() {
     routeSelectorScrollbar.perfectScrollbar();
     $("#route-viewer #scrollable").perfectScrollbar();
 
-    // Populate the country list
-    $.ajax({
-        type: 'get',
-        url: '/countries',
-        success: function(countries) {
-            var populate = function(elem) {
-                var elem = jQuery(elem);
-
-                for(i = 0; i < countries.length; ++i) {
-                    var country = countries[i];
-                    elem.append(new Option(country.name, country.region.country));
-                }
-
-                elem.val(null);
-            };
-
-            populate($("#filters select[name=dep_country]"));
-            populate($("#filters select[name=arr_country]"));
-        },
-        error: function(req, errText, err) {
-            console.log("error getting country list: " + req.responseText);
-        }
-    });
+    $("#filters select[name$=_country]").val(null);
 
     var routeTable = $("#route-selector #route-table");
     var machInput  = $("#filters input[name=mach]");

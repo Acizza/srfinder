@@ -10,11 +10,10 @@ extern crate rocket_contrib;
 mod route;
 mod airport;
 
-use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use rocket::{Rocket, State};
 use rocket::response::NamedFile;
-use rocket_contrib::{Template, Json};
+use rocket_contrib::Template;
 use airport::data::{DataFiles, Country};
 
 error_chain! {
@@ -28,15 +27,18 @@ fn files(file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(Path::new("static/").join(file)).ok()
 }
 
-#[get("/")]
-fn index() -> Template {
-    Template::render("index", HashMap::<i32, i32>::new())
+#[derive(Serialize)]
+struct IndexTemplate<'a> {
+    countries: &'a Vec<Country>,
 }
 
-#[get("/countries")]
-fn get_countries(countries: State<Vec<Country>>) -> Json<Vec<Country>> {
-    let countries = countries.inner().to_vec();
-    Json(countries)
+#[get("/")]
+fn index(countries: State<Vec<Country>>) -> Template {
+    let context = IndexTemplate {
+        countries: &countries.inner()
+    };
+
+    Template::render("index", &context)
 }
 
 fn init(rocket: Rocket) -> Result<Rocket> {
@@ -52,7 +54,7 @@ fn init(rocket: Rocket) -> Result<Rocket> {
 }
 
 fn launch_rocket(rocket: Rocket) {
-    rocket.mount("/", routes![index, get_countries, route::filter_routes, files])
+    rocket.mount("/", routes![index, route::filter_routes, files])
           .attach(Template::fairing())
           .launch();
 }

@@ -177,7 +177,7 @@ impl DataFiles {
                 runways:     runways.remove(&icao),
                 frequencies: frequencies.remove(&icao),
                 region: Region {
-                    country:   data.get_field("iso_country")?,
+                    code:      data.get_field("iso_country")?,
                     continent: data.get_field("continent")?,
                 },
             });
@@ -260,7 +260,7 @@ impl DataFiles {
             countries.push(Country {
                 name: data.get_field("name")?,
                 region: Region {
-                    country:   data.get_field("code")?,
+                    code:      data.get_field("code")?,
                     continent: data.get_field("continent")?,
                 },
             });

@@ -94,7 +94,7 @@ pub struct Frequencies {
 // TODO: add custom type to filter out empty strings
 #[derive(Debug, Serialize, Clone)]
 pub struct Region {
-    pub country:   String,
+    pub code:      String,
     pub continent: String,
 }
 
