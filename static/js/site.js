@@ -5,6 +5,7 @@ var routeData = [];
 require([
     "esri/Map",
     "esri/views/MapView",
+    "esri/widgets/BasemapToggle",
     "esri/geometry/Point",
     "esri/geometry/Polyline",
     "esri/geometry/geometryEngine",
@@ -15,6 +16,7 @@ require([
 ], function(
     Map,
     MapView,
+    BasemapToggle,
     Point,
     Polyline,
     geometryEngine,
@@ -51,6 +53,13 @@ require([
         container: "mapDiv",
         map: map
     });
+
+    var basemapToggle = new BasemapToggle({
+        view: view,
+        nextBasemap: "hybrid"
+    });
+
+    view.ui.add(basemapToggle, "bottom-right");
 
     // Highlight route and draw it on the map
     $("#route-table").on("mouseenter", ".route-data", function() {
