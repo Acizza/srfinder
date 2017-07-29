@@ -136,36 +136,58 @@ font-size:14px
 background-color:#3d4047;
 height:50%;
 left:275px;
-position:fixed;
+position:absolute;
 top:0;
 width:calc(100% - 275px);
 text-align:center
 }
 
-#route-viewer #scrollable {
+#viewer-map-separator {
 position:absolute;
+margin:0;
+top:0;
+height:100%;
+left:calc(275px / 2 + 50% - 2px)
+}
+
+#route-viewer #scrollable {
+position:relative;
+margin:0;
+top:0;
 width:100%;
-height:100%
+height:100%;
+flex:2
 }
 
-#route-viewer #center {
-margin:0 auto;
-width:90%
-}
-
-#route-viewer .box {
-border-width:3px;
-margin-top:3%
+#route-viewer .content {
+margin:10px 0
 }
 
 #route-viewer #departure {
-float:left;
-width:50%
+display:flex;
+flex-direction:column;
+position:absolute;
+top:0;
+width:50%;
+height:100%
 }
 
 #route-viewer #arrival {
-float:right;
-width:50%
+display:flex;
+flex-direction:column;
+position:absolute;
+top:0;
+left:50%;
+width:50%;
+height:100%
+}
+
+#route-viewer #header-box .separator {
+margin-bottom:0
+}
+
+#route-viewer #header-box {
+flex:0 0 auto
 }
 
 #route-viewer #frequencies {
@@ -200,7 +222,7 @@ padding-bottom:5px
 #route-viewer .data-value {
 font-family:"Verdana";
 font-size:14px;
-color:#72777f
+color:#8da1bc
 }
 
 #route-viewer #frequencies br {
@@ -227,7 +249,7 @@ top:0;
 width:273px
 }
 
-#sidebar #name {
+.header {
 color:#b6bdc6;
 font-family:"Verdana";
 text-align:center

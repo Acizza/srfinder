@@ -1,4 +1,6 @@
 // TODO: cleanup
+var setDepartureICAO = null;
+var routeData = [];
 
 require([
     "esri/Map",
@@ -50,6 +52,7 @@ require([
         map: map
     });
 
+    // Highlight route and draw it on the map
     $("#route-table").on("mouseenter", ".route-data", function() {
         $('.highlight').removeClass('highlight');
         $(this).addClass('highlight');
@@ -65,6 +68,7 @@ require([
         drawRoute(depPoint, arrPoint, view);
     });
 
+    // Populate airport info
     $("#route-table").on("click", ".route-data", function() {
         resetScrollbar($("#route-viewer #scrollable"));
 
@@ -122,9 +126,6 @@ require([
     }
 });
 
-var setDepartureICAO = null;
-var routeData = [];
-
 $(document).ready(function() {
     var routeSelectorScrollbar = $("#route-selector #scrollable");
 
@@ -132,6 +133,7 @@ $(document).ready(function() {
     routeSelectorScrollbar.perfectScrollbar();
     $("#route-viewer #scrollable").perfectScrollbar();
 
+    // Populate the country list
     $.ajax({
         type: 'get',
         url: '/countries',
