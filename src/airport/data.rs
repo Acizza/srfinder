@@ -7,7 +7,8 @@ use std::env;
 use std::fs::{self, File};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
-use super::{Airport, LatLon, Type, Runway, RunwayIdentifier, Frequencies, Region};
+use super::{Airport, LatLon, Type, Runway, RunwaySides,
+            RunwaySideData, Frequencies, Region};
 
 error_chain! {
     errors {
@@ -190,6 +191,24 @@ impl DataFiles {
         let mut rdr = csv::Reader::from_path(
             self.get_path_in_data(RUNWAYS_FILE))?;
 
+        let get_runway_side = |data: &mut HashMap<String, String>, lat_name, lon_name| {
+            let lat = data.get_field(lat_name)
+                .ok()
+                .and_then(|x| x.parse().ok());
+
+            let lon = data.get_field(lon_name)
+                .ok()
+                .and_then(|x| x.parse().ok());
+
+            match (lat, lon) {
+                (Some(lat), Some(lon)) => Some(LatLon {
+                    lat: lat,
+                    lon: lon,
+                }),
+                _ => None
+            }
+        };
+
         let mut runways = HashMap::new();
 
         for runway in rdr.deserialize() {
@@ -199,9 +218,15 @@ impl DataFiles {
             let runway_list = runways.entry(icao).or_insert(Vec::new());
 
             runway_list.push(Runway {
-                ident: RunwayIdentifier {
-                    north: data.get_field("le_ident")?,
-                    south: data.get_field("he_ident")?,
+                sides: RunwaySides {
+                    north: RunwaySideData {
+                        name: data.get_field("le_ident")?,
+                        pos: get_runway_side(&mut data, "le_latitude_deg", "le_longitude_deg"),
+                    },
+                    south: RunwaySideData {
+                        name: data.get_field("he_ident")?,
+                        pos: get_runway_side(&mut data, "he_latitude_deg", "he_longitude_deg"),
+                    },
                 },
                 width:  data.get_field("width_ft")?.parse().ok(),
                 length: data.get_field("length_ft")?.parse().ok(),

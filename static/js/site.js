@@ -1,4 +1,5 @@
-// TODO: cleanup
+// TODO: switch to TypeScript
+
 var setDepartureICAO = null;
 var routeData = [];
 
@@ -9,8 +10,10 @@ require([
     "esri/geometry/Point",
     "esri/geometry/Polyline",
     "esri/geometry/geometryEngine",
+    "esri/layers/GraphicsLayer",
     "esri/symbols/SimpleMarkerSymbol",
     "esri/symbols/SimpleLineSymbol",
+    "esri/symbols/TextSymbol",
     "esri/Graphic",
     "dojo/domReady!"
 ], function(
@@ -20,31 +23,12 @@ require([
     Point,
     Polyline,
     geometryEngine,
+    GraphicsLayer,
     SimpleMarkerSymbol,
     SimpleLineSymbol,
+    TextSymbol,
     Graphic,
 ) {
-    function drawRoute(startPoint, endPoint, view) {
-        var marker = new SimpleMarkerSymbol({
-            style: "diamond",
-            size:  "10px"
-        });
-
-        var linePath = new Polyline({
-            paths: [[startPoint.x, startPoint.y], [endPoint.x, endPoint.y]]
-        });
-
-        var lineSymbol = new SimpleLineSymbol({
-            width: 2
-        });
-
-        var geodesicLine = geometryEngine.geodesicDensify(linePath, 100);
-
-        view.graphics.add(new Graphic(startPoint, marker));
-        view.graphics.add(new Graphic(endPoint, marker));
-        view.graphics.add(new Graphic(geodesicLine, lineSymbol));
-    }
-
     var map = new Map({
         basemap: "gray-vector"
     });
@@ -59,6 +43,11 @@ require([
         nextBasemap: "hybrid"
     });
 
+    var runwayLayer = new GraphicsLayer({
+        minScale: 200000
+    });
+    
+    map.add(runwayLayer);
     view.ui.add(basemapToggle, "bottom-right");
 
     // Highlight route and draw it on the map
@@ -80,7 +69,6 @@ require([
     // Populate airport info
     $("#route-table").on("click", ".route-data", function() {
         resetScrollbar($("#route-viewer #scrollable"));
-
         var route = routeData[$(this).index() - 1];
         
         if(setDepartureICAO != route.departure.icao) {
@@ -89,7 +77,32 @@ require([
         }
 
         populateAirportInfo("#route-viewer #arrival", route.arrival);
+
+        runwayLayer.graphics.removeAll();
+        displayRunways(route.departure.runways);
+        displayRunways(route.arrival.runways);
     });
+
+    function drawRoute(startPoint, endPoint, view) {
+        var marker = new SimpleMarkerSymbol({
+            style: "diamond",
+            size:  "10px"
+        });
+
+        var linePath = new Polyline({
+            paths: [[startPoint.x, startPoint.y], [endPoint.x, endPoint.y]]
+        });
+
+        var lineSymbol = new SimpleLineSymbol({
+            width: 2
+        });
+
+        var geodesicLine = geometryEngine.geodesicDensify(linePath, 100);
+
+        view.graphics.add(new Graphic(startPoint, marker));
+        view.graphics.add(new Graphic(endPoint, marker));
+        view.graphics.add(new Graphic(geodesicLine, lineSymbol));
+    }
 
     function populateAirportInfo(baseName, airport) {
         $(baseName + " #name").text(airport.name);
@@ -116,7 +129,7 @@ require([
                 var row = runwayTable.insertRow();
                 
                 var name = row.insertCell(0);
-                name.innerHTML = runway.ident.north + " / " + runway.ident.south;
+                name.innerHTML = runway.sides.north.name + " / " + runway.sides.south.name;
                 name.className = "data-value";
 
                 var length = row.insertCell(1);
@@ -132,6 +145,81 @@ require([
                 open.className = "data-value";
             }
         }
+    }
+
+    function displayRunways(runways) {
+        if(!runways)
+            return;
+
+        var runwaySymbol = new SimpleLineSymbol({
+            width: 3
+        });
+
+        for(i = 0; i < runways.length; ++i) {
+            var runway = runways[i];
+
+            if(!runway.sides.north.pos || !runway.sides.south.pos)
+                continue;
+
+            var northPos = new Point({
+                x: runway.sides.north.pos.lon,
+                y: runway.sides.north.pos.lat
+            });
+
+            var southPos = new Point({
+                x: runway.sides.south.pos.lon,
+                y: runway.sides.south.pos.lat
+            });
+
+            var runwayLine = new Polyline({
+                paths: [[northPos.x, northPos.y], [southPos.x, southPos.y]]
+            });
+
+            runwayLayer.graphics.add(new Graphic(runwayLine, runwaySymbol));
+
+            var runwayAng = angleFromPoints(northPos, southPos);
+
+            var northText = new TextSymbol({
+                color: "black",
+                text: runway.sides.north.name,
+                angle: runwayAng,
+                yoffset: -10,
+                font: {
+                    size: 8,
+                    family: "sans-serif"
+                }
+            });
+
+            runwayLayer.graphics.add(new Graphic(northPos, northText));
+
+            var southText = northText.clone();
+            southText.text = runway.sides.south.name;
+            southText.angle += 180;
+
+            runwayLayer.graphics.add(new Graphic(southPos, southText));
+        }
+    }
+
+    function toRad(ang) {
+        return ang * (Math.PI / 180);
+    }
+
+    function toDeg(ang) {
+        return ang * (180 / Math.PI);
+    }
+
+    // https://stackoverflow.com/a/18738281
+    function angleFromPoints(pointA, pointB) {
+        var pointA = new Point(toRad(pointA.x), toRad(pointA.y));
+        var pointB = new Point(toRad(pointB.x), toRad(pointB.y));
+
+        var dLon = pointB.x - pointA.x;
+
+        var y = Math.sin(dLon) * Math.cos(pointB.y);
+        var x = Math.cos(pointA.y) * Math.sin(pointB.y) - Math.sin(pointA.y)
+                * Math.cos(pointB.y) * Math.cos(dLon);
+
+        return (toDeg(Math.atan2(y, x)) + 360) % 360;
     }
 });
 

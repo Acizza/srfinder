@@ -69,14 +69,20 @@ pub struct LatLon {
 }
 
 #[derive(Debug, Serialize, Clone)]
-pub struct RunwayIdentifier {
-    pub north: String,
-    pub south: String,
+pub struct RunwaySideData {
+    pub name: String,
+    pub pos:  Option<LatLon>,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct RunwaySides {
+    pub north: RunwaySideData,
+    pub south: RunwaySideData,
 }
 
 #[derive(Debug, Serialize, Clone)]
 pub struct Runway {
-    pub ident:  RunwayIdentifier,
+    pub sides:   RunwaySides,
     pub width:  Option<u32>,
     pub length: Option<u32>,
     pub closed: Option<bool>,
