@@ -50,6 +50,9 @@ require([
     map.add(runwayLayer);
     view.ui.add(basemapToggle, "bottom-right");
 
+    var depPoint = null;
+    var arrPoint = null;
+
     // Highlight route and draw it on the map
     $("#route-table").on("mouseenter", ".route-data", function() {
         $('.highlight').removeClass('highlight');
@@ -58,10 +61,10 @@ require([
         view.graphics.removeAll();
 
         var departure = $(this).children(".departure");
-        var depPoint  = new Point(departure.attr("data-lon"), departure.attr("data-lat"));
+        depPoint  = new Point(departure.attr("data-lon"), departure.attr("data-lat"));
 
         var arrival  = $(this).children(".arrival");
-        var arrPoint = new Point(arrival.attr("data-lon"), arrival.attr("data-lat"));
+        arrPoint = new Point(arrival.attr("data-lon"), arrival.attr("data-lat"));
 
         drawRoute(depPoint, arrPoint, view);
     });
@@ -83,6 +86,26 @@ require([
         displayRunways(route.arrival.runways);
     });
 
+    $("#route-viewer").on("click", "#departure", function() {
+        if(!depPoint)
+            return;
+
+        view.goTo({
+            center: depPoint,
+            scale: runwayLayer.minScale
+        });
+    });
+
+    $("#route-viewer").on("click", "#arrival", function() {
+        if(!arrPoint)
+            return;
+        
+        view.goTo({
+            center: arrPoint,
+            scale: runwayLayer.minScale
+        });
+    });
+
     function drawRoute(startPoint, endPoint, view) {
         var marker = new SimpleMarkerSymbol({
             style: "diamond",
@@ -97,7 +120,7 @@ require([
             width: 2
         });
 
-        var geodesicLine = geometryEngine.geodesicDensify(linePath, 100);
+        var geodesicLine = geometryEngine.geodesicDensify(linePath, 10000);
 
         view.graphics.add(new Graphic(startPoint, marker));
         view.graphics.add(new Graphic(endPoint, marker));
