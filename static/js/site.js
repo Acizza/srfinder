@@ -1,8 +1,3 @@
-// TODO: switch to TypeScript
-
-var setDepartureICAO = null;
-var routeData = [];
-
 require([
     "esri/Map",
     "esri/views/MapView",
@@ -29,6 +24,10 @@ require([
     TextSymbol,
     Graphic,
 ) {
+    var setDepartureICAO = null;
+    var routeData = [];
+    var selectedRoute = null;
+
     var map = new Map({
         basemap: "gray-vector"
     });
@@ -50,8 +49,49 @@ require([
     map.add(runwayLayer);
     view.ui.add(basemapToggle, "bottom-right");
 
-    var depPoint = null;
-    var arrPoint = null;
+    var routeSelectorScrollbar = $("#route-selector #scrollable");
+
+    $("#filters #scrollable").perfectScrollbar();
+    routeSelectorScrollbar.perfectScrollbar();
+    $("#route-viewer #scrollable").perfectScrollbar();
+
+    $("#filters select[name$=_country]").val(null);
+
+    var routeTable = $("#route-selector #route-table");
+    var machInput  = $("#filters input[name=mach]");
+
+    $("#filters").submit(function(e) {
+        var mach = machInput.val();
+
+        $.ajax({
+            type: 'post',
+            url:  '/filter',
+            data: $(this).serialize(),
+            success: function(routes) {
+                clearTable(routeTable[0]);
+                resetScrollbar(routeSelectorScrollbar);
+
+                routeData = [];
+
+                for(i = 0; i < routes.length; ++i) {
+                    insertRoute(routes[i], mach);
+                    routeData.push(routes[i]);
+                }
+            },
+            error: function(req, errText, err) {
+                console.log("error filtering routes: " + req.responseText);
+            }
+        });
+
+        e.preventDefault();
+    });
+
+    var findButton = $("#filters input[type=submit]");
+
+    // Don't allow submit when the speed isn't provided
+    machInput.on("input", function() {
+        findButton.prop("disabled", $(this).val() == "");
+    });
 
     // Highlight route and draw it on the map
     $("#route-table").on("mouseenter", ".route-data", function() {
@@ -60,50 +100,45 @@ require([
 
         view.graphics.removeAll();
 
-        var departure = $(this).children(".departure");
-        depPoint  = new Point(departure.attr("data-lon"), departure.attr("data-lat"));
-
-        var arrival  = $(this).children(".arrival");
-        arrPoint = new Point(arrival.attr("data-lon"), arrival.attr("data-lat"));
+        var route    = routeData[$(this).index() - 1];
+        var depPoint = airportPosToPoint(route.departure.pos);
+        var arrPoint = airportPosToPoint(route.arrival.pos);
 
         drawRoute(depPoint, arrPoint, view);
     });
 
     // Populate airport info
     $("#route-table").on("click", ".route-data", function() {
+        $('.selected').removeClass('selected');
+        $(this).addClass('selected');
+
         resetScrollbar($("#route-viewer #scrollable"));
-        var route = routeData[$(this).index() - 1];
-        
-        if(setDepartureICAO != route.departure.icao) {
-            populateAirportInfo("#route-viewer #departure", route.departure);
-            setDepartureICAO = route.departure.icao;
+        selectedRoute = routeData[$(this).index() - 1];
+
+        if(setDepartureICAO != selectedRoute.departure.icao) {
+            populateAirportInfo("#route-viewer #departure", selectedRoute.departure);
+            setDepartureICAO = selectedRoute.departure.icao;
         }
 
-        populateAirportInfo("#route-viewer #arrival", route.arrival);
+        populateAirportInfo("#route-viewer #arrival", selectedRoute.arrival);
 
         runwayLayer.graphics.removeAll();
-        displayRunways(route.departure.runways);
-        displayRunways(route.arrival.runways);
+        displayRunways(selectedRoute.departure.runways);
+        displayRunways(selectedRoute.arrival.runways);
     });
 
     $("#route-viewer").on("click", "#departure", function() {
-        if(!depPoint)
+        if(!selectedRoute)
             return;
 
-        view.goTo({
-            center: depPoint,
-            scale: runwayLayer.minScale
-        });
+        viewAirport(selectedRoute.departure);
     });
 
     $("#route-viewer").on("click", "#arrival", function() {
-        if(!arrPoint)
+        if(!selectedRoute)
             return;
         
-        view.goTo({
-            center: arrPoint,
-            scale: runwayLayer.minScale
-        });
+        viewAirport(selectedRoute.arrival);
     });
 
     function drawRoute(startPoint, endPoint, view) {
@@ -244,52 +279,17 @@ require([
 
         return (toDeg(Math.atan2(y, x)) + 360) % 360;
     }
-});
 
-$(document).ready(function() {
-    var routeSelectorScrollbar = $("#route-selector #scrollable");
+    function clearTable(table) {
+        for(i = table.rows.length - 1; i > 0; --i) {
+            table.deleteRow(i);
+        }
+    }
 
-    $("#filters #scrollable").perfectScrollbar();
-    routeSelectorScrollbar.perfectScrollbar();
-    $("#route-viewer #scrollable").perfectScrollbar();
-
-    $("#filters select[name$=_country]").val(null);
-
-    var routeTable = $("#route-selector #route-table");
-    var machInput  = $("#filters input[name=mach]");
-
-    $("#filters").submit(function(e) {
-        var mach = machInput.val();
-
-        $.ajax({
-            type: 'post',
-            url:  '/filter',
-            data: $(this).serialize(),
-            success: function(routes) {
-                clearTable(routeTable[0]);
-                resetScrollbar(routeSelectorScrollbar);
-
-                routeData = [];
-
-                for(i = 0; i < routes.length; ++i) {
-                    insertRoute(routes[i], mach);
-                    routeData.push(routes[i]);
-                }
-            },
-            error: function(req, errText, err) {
-                console.log("error filtering routes: " + req.responseText);
-            }
-        });
-
-        e.preventDefault();
-    });
-
-    var findButton = $("#filters input[type=submit]");
-
-    // Don't allow submit when the speed isn't provided
-    machInput.on("input", function() {
-        findButton.prop("disabled", $(this).val() == "");
-    });
+    function resetScrollbar(elem) {
+        elem.scrollTop(0);
+        elem.perfectScrollbar('update');
+    }
 
     function insertRoute(route, mach) {
         var row = routeTable[0].insertRow();
@@ -298,12 +298,10 @@ $(document).ready(function() {
         var depRow = row.insertCell(0);
         depRow.innerHTML = route.departure.icao;
         depRow.className = "departure";
-        addRouteLocation(route.departure.pos, depRow);
 
         var arrRow = row.insertCell(1);
         arrRow.innerHTML = route.arrival.icao;
         arrRow.className = "arrival";
-        addRouteLocation(route.arrival.pos, arrRow);
 
         var distRow = row.insertCell(2);
         distRow.innerHTML = Math.round(route.distance) + " nm";
@@ -312,26 +310,24 @@ $(document).ready(function() {
         timeRow.innerHTML = formatRouteTime(route.time, mach);
     }
 
-    function addRouteLocation(pos, row) {
-        row.setAttribute("data-lat", pos.lat);
-        row.setAttribute("data-lon", pos.lon);
-    }
-
     function formatRouteTime(time, mach) {
         var hours   = Math.floor(time);
         var minutes = Math.floor((time - hours) * 60);
 
         return hours + ":" + (minutes < 10 ? "0" + minutes : minutes);
     }
-});
 
-function clearTable(table) {
-    for(i = table.rows.length - 1; i > 0; --i) {
-        table.deleteRow(i);
+    function airportPosToPoint(pos) {
+        return new Point({
+            latitude: pos.lat,
+            longitude: pos.lon
+        });
     }
-}
 
-function resetScrollbar(elem) {
-    elem.scrollTop(0);
-    elem.perfectScrollbar('update');
-}
+    function viewAirport(airport) {
+        view.goTo({
+            center: airportPosToPoint(airport.pos),
+            scale: runwayLayer.minScale
+        });
+    }
+});
