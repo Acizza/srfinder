@@ -59,7 +59,7 @@ impl<V> HashMapExtras<V> for HashMap<String, V> {
     }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize)]
 pub struct Country {
     pub name:   String,
     pub region: Region,

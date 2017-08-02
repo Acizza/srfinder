@@ -62,25 +62,25 @@ impl<'v> FromFormValue<'v> for Type {
     }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize)]
 pub struct LatLon {
     pub lat: f32,
     pub lon: f32,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize)]
 pub struct RunwaySideData {
     pub name: String,
     pub pos:  Option<LatLon>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize)]
 pub struct RunwaySides {
     pub north: RunwaySideData,
     pub south: RunwaySideData,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize)]
 pub struct Runway {
     pub sides:   RunwaySides,
     pub width:  Option<u32>,
@@ -88,7 +88,7 @@ pub struct Runway {
     pub closed: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize)]
 pub struct Frequencies {
     pub ground:    Option<String>,
     pub tower:     Option<String>,
@@ -98,13 +98,13 @@ pub struct Frequencies {
 }
 
 // TODO: add custom type to filter out empty strings
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize)]
 pub struct Region {
     pub code:      String,
     pub continent: String,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize)]
 pub struct Airport {
     pub icao:        String,
     pub name:        String,

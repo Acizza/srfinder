@@ -17,20 +17,20 @@ use self::time::PreciseTime;
 const KNOTS_PER_MACH: f32 = 666.739;
 
 #[derive(Debug, Serialize)]
-pub struct Route {
-    pub departure: Airport,
-    pub arrival:   Airport,
+pub struct Route<'a> {
+    pub departure: &'a Airport,
+    pub arrival:   &'a Airport,
     pub distance:  f32,
     pub time:      f32,
 }
 
-impl Route {
-    pub fn create(departure: Airport, arrival: Airport, mach: f32) -> Route {
+impl<'a> Route<'a> {
+    pub fn create(departure: &'a Airport, arrival: &'a Airport, mach: f32) -> Self {
         let mut route = Route {
-            departure,
-            arrival,
-            distance: 0.0,
-            time:     0.0,
+            departure: &departure,
+            arrival:   &arrival,
+            distance:  0.0,
+            time:      0.0,
         };
 
         route.distance = route.calculate_distance();
@@ -56,7 +56,7 @@ impl Route {
         self.distance / (mach * KNOTS_PER_MACH)
     }
 
-    pub fn matches_filters(&self, filters: &[RouteFilter]) -> bool {
+    pub fn is_filter_match(&self, filters: &[RouteFilter]) -> bool {
         let matches = filters.iter().all(|ref filter| {
             use self::RouteFilter::*;
             
@@ -72,8 +72,8 @@ impl Route {
         matches && self.arrival.icao != self.departure.icao
     }
 
-    pub fn find_all(form: &FilterForm, airports: &[Airport])
-        -> Result<Vec<Route>, NotFound<String>> {
+    pub fn find_all(form: &FilterForm, airports: &'a [Airport])
+        -> Result<Vec<Route<'a>>, NotFound<String>> {
 
         let departure = airports.find_by_form(&form).ok_or(
             NotFound("departure airport not found".into()))?;
@@ -82,11 +82,11 @@ impl Route {
 
         let mut routes = airports.par_iter()
             .filter_map(|arrival| {
-                let route = Route::create(departure.clone(),
-                                          arrival.clone(),
+                let route = Route::create(&departure,
+                                          &arrival,
                                           form.mach);
 
-                if route.matches_filters(&filters) {
+                if route.is_filter_match(&filters) {
                     Some(route)
                 } else {
                     None
@@ -146,8 +146,8 @@ impl<'a> FindAirport<'a> for &'a [Airport] {
 }
 
 #[post("/filter", data = "<form>")]
-pub fn filter_routes(form: LenientForm<FilterForm>, airports: State<Vec<Airport>>)
-    -> Result<Json<Vec<Route>>, NotFound<String>> {
+pub fn filter_routes<'a>(form: LenientForm<FilterForm>, airports: State<'a, Vec<Airport>>)
+    -> Result<Json<Vec<Route<'a>>>, NotFound<String>> {
 
     let form     = form.into_inner();
     let airports = airports.inner().as_slice();
@@ -161,7 +161,7 @@ pub fn filter_routes(form: LenientForm<FilterForm>, airports: State<Vec<Airport>
         let arr = airports.find_by_icao(&arr_icao).ok_or(
             NotFound("arrival airport not found".into()))?;
 
-        Ok(Json(vec![Route::create(dep.clone(), arr.clone(), form.mach)]))
+        Ok(Json(vec![Route::create(&dep, &arr, form.mach)]))
     } else {
         let start_time = PreciseTime::now();
         let routes     = Route::find_all(&form, &airports)?;
