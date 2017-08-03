@@ -63,7 +63,6 @@ pub struct Frequencies {
     pub atis:      Option<String>,
 }
 
-// TODO: add custom type to filter out empty strings
 #[derive(Debug, Serialize)]
 pub struct Region {
     pub code:      String,

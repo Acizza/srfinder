@@ -60,6 +60,7 @@ require([
     var routeTable = $("#route-selector #route-table");
     var machInput  = $("#filters input[name=mach]");
 
+    // Submit filters and add found routes
     $("#filters").submit(function(e) {
         var mach = machInput.val();
 
@@ -91,6 +92,11 @@ require([
     // Don't allow submit when the speed isn't provided
     machInput.on("input", function() {
         findButton.prop("disabled", $(this).val() == "");
+    });
+
+    // Clear the selected country when the X button is clicked
+    $("#filters").on("click", ".clear-country", function() {
+        $(this).prev().val('');
     });
 
     // Highlight route and draw it on the map
@@ -127,6 +133,7 @@ require([
         displayRunways(selectedRoute.arrival.runways);
     });
 
+    // Teleport map to departure airport
     $("#route-viewer").on("click", "#departure", function() {
         if(!selectedRoute)
             return;
@@ -134,6 +141,7 @@ require([
         viewAirport(selectedRoute.departure);
     });
 
+    // Teleport map to arrival airport
     $("#route-viewer").on("click", "#arrival", function() {
         if(!selectedRoute)
             return;

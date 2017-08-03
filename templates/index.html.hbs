@@ -46,11 +46,14 @@
                         <br>
                         <span class="label">Country</span>
                         <br>
-                        <select name="dep_country">
-                            {{#each countries}}
-                            <option value="{{this.region.code}}">{{this.name}}</option>
-                            {{/each}}
-                        </select>
+                        <div id="country-field">
+                            <select name="dep_country">
+                                {{#each countries}}
+                                <option value="{{this.region.code}}">{{this.name}}</option>
+                                {{/each}}
+                            </select>
+                            <button class="clear-country" type="button">X</button>
+                        </div>
                     </div>
                     <span class="label">Arrival</span>
                     <div id="arrival" class="box">
@@ -76,11 +79,14 @@
                         <br>
                         <span class="label">Country</span>
                         <br>
-                        <select name="arr_country">
-                            {{#each countries}}
-                            <option value="{{this.region.code}}">{{this.name}}</option>
-                            {{/each}}
-                        </select>
+                        <div id="country-field">
+                            <select name="arr_country">
+                                {{#each countries}}
+                                <option value="{{this.region.code}}">{{this.name}}</option>
+                                {{/each}}
+                            </select>
+                            <button class="clear-country" type="button">X</button>
+                        </div>
                     </div>
                     <br>
                     <br>
