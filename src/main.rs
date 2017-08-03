@@ -4,21 +4,27 @@
 
 extern crate rocket;
 extern crate rocket_contrib;
+extern crate time;
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate error_chain;
 
-mod route;
-mod airport;
+mod filter;
 
-use std::path::{Path, PathBuf};
+use filter::airport::Airport;
+use filter::data::{Country, DataFiles};
+use filter::DataForm;
+use filter::route::Route;
+use rocket_contrib::{Template, Json};
 use rocket::{Rocket, State};
 use rocket::response::NamedFile;
-use rocket_contrib::Template;
-use airport::data::{DataFiles, Country};
+use rocket::request::LenientForm;
+use std::path::{Path, PathBuf};
+use time::PreciseTime;
 
 error_chain! {
     links {
-        DataFiles(airport::data::Error, airport::data::ErrorKind);
+        DataFiles(filter::data::Error, filter::data::ErrorKind);
+        Route(filter::route::Error, filter::route::ErrorKind);
     }
 }
 
@@ -41,20 +47,33 @@ fn index(countries: State<Vec<Country>>) -> Template {
     Template::render("index", &context)
 }
 
+#[post("/filter", data = "<form>")]
+fn filter<'a>(form: LenientForm<DataForm>, airports: State<'a, Vec<Airport>>)
+    -> Result<Json<Vec<Route<'a>>>> {
+
+    let form     = form.into_inner();
+    let airports = airports.inner();
+
+    let start_time = PreciseTime::now();
+    let routes     = Route::get_all_filter_matches(&form, &airports)?;
+    let end_time   = PreciseTime::now();
+    println!("filtering time: {} ms", start_time.to(end_time) * 1000);
+
+    Ok(Json(routes))
+}
+
 fn init(rocket: Rocket) -> Result<Rocket> {
-    let data_files = DataFiles::new(Path::new("data"))?;
-    data_files.ensure_updated_data()?;
+    let data_files   = DataFiles::create_and_verify(Path::new("data"))?;
+    let airport_data = data_files.parse_airports()?;
 
-    let airport_data  = data_files.parse()?;
     let mut countries = data_files.parse_countries()?;
-
     countries.sort_by(|a, b| a.name.cmp(&b.name));
 
     Ok(rocket.manage(airport_data).manage(countries))
 }
 
 fn launch_rocket(rocket: Rocket) {
-    rocket.mount("/", routes![index, route::filter_routes, files])
+    rocket.mount("/", routes![index, filter, files])
           .attach(Template::fairing())
           .launch();
 }

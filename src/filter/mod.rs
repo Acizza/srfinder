@@ -1,10 +1,15 @@
-use ::std::cmp::Ordering;
+use self::airport::Runway;
 use ::rocket::http::RawStr;
 use ::rocket::request::FromFormValue;
-use ::airport::{self, ICAO, Runway};
+use ::std::cmp::Ordering;
+use ::std::ops::Deref;
 
-macro_rules! enum_with_form_parser {
-    (name = $name:ident, form = $form_ty:ty,
+pub mod airport;
+pub mod data;
+pub mod route;
+
+macro_rules! gen_filter_type {
+    ($name:ident, $form_ty:ty,
         $($struct_variant:ident => $enum_variant:ident($type:ty),)*) => {
 
         #[derive(Debug)]
@@ -13,7 +18,7 @@ macro_rules! enum_with_form_parser {
         }
 
         impl $name {
-            pub fn from_form(form: &$form_ty) -> Vec<$name> {
+            fn from_form(form: &$form_ty) -> Vec<$name> {
                 let mut found = Vec::new();
 
                 $(match form.$struct_variant {
@@ -28,8 +33,8 @@ macro_rules! enum_with_form_parser {
 }
 
 #[derive(FromForm, Debug)]
-pub struct FilterForm {
-    pub mach: f32,
+pub struct DataForm {
+    pub mach:           f32,
     pub dep_icao:       Option<ICAO>,
     pub dep_type:       Option<airport::Type>,
     pub dep_runway_len: Option<RunwayLength>,
@@ -42,23 +47,42 @@ pub struct FilterForm {
     pub max_time:       Option<Time>,
 }
 
-enum_with_form_parser!(
-    name = AirportFilter,
-    form = FilterForm,
-        dep_type       => Type(airport::Type),
-        dep_runway_len => RunwayLength(RunwayLength),
-        dep_country    => Country(String),
+gen_filter_type!(AirportFilter, DataForm,
+    dep_type       => Type(airport::Type),
+    dep_runway_len => RunwayLength(RunwayLength),
+    dep_country    => Country(String),
 );
 
-enum_with_form_parser!(
-    name = RouteFilter,
-    form = FilterForm,
-        arr_type       => ArrType(airport::Type),
-        arr_runway_len => ArrRunwayLength(RunwayLength),
-        arr_country    => ArrCountry(String),
-        min_time       => MinTime(Time),
-        max_time       => MaxTime(Time),
+gen_filter_type!(RouteFilter, DataForm,
+    arr_type       => ArrType(airport::Type),
+    arr_runway_len => ArrRunwayLength(RunwayLength),
+    arr_country    => ArrCountry(String),
+    min_time       => MinTime(Time),
+    max_time       => MaxTime(Time),
 );
+
+#[derive(Debug, Serialize, Clone)]
+pub struct ICAO(pub String);
+
+impl<'v> FromFormValue<'v> for ICAO {
+    type Error = &'v RawStr;
+
+    fn from_form_value(form_value: &'v RawStr) -> Result<ICAO, &'v RawStr> {
+        if form_value != "" {
+            Ok(ICAO(form_value.as_str().into()))
+        } else {
+            Err(form_value)
+        }
+    }
+}
+
+impl Deref for ICAO {
+    type Target = String;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct Time(pub f32);

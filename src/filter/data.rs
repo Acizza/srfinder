@@ -1,14 +1,14 @@
 extern crate reqwest;
 extern crate csv;
-extern crate time;
 
+use filter::airport::{Airport, LatLon, Type, Runway, RunwaySides,
+    RunwaySideData, Frequencies, Region};
+use ::time;
 use std::collections::HashMap;
 use std::env;
 use std::fs::{self, File};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
-use super::{Airport, LatLon, Type, Runway, RunwaySides,
-            RunwaySideData, Frequencies, Region};
 
 error_chain! {
     errors {
@@ -80,6 +80,13 @@ impl DataFiles {
         })
     }
 
+    pub fn create_and_verify(data_path: &Path) -> Result<DataFiles> {
+        let dfiles = DataFiles::new(data_path)?;
+        dfiles.ensure_updated_data()?;
+
+        Ok(dfiles)
+    }
+
     pub fn ensure_updated_data(&self) -> Result<()> {
         let path = self.get_path_in_data(DOWNLOAD_DATE_FILE);
 
@@ -148,7 +155,7 @@ impl DataFiles {
         Ok(())
     }
 
-    pub fn parse(&self) -> Result<Vec<Airport>> {
+    pub fn parse_airports(&self) -> Result<Vec<Airport>> {
         let mut rdr = csv::Reader::from_path(
             self.get_path_in_data(AIRPORTS_FILE))?;
 
