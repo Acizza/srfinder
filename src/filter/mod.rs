@@ -143,16 +143,9 @@ impl<'v> FromFormValue<'v> for RunwayLength {
 impl RunwayLength {
     pub fn is_match(&self, runway: &Runway) -> bool {
         match runway.length {
-            Some(len) => {
-                match self.order {
-                    Ordering::Less    => len <= self.value,
-                    Ordering::Greater => len >= self.value,
-                    Ordering::Equal   => len == self.value,
-                }
-            },
-            None => false,
+            Some(len) => len.cmp(&self.value) == self.order,
+            None      => false,
         }
-        
     }
 
     pub fn any_match(&self, runways: &Option<Vec<Runway>>) -> bool {
