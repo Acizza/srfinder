@@ -159,7 +159,6 @@ impl RunwayLength {
             RunwayLength::parse_between(input_str)
                 .or(RunwayLength::parse_single(input_str))
         } else {
-            println!("non");
             Err(input_str)
         }
     }
