@@ -1,8 +1,8 @@
 use self::airport::Runway;
 use ::rocket::http::RawStr;
 use ::rocket::request::FromFormValue;
-use ::std::cmp::Ordering;
 use ::std::ops::Deref;
+use util::StringUtil;
 
 pub mod airport;
 pub mod data;
@@ -109,42 +109,73 @@ impl<'v> FromFormValue<'v> for Time {
     }
 }
 
+type Length    = u32;
+type MinLength = Length;
+type MaxLength = Length;
+
 #[derive(Debug, Clone)]
-pub struct RunwayLength {
-    order: Ordering,
-    pub value: u32,
-}
-
-impl<'v> FromFormValue<'v> for RunwayLength {
-    type Error = &'v RawStr;
-
-    // TODO: make unicode safe
-    fn from_form_value(form_value: &'v RawStr) -> Result<RunwayLength, &'v RawStr> {
-        if form_value.len() < 4 {
-            Err(form_value)
-        } else {
-            let order = match &form_value[..3] {
-                "%3C" => Ordering::Less,    // <
-                "%3E" => Ordering::Greater, // >
-                "%3D" => Ordering::Equal,   // =
-                _     => Err(form_value)?,
-            };
-
-            let value = form_value[3..].parse().map_err(|_| form_value)?;
-
-            Ok(RunwayLength {
-                order,
-                value
-            })
-        }
-    }
+pub enum RunwayLength {
+    LessThan(Length),
+    GreaterThan(Length),
+    EqualTo(Length),
+    Between(MinLength, MaxLength),
 }
 
 impl RunwayLength {
+    fn parse_single(input_str: &RawStr) -> Result<RunwayLength, &RawStr> {
+        if input_str.len() > 3 {
+            use self::RunwayLength::*;
+            let value = input_str[3..].parse().map_err(|_| input_str)?;
+
+            match &input_str[..3] {
+                "%3C" => Ok(LessThan(value)),    // <
+                "%3E" => Ok(GreaterThan(value)), // >
+                "%3D" => Ok(EqualTo(value)),     // =
+                _     => Err(input_str),
+            }
+        } else {
+            Err(input_str)
+        }
+    }
+
+    fn parse_between(input_str: &RawStr) -> Result<RunwayLength, &RawStr> {
+        let values = input_str.splitn(2, '+')
+                              .collect::<Vec<_>>();
+
+        if values.len() == 2 {
+            let min = values[0].parse().map_err(|_| input_str)?;
+            let max = values[1].parse().map_err(|_| input_str)?;
+
+            Ok(RunwayLength::Between(min, max))
+        } else {
+            Err(input_str)
+        }
+    }
+
+    pub fn parse(input_str: &RawStr) -> Result<RunwayLength, &RawStr> {
+        // Since slices are invovled in parsing, accepting non-ascii strings
+        // can cause a panic from going out of bounds
+        if input_str.is_ascii() {
+            RunwayLength::parse_between(input_str)
+                .or(RunwayLength::parse_single(input_str))
+        } else {
+            println!("non");
+            Err(input_str)
+        }
+    }
+
     pub fn is_match(&self, runway: &Runway) -> bool {
         match runway.length {
-            Some(len) => len.cmp(&self.value) == self.order,
-            None      => false,
+            Some(run_len) => {
+                use self::RunwayLength::*;
+                match *self {
+                    LessThan(len)             => run_len <= len,
+                    GreaterThan(len)          => run_len >= len,
+                    EqualTo(len)              => run_len == len,
+                    Between(min_len, max_len) => run_len >= min_len && run_len <= max_len,
+                }
+            },
+            None => false,
         }
     }
 
@@ -153,5 +184,13 @@ impl RunwayLength {
             Some(ref runways) => runways.iter().any(|r| self.is_match(r)),
             None => false,
         }
+    }
+}
+
+impl<'v> FromFormValue<'v> for RunwayLength {
+    type Error = &'v RawStr;
+
+    fn from_form_value(form_value: &'v RawStr) -> Result<RunwayLength, &'v RawStr> {
+        RunwayLength::parse(form_value)
     }
 }

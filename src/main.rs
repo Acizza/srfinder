@@ -9,6 +9,7 @@ extern crate time;
 #[macro_use] extern crate error_chain;
 
 mod filter;
+mod util;
 
 use filter::airport::Airport;
 use filter::data::{Country, DataFiles};
