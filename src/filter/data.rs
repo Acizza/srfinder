@@ -237,7 +237,6 @@ impl DataFiles {
                 },
                 width:  data.get_field("width_ft")?.parse().ok(),
                 length: data.get_field("length_ft")?.parse().ok(),
-                closed: data.get_field("closed")?.parse::<i32>().ok().map(|val| val == 1),
             });
         }
 

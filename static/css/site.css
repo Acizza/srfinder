@@ -189,7 +189,8 @@ width:100%
 
 #route-viewer #runways {
 margin:0 auto;
-width:90%
+width:90%;
+max-width: 400px
 }
 
 #route-viewer #scrollable {

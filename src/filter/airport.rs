@@ -36,10 +36,9 @@ pub enum Type {
 
 #[derive(Debug, Serialize)]
 pub struct Runway {
-    pub sides:   RunwaySides,
+    pub sides:  RunwaySides,
     pub width:  Option<u32>,
     pub length: Option<u32>,
-    pub closed: Option<bool>,
 }
 
 #[derive(Debug, Serialize)]

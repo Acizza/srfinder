@@ -234,23 +234,39 @@ require([
 
             for(i = 0; i < airport.runways.length; ++i) {
                 var runway = airport.runways[i];
+                var north  = runway.sides.north;
+                var south  = runway.sides.south;
+
                 var row = runwayTable.insertRow();
                 
                 var name = row.insertCell(0);
-                name.innerHTML = runway.sides.north.name + " / " + runway.sides.south.name;
+                name.innerHTML = north.name + " / " + south.name;
                 name.className = "data-value";
 
-                var length = row.insertCell(1);
+                var hdgs = row.insertCell(1);
+                
+                // Although the true heading is a provided field from the
+                // airport data source, some airports do not contain it,
+                // so it's more reliable to calculate it ourselves
+                if(north.pos && south.pos) {
+                    var northPoint = latLonToPoint(north.pos);
+                    var southPoint = latLonToPoint(south.pos);
+
+                    var northHDG = Math.round(angleFromPoints(northPoint, southPoint));
+                    hdgs.innerHTML = northHDG + " / " + ((northHDG + 180) % 360);
+                } else {
+                    hdgs.innerHTML = "unk / unk";
+                }
+
+                hdgs.className = "data-value";
+
+                var length = row.insertCell(2);
                 length.innerHTML = runway.length ? runway.length + " ft" : "n/a";
                 length.className = "data-value";
 
-                var width = row.insertCell(2);
+                var width = row.insertCell(3);
                 width.innerHTML = runway.width ? runway.width + " ft" : "n/a";
                 width.className = "data-value";
-
-                var open = row.insertCell(3);
-                open.innerHTML = runway.closed ? "No" : "Yes";
-                open.className = "data-value";
             }
         }
     }
@@ -413,5 +429,12 @@ require([
         }
 
         return jQuery.param(values);
+    }
+
+    function latLonToPoint(pos) {
+        return new Point({
+            x: pos.lon,
+            y: pos.lat
+        });
     }
 });
