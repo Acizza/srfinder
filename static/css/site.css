@@ -164,7 +164,11 @@ background-color:#3f4249
 #route-viewer #frequencies {
 margin:0 auto;
 text-align:left;
-width:60%
+width:200px
+}
+
+#route-viewer #freq-table {
+margin: 0 auto
 }
 
 #route-viewer #frequencies br {
@@ -209,10 +213,6 @@ margin-bottom:15px
 color:#8da1bc;
 font-family:"Verdana";
 font-size:14px
-}
-
-#route-viewer table {
-padding-left:20px
 }
 
 #route-viewer td {
