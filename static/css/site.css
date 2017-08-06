@@ -167,6 +167,10 @@ text-align:left;
 width:200px
 }
 
+#route-viewer #frequencies td {
+padding-left:20px
+}
+
 #route-viewer #freq-table {
 margin: 0 auto
 }
@@ -202,6 +206,10 @@ top:0;
 width:100%
 }
 
+#route-viewer .box {
+margin-top: 5px!important
+}
+
 #route-viewer .content {
 margin:10px 0
 }
@@ -217,8 +225,7 @@ font-size:14px
 }
 
 #route-viewer td {
-padding-bottom:5px;
-padding-left:20px
+padding-bottom:5px
 }
 
 #route-viewer th {
