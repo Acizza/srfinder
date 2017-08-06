@@ -36,8 +36,15 @@ width:100%
 margin-bottom:40px
 }
 
-#filters .box br {
-margin-bottom:5px
+#filters .box {
+align-items: center;
+display: flex;
+flex-direction: column
+}
+
+#filters .box .label {
+margin-bottom: 5px;
+margin-top: 5px
 }
 
 #filters .clear-country {
