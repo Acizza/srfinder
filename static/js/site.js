@@ -25,8 +25,9 @@ require([
     Graphic,
 ) {
     var setDepartureICAO = null;
-    var routeData = [];
-    var selectedRoute = null;
+    var routeData        = [];
+    var selectedRoute    = null;
+    var countryList      = null;
 
     var map = new Map({
         basemap: "gray-vector"
@@ -55,7 +56,48 @@ require([
     routeSelectorScrollbar.perfectScrollbar();
     $("#route-viewer #scrollable").perfectScrollbar();
 
-    $("#filters select[name$=_country]").val(null);
+    // Get country list and add them as autocomplete suggestions
+    $.ajax({
+        type: 'get',
+        url: '/countries',
+        success: function(countries) {
+            countryList = countries;
+
+            var tags = countries.map(function(country) {
+                return country.name;
+            });
+
+            var getLast = function(term) {
+                return getInsertedCountries(term).pop();
+            };
+
+            $("#filters input[name$=_countries]").autocomplete({
+                // http://jqueryui.com/autocomplete/#multiple
+                source: function(request, response) {
+                    var results = $.ui.autocomplete.filter(
+                                    tags,
+                                    getLast(request.term));
+
+                    response(results.slice(0, 10));
+                },
+                focus: function() {
+                    return false;
+                },
+                select: function(event, ui) {
+                    var terms = getInsertedCountries(this.value);
+                    terms.pop();
+                    terms.push(ui.item.value);
+                    terms.push("");
+
+                    this.value = terms.join(", ");
+                    return false;
+                }
+            });
+        },
+        error: function(req, errText, err) {
+            console.log("error getting country list: " + req.responseText);
+        }
+    });
 
     var routeTable = $("#route-selector #route-table");
     var machInput  = $("#filters input[name=mach]");
@@ -67,7 +109,7 @@ require([
         $.ajax({
             type: 'post',
             url:  '/filter',
-            data: $(this).serialize(),
+            data: serializeFilters(),
             success: function(routes) {
                 clearTable(routeTable[0]);
                 resetScrollbar(routeSelectorScrollbar);
@@ -337,5 +379,39 @@ require([
             center: airportPosToPoint(airport.pos),
             scale: runwayLayer.minScale
         });
+    }
+
+    function getInsertedCountries(val) {
+        return val.split(/,\s*/);
+    }
+
+    // https://stackoverflow.com/a/5075798
+    function serializeFilters() {
+        var values = $("#filters").serializeArray();
+        
+        for(i = 0; i < values.length; ++i) {
+            var name = values[i].name;
+
+            // Convert the country list input values to their respective codes
+            // to make processing easier serverside
+            if(name == "dep_countries" || name == "arr_countries") {
+                var inserted = getInsertedCountries(values[i].value);
+                var regionList = [];
+
+                for(j = 0; j < inserted.length; ++j) {
+                    var found = countryList.find(function(country) {
+                        return country.name == inserted[j];
+                    });
+
+                    if(found) {
+                        regionList.push(found.region.code);
+                    }
+                }
+
+                values[i].value = regionList.join(' ');
+            }
+        }
+
+        return jQuery.param(values);
     }
 });

@@ -65,11 +65,11 @@ impl<'a> Route<'a> {
             use self::RouteFilter::*;
             
             match **filter {
-                ArrType(ref _type)       => self.arrival._type == *_type,
-                ArrRunwayLength(ref len) => len.any_match(&self.arrival.runways),
-                ArrCountry(ref country)  => self.arrival.region.code == country.as_str(),
-                MinTime(Time(min_time))  => self.time >= min_time,
-                MaxTime(Time(max_time))  => self.time <= max_time,
+                ArrType(ref _type)           => self.arrival._type == *_type,
+                ArrRunwayLength(ref len)     => len.any_match(&self.arrival.runways),
+                ArrCountries(ref countries)  => countries.any_match(&self.arrival.region.code),
+                MinTime(Time(min_time))      => self.time >= min_time,
+                MaxTime(Time(max_time))      => self.time <= max_time,
             }
         });
 

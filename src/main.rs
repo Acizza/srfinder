@@ -63,6 +63,12 @@ fn filter<'a>(form: LenientForm<DataForm>, airports: State<'a, Vec<Airport>>)
     Ok(Json(routes))
 }
 
+#[get("/countries")]
+fn get_countries(countries: State<Vec<Country>>) -> Json<&Vec<Country>> {
+    let countries = countries.inner();
+    Json(countries)
+}
+
 fn init(rocket: Rocket) -> Result<Rocket> {
     let data_files   = DataFiles::create_and_verify(Path::new("data"))?;
     let airport_data = data_files.parse_airports()?;
@@ -74,7 +80,7 @@ fn init(rocket: Rocket) -> Result<Rocket> {
 }
 
 fn launch_rocket(rocket: Rocket) {
-    rocket.mount("/", routes![index, filter, files])
+    rocket.mount("/", routes![index, files, get_countries, filter])
           .attach(Template::fairing())
           .launch();
 }

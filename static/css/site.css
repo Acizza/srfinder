@@ -255,6 +255,16 @@ padding-top:10px
 font-size:12px
 }
 
+.ui-autocomplete {
+font-size:12px;
+background-color:#32353a;
+color:#b6bdc6
+}
+
+.ui-menu.ui-widget-content {
+border:1px solid #474b54
+}
+
 .header {
 color:#b6bdc6;
 font-family:"Verdana";
@@ -324,4 +334,8 @@ input {
 background-color:#383e42;
 border:1px solid #2b2c2d;
 color:#b6bdc6
+}
+
+body {
+overflow:hidden
 }

@@ -134,9 +134,9 @@ impl<'a> AirportSearching<'a> for &'a [Airport] {
                 use self::AirportFilter::*;
 
                 match **filter {
-                    Type(ref _type)       => airport._type == *_type,
-                    RunwayLength(ref len) => len.any_match(&airport.runways),
-                    Country(ref country)  => airport.region.code == country.as_str(),
+                    Type(ref _type)           => airport._type == *_type,
+                    RunwayLength(ref len)     => len.any_match(&airport.runways),
+                    Countries(ref countries)  => countries.any_match(&airport.region.code),
                 }
             })
         })

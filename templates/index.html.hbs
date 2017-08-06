@@ -6,8 +6,10 @@
         <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=yes">
         <link rel="stylesheet" href="https://js.arcgis.com/4.4/esri/css/main.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/0.7.0/css/perfect-scrollbar.min.css">
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <link rel="stylesheet" href="/css/site.css">
         <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min.js"></script>
         <script src="https://js.arcgis.com/4.4/"></script>
         <script src="js/site.js"></script>
@@ -44,16 +46,9 @@
                         <br>
                         <input type="text" name="dep_runway_len" placeholder="ex. >13000 or <10000" pattern="((<|>|=)\d+)|(\d+\s+\d+)">
                         <br>
-                        <span class="label">Country</span>
+                        <span class="label">Countries</span>
                         <br>
-                        <div id="country-field">
-                            <select name="dep_country">
-                                {{#each countries}}
-                                <option value="{{this.region.code}}">{{this.name}}</option>
-                                {{/each}}
-                            </select>
-                            <button class="clear-country" type="button">X</button>
-                        </div>
+                        <input type="text" name="dep_countries">
                     </div>
                     <span class="label">Arrival</span>
                     <div id="arrival" class="box">
@@ -77,16 +72,9 @@
                         <br>
                         <input type="text" name="arr_runway_len" placeholder="ex. >13000 or <10000" pattern="((<|>|=)\d+)|(\d+\s+\d+)">
                         <br>
-                        <span class="label">Country</span>
+                        <span class="label">Countries</span>
                         <br>
-                        <div id="country-field">
-                            <select name="arr_country">
-                                {{#each countries}}
-                                <option value="{{this.region.code}}">{{this.name}}</option>
-                                {{/each}}
-                            </select>
-                            <button class="clear-country" type="button">X</button>
-                        </div>
+                        <input type="text" name="arr_countries">
                     </div>
                     <br>
                     <br>

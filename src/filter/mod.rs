@@ -38,11 +38,11 @@ pub struct DataForm {
     pub dep_icao:       Option<ICAO>,
     pub dep_type:       Option<airport::Type>,
     pub dep_runway_len: Option<RunwayLength>,
-    pub dep_country:    Option<String>,
+    pub dep_countries:  Option<Countries>,
     pub arr_icao:       Option<ICAO>,
     pub arr_type:       Option<airport::Type>,
     pub arr_runway_len: Option<RunwayLength>,
-    pub arr_country:    Option<String>,
+    pub arr_countries:  Option<Countries>,
     pub min_time:       Option<Time>,
     pub max_time:       Option<Time>,
 }
@@ -50,13 +50,13 @@ pub struct DataForm {
 gen_filter_type!(AirportFilter, DataForm,
     dep_type       => Type(airport::Type),
     dep_runway_len => RunwayLength(RunwayLength),
-    dep_country    => Country(String),
+    dep_countries  => Countries(Countries),
 );
 
 gen_filter_type!(RouteFilter, DataForm,
     arr_type       => ArrType(airport::Type),
     arr_runway_len => ArrRunwayLength(RunwayLength),
-    arr_country    => ArrCountry(String),
+    arr_countries  => ArrCountries(Countries),
     min_time       => MinTime(Time),
     max_time       => MaxTime(Time),
 );
@@ -191,5 +191,46 @@ impl<'v> FromFormValue<'v> for RunwayLength {
 
     fn from_form_value(form_value: &'v RawStr) -> Result<RunwayLength, &'v RawStr> {
         RunwayLength::parse(form_value)
+    }
+}
+
+type CountryCode = String;
+
+#[derive(Debug, Clone)]
+pub struct Countries(pub Vec<CountryCode>);
+
+impl Countries {
+    pub fn any_match(&self, code: &str) -> bool {
+        self.is_empty() || self.iter().any(|c| c == code)
+    }
+}
+
+impl<'v> FromFormValue<'v> for Countries {
+    type Error = &'v RawStr;
+
+    fn from_form_value(form_value: &'v RawStr) -> Result<Countries, &'v RawStr> {
+        let countries = {
+            let values = form_value
+                .split('+')
+                .map(|s| s.into())
+                .collect::<Vec<_>>();
+
+            // We have to manually create an empty vector if an empty string is received
+            if values.len() > 0 && values[0] != "" {
+                values
+            } else {
+                Vec::new()
+            }
+        };
+
+        Ok(Countries(countries))
+    }
+}
+
+impl Deref for Countries {
+    type Target = Vec<CountryCode>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
