@@ -19,6 +19,7 @@ use rocket_contrib::{Template, Json};
 use rocket::{Rocket, State};
 use rocket::response::NamedFile;
 use rocket::request::LenientForm;
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use time::PreciseTime;
 
@@ -34,18 +35,9 @@ fn files(file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(Path::new("static/").join(file)).ok()
 }
 
-#[derive(Serialize)]
-struct IndexTemplate<'a> {
-    countries: &'a Vec<Country>,
-}
-
 #[get("/")]
-fn index(countries: State<Vec<Country>>) -> Template {
-    let context = IndexTemplate {
-        countries: &countries.inner()
-    };
-
-    Template::render("index", &context)
+fn index() -> Template {
+    Template::render("index", &HashMap::<String, String>::new())
 }
 
 #[post("/filter", data = "<form>")]
