@@ -65,26 +65,26 @@ pub struct Country {
     pub region: Region,
 }
 
-pub struct DataFiles {
+pub struct AirportData {
     data_dir: PathBuf,
 }
 
-impl DataFiles {
-    pub fn new(data_path: &Path) -> Result<DataFiles> {
+impl AirportData {
+    pub fn new(data_path: &Path) -> Result<AirportData> {
         let mut base_dir = env::current_exe()?;
         base_dir.pop();
         base_dir.push(data_path);
 
-        Ok(DataFiles {
+        Ok(AirportData {
             data_dir: base_dir,
         })
     }
 
-    pub fn create_and_verify(data_path: &Path) -> Result<DataFiles> {
-        let dfiles = DataFiles::new(data_path)?;
-        dfiles.ensure_updated_data()?;
+    pub fn create_and_update(data_path: &Path) -> Result<AirportData> {
+        let data = AirportData::new(data_path)?;
+        data.ensure_updated_data()?;
 
-        Ok(dfiles)
+        Ok(data)
     }
 
     pub fn ensure_updated_data(&self) -> Result<()> {

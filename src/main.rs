@@ -13,7 +13,7 @@ mod filter_form;
 mod util;
 
 use airport::Airport;
-use airport::data::{Country, DataFiles};
+use airport::data::{Country, AirportData};
 use airport::route::Route;
 use filter_form::DataForm;
 use rocket_contrib::{Template, Json};
@@ -63,10 +63,10 @@ fn get_countries(countries: State<Vec<Country>>) -> Json<&Vec<Country>> {
 }
 
 fn init(rocket: Rocket) -> Result<Rocket> {
-    let data_files   = DataFiles::create_and_verify(Path::new("data"))?;
-    let airport_data = data_files.parse_airports()?;
+    let data = AirportData::create_and_update(Path::new("data"))?;
+    let airport_data = data.parse_airports()?;
 
-    let mut countries = data_files.parse_countries()?;
+    let mut countries = data.parse_countries()?;
     countries.sort_by(|a, b| a.name.cmp(&b.name));
 
     Ok(rocket.manage(airport_data).manage(countries))
