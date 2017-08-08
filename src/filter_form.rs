@@ -1,12 +1,8 @@
-use self::airport::Runway;
+use airport::{self, Runway};
 use ::rocket::http::RawStr;
 use ::rocket::request::FromFormValue;
 use ::std::ops::Deref;
 use util::StringUtil;
-
-pub mod airport;
-pub mod data;
-pub mod route;
 
 macro_rules! gen_filter_type {
     ($name:ident, $form_ty:ty,
@@ -18,7 +14,7 @@ macro_rules! gen_filter_type {
         }
 
         impl $name {
-            fn from_form(form: &$form_ty) -> Vec<$name> {
+            pub fn from_form(form: &$form_ty) -> Vec<$name> {
                 let mut found = Vec::new();
 
                 $(match form.$struct_variant {

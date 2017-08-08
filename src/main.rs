@@ -8,13 +8,14 @@ extern crate time;
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate error_chain;
 
-mod filter;
+mod airport;
+mod filter_form;
 mod util;
 
-use filter::airport::Airport;
-use filter::data::{Country, DataFiles};
-use filter::DataForm;
-use filter::route::Route;
+use airport::Airport;
+use airport::data::{Country, DataFiles};
+use airport::route::Route;
+use filter_form::DataForm;
 use rocket_contrib::{Template, Json};
 use rocket::{Rocket, State};
 use rocket::response::NamedFile;
@@ -25,8 +26,8 @@ use time::PreciseTime;
 
 error_chain! {
     links {
-        DataFiles(filter::data::Error, filter::data::ErrorKind);
-        Route(filter::route::Error, filter::route::ErrorKind);
+        DataFiles(airport::data::Error, airport::data::ErrorKind);
+        Route(airport::route::Error, airport::route::ErrorKind);
     }
 }
 

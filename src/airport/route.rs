@@ -1,7 +1,7 @@
 extern crate rayon;
 
-use filter::{RouteFilter, DataForm, Time};
-use filter::airport::{Airport, AirportSearching};
+use filter_form::{RouteFilter, DataForm, Time};
+use airport::{Airport, AirportSearching};
 use self::rayon::prelude::*;
 
 error_chain! {}

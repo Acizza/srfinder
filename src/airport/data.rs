@@ -1,7 +1,7 @@
 extern crate reqwest;
 extern crate csv;
 
-use filter::airport::{Airport, LatLon, Type, Runway, RunwaySides,
+use airport::{Airport, LatLon, Type, Runway, RunwaySides,
     RunwaySideData, Frequencies, Region};
 use ::time;
 use std::collections::HashMap;
