@@ -169,7 +169,7 @@ impl AirportData {
 
             // Get the airport type early so we can skip ones we don't care about (like balloon ports)
             // and save a very small amount of time
-            let _type = match Type::parse(&data.get_field("type")?) {
+            let _type = match Type::from_str(&data.get_field("type")?) {
                 Some(t) => t,
                 None    => continue,
             };

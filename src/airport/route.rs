@@ -1,10 +1,20 @@
 extern crate rayon;
 
-use filter_form::{RouteFilter, DataForm, Time};
-use airport::{Airport, AirportSearching};
+use airport::{self, Airport, RunwayLength, Countries};
 use self::rayon::prelude::*;
 
 error_chain! {}
+
+type Hours = f32;
+
+#[derive(Debug)]
+pub enum RouteFilter {
+    ArrType(airport::Type),
+    ArrRunwayLength(RunwayLength),
+    ArrCountries(Countries),
+    MinTime(Hours),
+    MaxTime(Hours),
+}
 
 const KNOTS_PER_MACH: f32 = 666.739;
 
@@ -33,10 +43,10 @@ impl<'a> Route<'a> {
     pub fn from_icao(dep_icao: &str, arr_icao: &str, mach: f32, airports: &'a [Airport]) ->
         Result<Route<'a>> {
 
-        let dep = airports.find_by_icao(dep_icao).ok_or(
+        let dep = airport::find_by_icao(dep_icao, airports).ok_or(
             "departure not found")?;
 
-        let arr = airports.find_by_icao(arr_icao).ok_or(
+        let arr = airport::find_by_icao(arr_icao, airports).ok_or(
             "arrival not found")?;
 
         Ok(Route::create(&dep, &arr, mach))
@@ -60,64 +70,46 @@ impl<'a> Route<'a> {
         self.distance / (mach * KNOTS_PER_MACH)
     }
 
-    pub fn is_filter_match(&self, filters: &[RouteFilter]) -> bool {
+    pub fn passes_filters(&self, filters: &[RouteFilter]) -> bool {
         let matches = filters.iter().all(|ref filter| {
             use self::RouteFilter::*;
             
             match **filter {
-                ArrType(ref _type)           => self.arrival._type == *_type,
-                ArrRunwayLength(ref len)     => len.any_match(&self.arrival.runways),
-                ArrCountries(ref countries)  => countries.any_match(&self.arrival.region.code),
-                MinTime(Time(min_time))      => self.time >= min_time,
-                MaxTime(Time(max_time))      => self.time <= max_time,
+                ArrType(ref _type)          => self.arrival._type == *_type,
+                ArrRunwayLength(ref len)    => len.any_match(&self.arrival.runways),
+                ArrCountries(ref countries) => countries.any_match(&self.arrival.region.code),
+                MinTime(min_time)           => self.time >= min_time,
+                MaxTime(max_time)           => self.time <= max_time,
             }
         });
 
         matches && self.arrival.icao != self.departure.icao
     }
+}
 
-    pub fn get_all_filter_matches(form: &DataForm, airports: &'a [Airport])
-        -> Result<Vec<Route<'a>>> {
+pub fn find_all<'a>(
+    departure: &'a Airport,
+    route_filters: &[RouteFilter],
+    mach: f32,
+    airports: &'a [Airport]) -> Result<Vec<Route<'a>>> {
 
-        match (&form.dep_icao, &form.arr_icao) {
-            (&Some(ref dep_icao), &Some(ref arr_icao)) => {
-                Route::from_icao(
-                    dep_icao,
-                    arr_icao,
-                    form.mach,
-                    airports
-                ).map(|route| vec![route])
-            },
-            _ => Route::filter_routes(&form, &airports),
-        }
-    }
+    let mut routes = airports.par_iter()
+        .filter_map(|arrival| {
+            let route = Route::create(&departure,
+                                      &arrival,
+                                      mach);
 
-    fn filter_routes(form: &DataForm, airports: &'a [Airport]) ->
-        Result<Vec<Route<'a>>> {
+            if route.passes_filters(route_filters) {
+                Some(route)
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>();
 
-        let departure = airports.find_by_form(&form).ok_or(
-            "departure airport not found")?;
+    routes.sort_by_key(|route| route.distance as i32);
 
-        let filters = RouteFilter::from_form(&form);
-
-        let mut routes = airports.par_iter()
-            .filter_map(|arrival| {
-                let route = Route::create(&departure,
-                                          &arrival,
-                                          form.mach);
-
-                if route.is_filter_match(&filters) {
-                    Some(route)
-                } else {
-                    None
-                }
-            })
-            .collect::<Vec<_>>();
-
-        routes.sort_by_key(|route| route.distance as i32);
-
-        Ok(routes.into_iter()
-              .take(100)
-              .collect())
-    }
+    Ok(routes.into_iter()
+            .take(100)
+            .collect())
 }

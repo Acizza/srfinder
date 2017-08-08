@@ -3,11 +3,15 @@ extern crate rand;
 pub mod route;
 pub mod data;
 
-use filter_form::{DataForm, AirportFilter};
-use ::rocket::http::RawStr;
-use ::rocket::request::FromFormValue;
 use self::rand::Rng;
-use std::ascii::AsciiExt;
+use std::ops::Deref;
+
+#[derive(Debug)]
+pub enum AirportFilter {
+    Type(Type),
+    RunwayLength(RunwayLength),
+    Countries(Countries),
+}
 
 #[derive(Debug, Serialize)]
 pub struct Airport {
@@ -18,6 +22,36 @@ pub struct Airport {
     pub runways:     Option<Vec<Runway>>,
     pub frequencies: Option<Frequencies>,
     pub region:      Region,
+}
+
+impl Airport {
+    pub fn passes_filters(&self, filters: &[AirportFilter]) -> bool {
+        filters.iter().all(|ref filter| {
+            use self::AirportFilter::*;
+
+            match **filter {
+                Type(ref _type)          => self._type == *_type,
+                RunwayLength(ref len)    => len.any_match(&self.runways),
+                Countries(ref countries) => countries.any_match(&self.region.code),
+            }
+        })
+    }
+}
+
+pub fn find_by_icao<'a>(icao: &str, airports: &'a [Airport]) -> Option<&'a Airport> {
+    airports.iter().find(|arpt| arpt.icao == icao)
+}
+
+pub fn find<'a>(filters: &[AirportFilter], airports: &'a [Airport]) -> Option<&'a Airport> {
+    let found = airports.iter()
+        .filter(|&airport| airport.passes_filters(filters))
+        .collect::<Vec<_>>();
+
+    if found.len() > 0 {
+        Some(found[rand::thread_rng().gen_range(0, found.len())])
+    } else {
+        None
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -35,6 +69,20 @@ pub enum Type {
     Small,
     Medium,
     Large,
+}
+
+impl Type {
+    pub fn from_str(value: &str) -> Option<Type> {
+        match value {
+            "closed"         => Some(Type::Closed),
+            "seaplane_base"  => Some(Type::SeaplaneBase),
+            "heliport"       => Some(Type::Heliport),
+            "small_airport"  => Some(Type::Small),
+            "medium_airport" => Some(Type::Medium),
+            "large_airport"  => Some(Type::Large),
+            _                => None,
+        }
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -71,77 +119,92 @@ pub struct Region {
     pub continent: String,
 }
 
-impl Type {
-    pub fn parse(value: &str) -> Option<Type> {
-        match value {
-            "closed"         => Some(Type::Closed),
-            "seaplane_base"  => Some(Type::SeaplaneBase),
-            "heliport"       => Some(Type::Heliport),
-            "small_airport"  => Some(Type::Small),
-            "medium_airport" => Some(Type::Medium),
-            "large_airport"  => Some(Type::Large),
-            _                => None,
+type Length    = u32;
+type MinLength = Length;
+type MaxLength = Length;
+
+#[derive(Debug, Clone)]
+pub enum RunwayLength {
+    LessThan(Length),
+    GreaterThan(Length),
+    EqualTo(Length),
+    Between(MinLength, MaxLength),
+}
+
+impl RunwayLength {
+    fn parse_single(input_str: &str) -> Option<RunwayLength> {
+        let mut chars = input_str.chars();
+        
+        let order = try_opt!(chars.next());
+        let value = try_opt!(chars.collect::<String>().parse().ok());
+
+        use self::RunwayLength::*;
+
+        match order {
+            '<' => Some(LessThan(value)),
+            '>' => Some(GreaterThan(value)),
+            '=' => Some(EqualTo(value)),
+            _   => None,
         }
     }
-}
 
-impl<'v> FromFormValue<'v> for Type {
-    type Error = &'v RawStr;
+    fn parse_between(input_str: &str) -> Option<RunwayLength> {
+        let values = input_str.splitn(2, '+')
+                              .collect::<Vec<_>>();
 
-    fn from_form_value(form_value: &'v RawStr) -> Result<Type, &'v RawStr> {
-        let value = form_value.as_str().to_ascii_lowercase();
+        if values.len() == 2 {
+            let min = try_opt!(values[0].parse().ok());
+            let max = try_opt!(values[1].parse().ok());
 
-        match value.as_str() {
-            "closed"       => Ok(Type::Closed),
-            "seaplanebase" => Ok(Type::SeaplaneBase),
-            "heliport"     => Ok(Type::Heliport),
-            "small"        => Ok(Type::Small),
-            "medium"       => Ok(Type::Medium),
-            "large"        => Ok(Type::Large),
-            _              => Err(form_value),
+            Some(RunwayLength::Between(min, max))
+        } else {
+            None
         }
     }
-}
 
-pub trait AirportSearching<'a> {
-    fn find_by_icao(&self, icao: &str) -> Option<&'a Airport>;
-    fn find_by_form(&self, form: &DataForm) -> Option<&'a Airport>;
-    fn find_by_filters(&self, filters: &[AirportFilter]) -> Vec<&'a Airport>;
-}
-
-impl<'a> AirportSearching<'a> for &'a [Airport] {
-    fn find_by_icao(&self, icao: &str) -> Option<&'a Airport> {
-        self.iter().find(|&airport| airport.icao == icao)
+    pub fn parse(input_str: &str) -> Option<RunwayLength> {
+        RunwayLength::parse_between(input_str)
+            .or(RunwayLength::parse_single(input_str))
     }
 
-    fn find_by_form(&self, form: &DataForm) -> Option<&'a Airport> {
-        match form.dep_icao {
-            Some(ref icao) => self.find_by_icao(icao),
-            None => {
-                let filters = AirportFilter::from_form(&form);
-                let found   = self.find_by_filters(&filters);
-
-                if found.len() > 0 {
-                    Some(found[rand::thread_rng().gen_range(0, found.len())])
-                } else {
-                    None
+    pub fn is_match(&self, runway: &Runway) -> bool {
+        match runway.length {
+            Some(run_len) => {
+                use self::RunwayLength::*;
+                match *self {
+                    LessThan(len)             => run_len <= len,
+                    GreaterThan(len)          => run_len >= len,
+                    EqualTo(len)              => run_len == len,
+                    Between(min_len, max_len) => run_len >= min_len && run_len <= max_len,
                 }
-            }
+            },
+            None => false,
         }
     }
 
-    fn find_by_filters(&self, filters: &[AirportFilter]) -> Vec<&'a Airport> {
-        self.iter().filter(|&airport| {
-            filters.iter().all(|ref filter| {
-                use self::AirportFilter::*;
+    pub fn any_match(&self, runways: &Option<Vec<Runway>>) -> bool {
+        match *runways {
+            Some(ref runways) => runways.iter().any(|r| self.is_match(r)),
+            None => false,
+        }
+    }
+}
 
-                match **filter {
-                    Type(ref _type)           => airport._type == *_type,
-                    RunwayLength(ref len)     => len.any_match(&airport.runways),
-                    Countries(ref countries)  => countries.any_match(&airport.region.code),
-                }
-            })
-        })
-        .collect()
+type CountryCode = String;
+
+#[derive(Debug, Clone)]
+pub struct Countries(pub Vec<CountryCode>);
+
+impl Countries {
+    pub fn any_match(&self, code: &str) -> bool {
+        self.is_empty() || self.iter().any(|c| c == code)
+    }
+}
+
+impl Deref for Countries {
+    type Target = Vec<CountryCode>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }

@@ -8,13 +8,13 @@ extern crate time;
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate error_chain;
 
+#[macro_use] mod util;
 mod airport;
 mod filter_form;
-mod util;
 
 use airport::Airport;
 use airport::data::{Country, AirportData};
-use airport::route::Route;
+use airport::route::{self, Route};
 use filter_form::DataForm;
 use rocket_contrib::{Template, Json};
 use rocket::{Rocket, State};
@@ -23,6 +23,7 @@ use rocket::request::LenientForm;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use time::PreciseTime;
+use util::ToEnum;
 
 error_chain! {
     links {
@@ -48,12 +49,27 @@ fn filter<'a>(form: LenientForm<DataForm>, airports: State<'a, Vec<Airport>>)
     let form     = form.into_inner();
     let airports = airports.inner();
 
-    let start_time = PreciseTime::now();
-    let routes     = Route::get_all_filter_matches(&form, &airports)?;
-    let end_time   = PreciseTime::now();
-    println!("filtering time: {} ms", start_time.to(end_time) * 1000);
+    if let (&Some(ref dep_icao), &Some(ref arr_icao)) = (&form.dep_icao, &form.arr_icao) {
+        let route = Route::from_icao(dep_icao, arr_icao, form.mach, &airports)?;
+        Ok(Json(vec![route]))
+    } else {
+        let start_time = PreciseTime::now();
 
-    Ok(Json(routes))
+        let departure = if let Some(ref dep_icao) = form.dep_icao {
+            airport::find_by_icao(&dep_icao, airports)
+                .ok_or("departure airport not found")?
+        } else {
+            airport::find(&form.to_enum(), airports)
+                .ok_or("departure airport not found")?
+        };
+
+        let routes = route::find_all(departure, &form.to_enum(), form.mach, &airports)?;
+
+        let end_time = PreciseTime::now();
+        println!("filtering time: {} ms", start_time.to(end_time) * 1000);
+
+        Ok(Json(routes))
+    }
 }
 
 #[get("/countries")]
