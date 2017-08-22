@@ -22,25 +22,21 @@ const KNOTS_PER_MACH: f32 = 666.739;
 pub struct Route<'a> {
     pub departure: &'a Airport,
     pub arrival:   &'a Airport,
-    pub distance:  f32,
-    pub time:      f32,
+    distance:      Option<f32>,
+    time:          Option<f32>,
 }
 
 impl<'a> Route<'a> {
-    pub fn create(departure: &'a Airport, arrival: &'a Airport, mach: f32) -> Self {
-        let mut route = Route {
+    pub fn create(departure: &'a Airport, arrival: &'a Airport) -> Self {
+        Route {
             departure: &departure,
             arrival:   &arrival,
-            distance:  0.0,
-            time:      0.0,
-        };
-
-        route.distance = route.calculate_distance();
-        route.time     = route.calculate_time(mach);
-        route
+            distance:  None,
+            time:      None,
+        }
     }
 
-    pub fn from_icao(dep_icao: &str, arr_icao: &str, mach: f32, airports: &'a [Airport]) ->
+    pub fn from_icao(dep_icao: &str, arr_icao: &str, airports: &'a [Airport]) ->
         Result<Route<'a>> {
 
         let dep = airport::find_by_icao(dep_icao, airports).ok_or(
@@ -49,10 +45,10 @@ impl<'a> Route<'a> {
         let arr = airport::find_by_icao(arr_icao, airports).ok_or(
             "arrival not found")?;
 
-        Ok(Route::create(&dep, &arr, mach))
+        Ok(Route::create(&dep, &arr))
     }
 
-    pub fn calculate_distance(&self) -> f32 {
+    fn calculate_distance(&self) -> f32 {
         let radius = 3440.; // Earth's radius in nautical miles
 
         let lat1 = self.departure.pos.lat.to_radians();
@@ -66,11 +62,33 @@ impl<'a> Route<'a> {
         radius * c
     }
 
-    pub fn calculate_time(&mut self, mach: f32) -> f32 {
-        self.distance / (mach * KNOTS_PER_MACH)
+    fn calculate_time(&mut self, mach: f32) -> f32 {
+        self.distance() / (mach * KNOTS_PER_MACH)
     }
 
-    pub fn passes_filters(&self, filters: &[RouteFilter]) -> bool {
+    pub fn distance(&mut self) -> f32 {
+        self.distance.unwrap_or_else(|| {
+            let distance = self.calculate_distance();
+            self.distance = Some(distance);
+            distance
+        })
+    }
+
+    pub fn time(&mut self, mach: f32) -> f32 {
+        self.time.unwrap_or_else(|| {
+            let time = self.calculate_time(mach);
+            self.time = Some(time);
+            time
+        })
+    }
+
+    pub fn eval_lazy(&mut self, mach: f32) {
+        // Evaluating the route time will force the evaluation of the distance as well.
+        // This may also look a bit hacky, but it reduces the amount of code duplication
+        self.time(mach);
+    }
+
+    pub fn passes_filters(&mut self, filters: &[RouteFilter], mach: f32) -> bool {
         let matches = filters.iter().all(|ref filter| {
             use self::RouteFilter::*;
             
@@ -78,8 +96,8 @@ impl<'a> Route<'a> {
                 ArrType(ref _type)          => self.arrival._type == *_type,
                 ArrRunwayLength(ref len)    => len.any_match(&self.arrival.runways),
                 ArrCountries(ref countries) => countries.any_match(&self.arrival.region.code),
-                MinTime(min_time)           => self.time >= min_time,
-                MaxTime(max_time)           => self.time <= max_time,
+                MinTime(min_time)           => self.time(mach) >= min_time,
+                MaxTime(max_time)           => self.time(mach) <= max_time,
             }
         });
 
@@ -95,11 +113,11 @@ pub fn find_all<'a>(
 
     let mut routes = airports.par_iter()
         .filter_map(|arrival| {
-            let route = Route::create(&departure,
-                                      &arrival,
-                                      mach);
+            let mut route = Route::create(&departure,
+                                          &arrival);
 
-            if route.passes_filters(route_filters) {
+            if route.passes_filters(route_filters, mach) {
+                route.eval_lazy(mach);
                 Some(route)
             } else {
                 None
@@ -107,7 +125,8 @@ pub fn find_all<'a>(
         })
         .collect::<Vec<_>>();
 
-    routes.sort_by_key(|route| route.distance as i32);
+    // Every lazy value has been evaluated at this point, so it's safe to unwrap
+    routes.sort_by_key(|route| route.distance.unwrap() as i32);
 
     Ok(routes.into_iter()
             .take(100)

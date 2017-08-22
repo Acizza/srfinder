@@ -50,7 +50,7 @@ fn filter<'a>(form: LenientForm<DataForm>, airports: State<'a, Vec<Airport>>)
     let airports = airports.inner();
 
     if let (&Some(ref dep_icao), &Some(ref arr_icao)) = (&form.dep_icao, &form.arr_icao) {
-        let route = Route::from_icao(dep_icao, arr_icao, form.mach, &airports)?;
+        let route = Route::from_icao(dep_icao, arr_icao, &airports)?;
         Ok(Json(vec![route]))
     } else {
         let start_time = PreciseTime::now();
