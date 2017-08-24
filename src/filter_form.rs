@@ -68,9 +68,7 @@ impl<'v> FromFormValue<'v> for Type {
     type Error = &'v RawStr;
 
     fn from_form_value(form_value: &'v RawStr) -> Result<Type, &'v RawStr> {
-        let value = form_value.as_str().to_ascii_lowercase();
-
-        match value.as_str() {
+        match form_value.as_str() {
             "closed"       => Ok(Type::Closed),
             "seaplanebase" => Ok(Type::SeaplaneBase),
             "heliport"     => Ok(Type::Heliport),
