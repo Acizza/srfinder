@@ -105,10 +105,17 @@ impl<'a> Route<'a> {
     }
 }
 
+#[derive(Debug)]
+pub enum SortBy {
+    Distance,
+    ArrICAO,
+}
+
 pub fn find_all<'a>(
     departure: &'a Airport,
     route_filters: &[RouteFilter],
     mach: f32,
+    sorter: SortBy,
     airports: &'a [Airport]) -> Result<Vec<Route<'a>>> {
 
     let mut routes = airports.par_iter()
@@ -125,8 +132,11 @@ pub fn find_all<'a>(
         })
         .collect::<Vec<_>>();
 
-    // Every lazy value has been evaluated at this point, so it's safe to unwrap
-    routes.sort_by_key(|route| route.distance.unwrap() as i32);
+    match sorter {
+        // Every lazy value has been evaluated at this point, so it's safe to unwrap
+        SortBy::Distance => routes.sort_by_key(|route| route.distance.unwrap() as i32),
+        SortBy::ArrICAO  => routes.sort_by_key(|route| &route.arrival.icao),
+    }
 
     Ok(routes.into_iter()
             .take(100)

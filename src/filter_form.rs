@@ -2,6 +2,7 @@ use airport::{self, AirportFilter, RunwayLength, Countries, Type};
 use airport::route::RouteFilter;
 use rocket::http::RawStr;
 use rocket::request::FromFormValue;
+use route;
 use std::ascii::AsciiExt;
 use std::ops::Deref;
 use util::ToEnum;
@@ -38,6 +39,7 @@ pub struct DataForm {
     pub arr_countries:  Option<Countries>,
     pub min_time:       Option<Time>,
     pub max_time:       Option<Time>,
+    pub sorter:         route::SortBy,
 }
 
 impl ToEnum<AirportFilter> for DataForm {
@@ -162,5 +164,18 @@ impl<'v> FromFormValue<'v> for Countries {
         };
 
         Ok(Countries(countries))
+    }
+}
+
+impl <'v> FromFormValue<'v> for route::SortBy {
+    type Error = &'v RawStr;
+
+    fn from_form_value(form_value: &'v RawStr) -> Result<route::SortBy, &'v RawStr> {
+        use route::SortBy;
+        match form_value.as_str() {
+            "distance" => Ok(SortBy::Distance),
+            "arr_icao" => Ok(SortBy::ArrICAO),
+            _          => Err(form_value),
+        }
     }
 }

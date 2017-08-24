@@ -63,7 +63,11 @@ fn filter<'a>(form: LenientForm<DataForm>, airports: State<'a, Vec<Airport>>)
                 .ok_or("departure airport not found")?
         };
 
-        let routes = route::find_all(departure, &form.to_enum(), form.mach, &airports)?;
+        let routes = route::find_all(departure,
+                                     &form.to_enum(),
+                                     form.mach,
+                                     form.sorter,
+                                     &airports)?;
 
         let end_time = PreciseTime::now();
         println!("filtering time: {} ms", start_time.to(end_time) * 1000);
