@@ -3,7 +3,7 @@ use airport::data::{Country, AirportData};
 use airport::route::{self, Route};
 use filter_form::DataForm;
 use rocket_contrib::{Template, Json};
-use rocket::{self, Rocket, State};
+use rocket::{Rocket, State};
 use rocket::response::NamedFile;
 use rocket::request::LenientForm;
 use std::collections::HashMap;
@@ -18,14 +18,9 @@ error_chain! {
     }
 }
 
-pub fn launch() -> Result<()> {
-    let rocket = init(rocket::ignite())?;
-    launch_rocket(rocket);
+pub fn init() -> Result<Rocket> {
+    let rocket = Rocket::ignite();
 
-    Ok(())
-}
-
-fn init(rocket: Rocket) -> Result<Rocket> {
     let data = AirportData::create_and_update(Path::new("data"))?;
     let airport_data = data.parse_airports()?;
 
@@ -35,7 +30,7 @@ fn init(rocket: Rocket) -> Result<Rocket> {
     Ok(rocket.manage(airport_data).manage(countries))
 }
 
-fn launch_rocket(rocket: Rocket) {
+pub fn launch(rocket: Rocket) {
     rocket.mount("/", routes![index, files, get_countries, filter])
           .attach(Template::fairing())
           .launch();
