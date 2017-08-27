@@ -5,8 +5,6 @@
 extern crate rocket;
 extern crate rocket_contrib;
 extern crate time;
-extern crate url;
-extern crate url_open;
 #[macro_use] extern crate clap;
 #[macro_use] extern crate error_chain;
 #[macro_use] extern crate serde_derive;
@@ -17,8 +15,6 @@ mod filter_form;
 mod server;
 
 use std::thread;
-use url::Url;
-use url_open::UrlOpen;
 
 fn main() {
     let args = clap_app!(srfinder =>
@@ -32,14 +28,14 @@ fn main() {
             if args.is_present("open") {
                 let url = {
                     let config = instance.config();
-                    format!("{}:{}", config.address, config.port)
+                    format!("http://{}:{}", config.address, config.port)
                 };
 
                 let worker = thread::spawn(|| server::launch(instance));
 
-                match Url::parse(&url) {
-                    Ok(url)  => url.open(),
-                    Err(err) => eprintln!("invalid server url: {:?}", err),
+                match util::url::open(&url) {
+                    Ok(_)    => (),
+                    Err(err) => eprintln!("error opening url: {:?}", err),
                 }
 
                 worker.join().unwrap();

@@ -15,8 +15,6 @@ time           = "0.1"
 rand           = "0.3"
 rayon          = "0.8"
 clap           = "^2"
-url_open       = { git = "https://github.com/overdrivenpotato/url_open" }
-url            = "^1"
 
 [dependencies.rocket_contrib]
 version          = "0.3"
