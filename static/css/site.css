@@ -96,7 +96,7 @@ height:50%;
 left:275px;
 position:fixed;
 top:50%;
-width:calc(50% - 275px / 2)
+width:calc(50% - 275px / 2 - 2px)
 }
 
 #route-selector #route-table {
@@ -154,7 +154,7 @@ flex-direction:column;
 height:100%;
 position:absolute;
 top:0;
-width:50%
+width:calc(50% - 2px)
 }
 
 #route-viewer #departure:hover,#route-viewer #arrival:hover {
