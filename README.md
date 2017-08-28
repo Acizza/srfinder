@@ -12,12 +12,12 @@ As the application uses a web interface, all you need to do is run the program a
 
 The filter options should be mostly self-explanatory. However, it is worth noting that the runway length filter can take inputs in one of the several following forms:
 
-Value | Form
------ | ----
->9500 | Greater than or equal to
-=9500 | Equal to
-<9500 | Less than or equal to
-9500 12000 | A range
+| Value      | Form |
+| -----      | ---- |
+| >9500      | Greater than or equal to |
+| =9500      | Equal to |
+| <9500      | Less than or equal to |
+| 9500 12000 | A range |
 
 Credits
 =======
