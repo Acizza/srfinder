@@ -20,12 +20,12 @@ fn main() {
     let args = clap_app!(srfinder =>
         (version: env!("CARGO_PKG_VERSION"))
         (author: env!("CARGO_PKG_AUTHORS"))
-        (@arg open: -o --open "Opens the web interface in the default web browser")
+        (@arg minimized: -m --minimized "Don't open the web interface in the default web browser")
     ).get_matches();
 
     match server::init() {
         Ok(instance) => {
-            if args.is_present("open") {
+            if !args.is_present("minimized") {
                 let url = {
                     let config = instance.config();
                     format!("http://{}:{}", config.address, config.port)
