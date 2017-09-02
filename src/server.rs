@@ -69,7 +69,7 @@ fn filter<'a>(form: LenientForm<DataForm>, airports: State<'a, Vec<Airport>>)
 
         let routes = route::find_all(departure,
                                      &form.to_enum(),
-                                     form.mach,
+                                     &form.speed,
                                      form.sorter,
                                      &airports)?;
 

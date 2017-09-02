@@ -16,8 +16,6 @@ pub enum RouteFilter {
     MaxTime(Hours),
 }
 
-const KNOTS_PER_MACH: f32 = 666.739;
-
 #[derive(Debug, Serialize)]
 pub struct Route<'a> {
     pub departure: &'a Airport,
@@ -62,8 +60,8 @@ impl<'a> Route<'a> {
         radius * c
     }
 
-    fn calculate_time(&mut self, mach: f32) -> f32 {
-        self.distance() / (mach * KNOTS_PER_MACH)
+    fn calculate_time(&mut self, cruise_speed: &Speed) -> f32 {
+        self.distance() / cruise_speed.as_knots()
     }
 
     pub fn distance(&mut self) -> f32 {
@@ -74,21 +72,21 @@ impl<'a> Route<'a> {
         })
     }
 
-    pub fn time(&mut self, mach: f32) -> f32 {
+    pub fn time(&mut self, cruise_speed: &Speed) -> f32 {
         self.time.unwrap_or_else(|| {
-            let time = self.calculate_time(mach);
+            let time = self.calculate_time(&cruise_speed);
             self.time = Some(time);
             time
         })
     }
 
-    pub fn eval_lazy(&mut self, mach: f32) {
+    pub fn eval_lazy(&mut self, cruise_speed: &Speed) {
         // Evaluating the route time will force the evaluation of the distance as well.
         // This may also look a bit hacky, but it reduces the amount of code duplication
-        self.time(mach);
+        self.time(&cruise_speed);
     }
 
-    pub fn passes_filters(&mut self, filters: &[RouteFilter], mach: f32) -> bool {
+    pub fn passes_filters(&mut self, filters: &[RouteFilter], cruise_speed: &Speed) -> bool {
         let matches = filters.iter().all(|ref filter| {
             use self::RouteFilter::*;
             
@@ -96,12 +94,29 @@ impl<'a> Route<'a> {
                 ArrType(ref _type)          => self.arrival._type == *_type,
                 ArrRunwayLength(ref len)    => len.any_match(&self.arrival.runways),
                 ArrCountries(ref countries) => countries.any_match(&self.arrival.region.code),
-                MinTime(min_time)           => self.time(mach) >= min_time,
-                MaxTime(max_time)           => self.time(mach) <= max_time,
+                MinTime(min_time)           => self.time(cruise_speed) >= min_time,
+                MaxTime(max_time)           => self.time(cruise_speed) <= max_time,
             }
         });
 
         matches && self.arrival.icao != self.departure.icao
+    }
+}
+
+#[derive(Debug)]
+pub enum Speed {
+    Mach(f32),
+    Knots(f32),
+}
+
+impl Speed {
+    const KNOTS_PER_MACH: f32 = 666.739;
+
+    pub fn as_knots(&self) -> f32 {
+        match *self {
+            Speed::Mach(mach)   => mach * Speed::KNOTS_PER_MACH,
+            Speed::Knots(knots) => knots,
+        }
     }
 }
 
@@ -114,7 +129,7 @@ pub enum SortBy {
 pub fn find_all<'a>(
     departure: &'a Airport,
     route_filters: &[RouteFilter],
-    mach: f32,
+    cruise_speed: &Speed,
     sorter: SortBy,
     airports: &'a [Airport]) -> Result<Vec<Route<'a>>> {
 
@@ -123,8 +138,8 @@ pub fn find_all<'a>(
             let mut route = Route::create(&departure,
                                           &arrival);
 
-            if route.passes_filters(route_filters, mach) {
-                route.eval_lazy(mach);
+            if route.passes_filters(route_filters, &cruise_speed) {
+                route.eval_lazy(&cruise_speed);
                 Some(route)
             } else {
                 None

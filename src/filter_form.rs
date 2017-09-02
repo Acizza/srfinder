@@ -27,7 +27,7 @@ macro_rules! form_fields_to_enum {
 
 #[derive(FromForm, Debug)]
 pub struct DataForm {
-    pub mach:           f32,
+    pub speed:          route::Speed,
     pub dep_icao:       Option<ICAO>,
     pub dep_type:       Option<airport::Type>,
     pub dep_runway_len: Option<RunwayLength>,
@@ -60,6 +60,26 @@ impl ToEnum<RouteFilter> for DataForm {
             min_time:       inner => MinTime,
             max_time:       inner => MaxTime,
         )
+    }
+}
+
+impl<'v> FromFormValue<'v> for route::Speed {
+    type Error = &'v RawStr;
+
+    fn from_form_value(form_value: &'v RawStr) -> Result<route::Speed, &'v RawStr> {
+        use self::route::Speed;
+
+        // Knots is usually expressed as a whole number, and mach is usually expressed as a decimal.
+        // Knots should also be parsed first, since integer parsing will fail if a float is passed in
+        form_value
+            .parse::<i32>()
+            .map(|knots| Speed::Knots(knots as f32))
+            .or({
+                form_value
+                    .parse::<f32>()
+                    .map(|mach| Speed::Mach(mach))
+            })
+            .map_err(|_| form_value)
     }
 }
 

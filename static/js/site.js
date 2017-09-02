@@ -100,12 +100,9 @@ require([
     });
 
     var routeTable = $("#route-selector #route-table");
-    var machInput  = $("#filters input[name=mach]");
 
     // Submit filters and add found routes
     $("#filters").submit(function(e) {
-        var mach = machInput.val();
-
         $.ajax({
             type: 'post',
             url:  '/filter',
@@ -117,7 +114,7 @@ require([
                 routeData = [];
 
                 for(i = 0; i < routes.length; ++i) {
-                    insertRoute(routes[i], mach);
+                    insertRoute(routes[i]);
                     routeData.push(routes[i]);
                 }
             },
@@ -132,7 +129,7 @@ require([
     var findButton = $("#filters input[type=submit]");
 
     // Don't allow submit when the speed isn't provided
-    machInput.on("input", function() {
+    $("#filters input[name=speed]").on("input", function() {
         findButton.prop("disabled", $(this).val() == "");
     });
 
@@ -357,7 +354,7 @@ require([
         elem.perfectScrollbar('update');
     }
 
-    function insertRoute(route, mach) {
+    function insertRoute(route) {
         var row = routeTable[0].insertRow();
         row.className = "route-data";
         
@@ -373,10 +370,10 @@ require([
         distRow.innerHTML = Math.round(route.distance) + " nm";
         
         var timeRow = row.insertCell(3);
-        timeRow.innerHTML = formatRouteTime(route.time, mach);
+        timeRow.innerHTML = formatRouteTime(route.time);
     }
 
-    function formatRouteTime(time, mach) {
+    function formatRouteTime(time) {
         var hours   = Math.floor(time);
         var minutes = Math.floor((time - hours) * 60);
 
