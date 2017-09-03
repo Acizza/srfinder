@@ -10,7 +10,7 @@ Usage
 
 As the application uses a web interface, all you need to do is run the program and it will open automatically by default. If you don't want the web interface to open automatically, you can launch the program with the **-m** flag.
 
-The filter options should be mostly self-explanatory. However, it is worth noting that the runway length filter can take inputs in one of the several following forms:
+The filter options should be mostly self-explanatory; however, it is worth noting that the runway length filter can take inputs in one of the several following forms:
 
 | Value      | Form |
 | -----      | ---- |
