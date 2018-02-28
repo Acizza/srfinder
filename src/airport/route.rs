@@ -148,5 +148,6 @@ pub fn find_all<'a>(
         SortBy::ArrICAO => routes.sort_by_key(|route| &route.arrival.icao),
     }
 
-    Ok(routes.into_iter().take(100).collect())
+    routes.truncate(100);
+    Ok(routes)
 }
