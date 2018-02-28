@@ -39,7 +39,7 @@ fn download_data_file(client: &reqwest::Client, name: &str) -> Result<Vec<u8>> {
     println!("downloading {}", name);
 
     let url = format!("{}/{}", DATA_HOME, name);
-    let mut request  = client.get(&url)?.send()?;
+    let mut request  = client.get(&url).send()?;
     let mut csv_data = Vec::new();
 
     request.read_to_end(&mut csv_data)?;
@@ -139,7 +139,7 @@ impl AirportData {
             fs::create_dir(&self.data_dir)?;
         }
 
-        let client = reqwest::Client::new()?;
+        let client = reqwest::Client::new();
 
         self.download_and_save_data(&client, AIRPORTS_FILE)?;
         self.download_and_save_data(&client, FREQUENCIES_FILE)?;

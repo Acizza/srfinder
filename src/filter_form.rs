@@ -2,7 +2,6 @@ use airport::{self, AirportFilter, RunwayLength, Countries, Type};
 use airport::route::{self, RouteFilter};
 use rocket::http::RawStr;
 use rocket::request::FromFormValue;
-use std::ascii::AsciiExt;
 use std::ops::Deref;
 use util::ToEnum;
 
