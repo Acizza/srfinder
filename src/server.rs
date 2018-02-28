@@ -1,8 +1,8 @@
 use airport::{self, Airport};
-use airport::data::{Country, AirportData};
+use airport::data::{AirportData, Country};
 use airport::route::{self, Route};
 use filter_form::DataForm;
-use rocket_contrib::{Template, Json};
+use rocket_contrib::{Json, Template};
 use rocket::{Rocket, State};
 use rocket::response::NamedFile;
 use rocket::request::LenientForm;
@@ -31,9 +31,10 @@ pub fn init() -> Result<Rocket> {
 }
 
 pub fn launch(rocket: Rocket) {
-    rocket.mount("/", routes![index, files, get_countries, filter])
-          .attach(Template::fairing())
-          .launch();
+    rocket
+        .mount("/", routes![index, files, get_countries, filter])
+        .attach(Template::fairing())
+        .launch();
 }
 
 #[get("/<file..>")]
@@ -47,31 +48,32 @@ fn index() -> Template {
 }
 
 #[post("/filter", data = "<form>")]
-fn filter<'a>(form: LenientForm<DataForm>, airports: State<'a, Vec<Airport>>)
-    -> Result<Json<Vec<Route<'a>>>> {
-
-    let form     = form.into_inner();
+fn filter<'a>(
+    form: LenientForm<DataForm>,
+    airports: State<'a, Vec<Airport>>,
+) -> Result<Json<Vec<Route<'a>>>> {
+    let form = form.into_inner();
     let airports = airports.inner();
 
     if let (&Some(ref dep_icao), &Some(ref arr_icao)) = (&form.dep_icao, &form.arr_icao) {
-        let route = Route::from_icao(dep_icao, arr_icao, &airports)?;
+        let route = Route::from_icao(dep_icao, arr_icao, airports)?;
         Ok(Json(vec![route]))
     } else {
         let start_time = PreciseTime::now();
 
         let departure = if let Some(ref dep_icao) = form.dep_icao {
-            airport::find_by_icao(&dep_icao, airports)
-                .ok_or("departure airport not found")?
+            airport::find_by_icao(dep_icao, airports).ok_or("departure airport not found")?
         } else {
-            airport::find(&form.to_enum(), airports)
-                .ok_or("departure airport not found")?
+            airport::find(&form.to_enum(), airports).ok_or("departure airport not found")?
         };
 
-        let routes = route::find_all(departure,
-                                     &form.to_enum(),
-                                     &form.speed,
-                                     form.sorter,
-                                     &airports)?;
+        let routes = route::find_all(
+            departure,
+            &form.to_enum(),
+            &form.speed,
+            &form.sorter,
+            airports,
+        )?;
 
         let end_time = PreciseTime::now();
         println!("filtering time: {} ms", start_time.to(end_time) * 1000);

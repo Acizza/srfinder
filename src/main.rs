@@ -2,14 +2,22 @@
 #![feature(custom_derive)]
 #![plugin(rocket_codegen)]
 
+#[macro_use]
+extern crate clap;
+
+#[macro_use]
+extern crate error_chain;
+
 extern crate rocket;
 extern crate rocket_contrib;
-extern crate time;
-#[macro_use] extern crate clap;
-#[macro_use] extern crate error_chain;
-#[macro_use] extern crate serde_derive;
 
-#[macro_use] mod util;
+#[macro_use]
+extern crate serde_derive;
+extern crate time;
+
+#[macro_use]
+mod util;
+
 mod airport;
 mod filter_form;
 mod server;
@@ -34,7 +42,7 @@ fn main() {
                 let worker = thread::spawn(|| server::launch(instance));
 
                 match util::url::open(&url) {
-                    Ok(_)    => (),
+                    Ok(_) => (),
                     Err(err) => eprintln!("error opening url: {:?}", err),
                 }
 
@@ -42,7 +50,7 @@ fn main() {
             } else {
                 server::launch(instance)
             }
-        },
+        }
         Err(err) => {
             eprintln!("error initializing server: {:?}", err);
         }

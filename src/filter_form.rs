@@ -1,4 +1,4 @@
-use airport::{self, AirportFilter, RunwayLength, Countries, Type};
+use airport::{self, AirportFilter, Countries, RunwayLength, Type};
 use airport::route::{self, RouteFilter};
 use rocket::http::RawStr;
 use rocket::request::FromFormValue;
@@ -26,18 +26,18 @@ macro_rules! form_fields_to_enum {
 
 #[derive(FromForm, Debug)]
 pub struct DataForm {
-    pub speed:          route::Speed,
-    pub dep_icao:       Option<ICAO>,
-    pub dep_type:       Option<airport::Type>,
+    pub speed: route::Speed,
+    pub dep_icao: Option<ICAO>,
+    pub dep_type: Option<airport::Type>,
     pub dep_runway_len: Option<RunwayLength>,
-    pub dep_countries:  Option<Countries>,
-    pub arr_icao:       Option<ICAO>,
-    pub arr_type:       Option<airport::Type>,
+    pub dep_countries: Option<Countries>,
+    pub arr_icao: Option<ICAO>,
+    pub arr_type: Option<airport::Type>,
     pub arr_runway_len: Option<RunwayLength>,
-    pub arr_countries:  Option<Countries>,
-    pub min_time:       Option<Time>,
-    pub max_time:       Option<Time>,
-    pub sorter:         route::SortBy,
+    pub arr_countries: Option<Countries>,
+    pub min_time: Option<Time>,
+    pub max_time: Option<Time>,
+    pub sorter: route::SortBy,
 }
 
 impl ToEnum<AirportFilter> for DataForm {
@@ -73,11 +73,7 @@ impl<'v> FromFormValue<'v> for route::Speed {
         form_value
             .parse::<i32>()
             .map(|knots| Speed::Knots(knots as f32))
-            .or({
-                form_value
-                    .parse::<f32>()
-                    .map(|mach| Speed::Mach(mach))
-            })
+            .or({ form_value.parse::<f32>().map(Speed::Mach) })
             .map_err(|_| form_value)
     }
 }
@@ -87,13 +83,13 @@ impl<'v> FromFormValue<'v> for Type {
 
     fn from_form_value(form_value: &'v RawStr) -> Result<Type, &'v RawStr> {
         match form_value.as_str() {
-            "closed"       => Ok(Type::Closed),
+            "closed" => Ok(Type::Closed),
             "seaplanebase" => Ok(Type::SeaplaneBase),
-            "heliport"     => Ok(Type::Heliport),
-            "small"        => Ok(Type::Small),
-            "medium"       => Ok(Type::Medium),
-            "large"        => Ok(Type::Large),
-            _              => Err(form_value),
+            "heliport" => Ok(Type::Heliport),
+            "small" => Ok(Type::Small),
+            "medium" => Ok(Type::Medium),
+            "large" => Ok(Type::Large),
+            _ => Err(form_value),
         }
     }
 }
@@ -134,11 +130,11 @@ impl<'v> FromFormValue<'v> for Time {
 
         if split.len() < 2 {
             match value.parse::<f32>() {
-                Ok(v)  => Ok(Time(v)),
+                Ok(v) => Ok(Time(v)),
                 Err(_) => Err(form_value),
             }
         } else {
-            let hour   = split[0].parse::<i32>().map_err(|_| form_value)?;
+            let hour = split[0].parse::<i32>().map_err(|_| form_value)?;
             let minute = split[1].parse::<i32>().map_err(|_| form_value)?;
 
             Ok(Time(hour as f32 + (minute as f32 / 60.0)))
@@ -166,13 +162,10 @@ impl<'v> FromFormValue<'v> for Countries {
 
     fn from_form_value(form_value: &'v RawStr) -> Result<Countries, &'v RawStr> {
         let countries = {
-            let values = form_value
-                .split('+')
-                .map(|s| s.into())
-                .collect::<Vec<_>>();
+            let values = form_value.split('+').map(|s| s.into()).collect::<Vec<_>>();
 
             // We have to manually create an empty vector if an empty string is received
-            if values.len() > 0 && values[0] != "" {
+            if !values.is_empty() && values[0] != "" {
                 values
             } else {
                 Vec::new()
@@ -183,7 +176,7 @@ impl<'v> FromFormValue<'v> for Countries {
     }
 }
 
-impl <'v> FromFormValue<'v> for route::SortBy {
+impl<'v> FromFormValue<'v> for route::SortBy {
     type Error = &'v RawStr;
 
     fn from_form_value(form_value: &'v RawStr) -> Result<route::SortBy, &'v RawStr> {
@@ -191,7 +184,7 @@ impl <'v> FromFormValue<'v> for route::SortBy {
         match form_value.as_str() {
             "distance" => Ok(SortBy::Distance),
             "arr_icao" => Ok(SortBy::ArrICAO),
-            _          => Err(form_value),
+            _ => Err(form_value),
         }
     }
 }

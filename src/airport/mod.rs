@@ -15,23 +15,23 @@ pub enum AirportFilter {
 
 #[derive(Debug, Serialize)]
 pub struct Airport {
-    pub icao:        String,
-    pub name:        String,
-    pub pos:         LatLon,
-    pub _type:       Type,
-    pub runways:     Option<Vec<Runway>>,
+    pub icao: String,
+    pub name: String,
+    pub pos: LatLon,
+    pub _type: Type,
+    pub runways: Option<Vec<Runway>>,
     pub frequencies: Option<Frequencies>,
-    pub region:      Region,
+    pub region: Region,
 }
 
 impl Airport {
     pub fn passes_filters(&self, filters: &[AirportFilter]) -> bool {
-        filters.iter().all(|ref filter| {
+        filters.iter().all(|filter| {
             use self::AirportFilter::*;
 
-            match **filter {
-                Type(ref _type)          => self._type == *_type,
-                RunwayLength(ref len)    => len.any_match(&self.runways),
+            match *filter {
+                Type(ref _type) => self._type == *_type,
+                RunwayLength(ref len) => len.any_match(&self.runways),
                 Countries(ref countries) => countries.any_match(&self.region.code),
             }
         })
@@ -43,11 +43,12 @@ pub fn find_by_icao<'a>(icao: &str, airports: &'a [Airport]) -> Option<&'a Airpo
 }
 
 pub fn find<'a>(filters: &[AirportFilter], airports: &'a [Airport]) -> Option<&'a Airport> {
-    let found = airports.iter()
+    let found = airports
+        .iter()
         .filter(|&airport| airport.passes_filters(filters))
         .collect::<Vec<_>>();
 
-    if found.len() > 0 {
+    if !found.is_empty() {
         Some(found[rand::thread_rng().gen_range(0, found.len())])
     } else {
         None
@@ -74,28 +75,28 @@ pub enum Type {
 impl Type {
     pub fn from_str(value: &str) -> Option<Type> {
         match value {
-            "closed"         => Some(Type::Closed),
-            "seaplane_base"  => Some(Type::SeaplaneBase),
-            "heliport"       => Some(Type::Heliport),
-            "small_airport"  => Some(Type::Small),
+            "closed" => Some(Type::Closed),
+            "seaplane_base" => Some(Type::SeaplaneBase),
+            "heliport" => Some(Type::Heliport),
+            "small_airport" => Some(Type::Small),
             "medium_airport" => Some(Type::Medium),
-            "large_airport"  => Some(Type::Large),
-            _                => None,
+            "large_airport" => Some(Type::Large),
+            _ => None,
         }
     }
 }
 
 #[derive(Debug, Serialize)]
 pub struct Runway {
-    pub sides:  RunwaySides,
-    pub width:  Option<u32>,
+    pub sides: RunwaySides,
+    pub width: Option<u32>,
     pub length: Option<u32>,
 }
 
 #[derive(Debug, Serialize)]
 pub struct RunwaySideData {
     pub name: String,
-    pub pos:  Option<LatLon>,
+    pub pos: Option<LatLon>,
 }
 
 #[derive(Debug, Serialize)]
@@ -106,20 +107,20 @@ pub struct RunwaySides {
 
 #[derive(Debug, Serialize)]
 pub struct Frequencies {
-    pub ground:    Option<String>,
-    pub tower:     Option<String>,
+    pub ground: Option<String>,
+    pub tower: Option<String>,
     pub departure: Option<String>,
-    pub approach:  Option<String>,
-    pub atis:      Option<String>,
+    pub approach: Option<String>,
+    pub atis: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
 pub struct Region {
-    pub code:      String,
+    pub code: String,
     pub continent: String,
 }
 
-type Length    = u32;
+type Length = u32;
 type MinLength = Length;
 type MaxLength = Length;
 
@@ -134,7 +135,7 @@ pub enum RunwayLength {
 impl RunwayLength {
     fn parse_single(input_str: &str) -> Option<RunwayLength> {
         let mut chars = input_str.chars();
-        
+
         let order = try_opt!(chars.next());
         let value = try_opt!(chars.collect::<String>().parse().ok());
 
@@ -144,13 +145,12 @@ impl RunwayLength {
             '<' => Some(LessThan(value)),
             '>' => Some(GreaterThan(value)),
             '=' => Some(EqualTo(value)),
-            _   => None,
+            _ => None,
         }
     }
 
     fn parse_between(input_str: &str) -> Option<RunwayLength> {
-        let values = input_str.splitn(2, '+')
-                              .collect::<Vec<_>>();
+        let values = input_str.splitn(2, '+').collect::<Vec<_>>();
 
         if values.len() == 2 {
             let min = try_opt!(values[0].parse().ok());
@@ -163,8 +163,7 @@ impl RunwayLength {
     }
 
     pub fn parse(input_str: &str) -> Option<RunwayLength> {
-        RunwayLength::parse_between(input_str)
-            .or(RunwayLength::parse_single(input_str))
+        RunwayLength::parse_between(input_str).or_else(|| RunwayLength::parse_single(input_str))
     }
 
     pub fn is_match(&self, runway: &Runway) -> bool {
@@ -172,12 +171,12 @@ impl RunwayLength {
             Some(run_len) => {
                 use self::RunwayLength::*;
                 match *self {
-                    LessThan(len)             => run_len <= len,
-                    GreaterThan(len)          => run_len >= len,
-                    EqualTo(len)              => run_len == len,
+                    LessThan(len) => run_len <= len,
+                    GreaterThan(len) => run_len >= len,
+                    EqualTo(len) => run_len == len,
                     Between(min_len, max_len) => run_len >= min_len && run_len <= max_len,
                 }
-            },
+            }
             None => false,
         }
     }

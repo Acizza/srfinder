@@ -13,14 +13,14 @@ macro_rules! try_opt {
 
 pub mod url {
     use std::io;
-    use std::process::{Command, Child};
+    use std::process::{Child, Command};
 
     #[cfg(target_os = "windows")]
-    const START_PROGRAM: &'static str = "explorer";
+    const START_PROGRAM: &str = "explorer";
     #[cfg(target_os = "macos")]
-    const START_PROGRAM: &'static str = "open";
+    const START_PROGRAM: &str = "open";
     #[cfg(target_os = "linux")]
-    const START_PROGRAM: &'static str = "xdg-open";
+    const START_PROGRAM: &str = "xdg-open";
 
     pub fn open(url: &str) -> Result<Child, io::Error> {
         Command::new(START_PROGRAM).arg(url).spawn()
