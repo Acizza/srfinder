@@ -1,0 +1,17 @@
+#route-map {
+    width: 80%;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+#route-info {
+    width: 20%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    right: 0;
+    background-color: #555555;
+    border-left: 2px solid #333333;
+}
