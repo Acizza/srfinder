@@ -5,28 +5,49 @@ import './RouteInfo.css';
 class RouteInfo extends React.Component {
     constructor(props) {
         super(props);
+
+        // TODO: temporary
+        this.state = {
+            routes: [
+                { from: "rjaa", to: "ksfo", time: "10:15" },
+                { from: "klax", to: "klas", time: "1:38" }
+            ],
+        };
+    }
+
+    // TODO: temporary
+    searchRoutes = () => {
+        this.setState({
+            routes: [
+                { from: "vhhh", to: "ksmf", time: "15:15" },
+                { from: "kdfw", to: "ksea", time: "3:38" }
+            ],
+        });
     }
 
     render() {
         const tabs = [
-            { name: "filters", content: <p>TODO (1)</p> },
+            { name: "filters", content: <Filters onClick={this.searchRoutes} /> },
             { name: "runways", content: <p>TODO (2)</p> },
             { name: "freqs", content: <p>TODO (3)</p> },
-        ];
-
-        // TODO: temporary
-        const routes = [
-            { from: "rjaa", to: "ksfo", time: "10:15" },
-            { from: "klax", to: "klas", time: "1:38" }
         ];
 
         return (
             <React.Fragment>
                 <Tabs tabs={tabs} />
-                <RouteViewer routes={routes} />
+                <RouteViewer routes={this.state.routes} />
             </React.Fragment>
         );
     }
+}
+
+function Filters(props) {
+    return (
+        <div>
+            <p>TODO (1)</p>
+            <button onClick={props.onClick}>Replace Routes</button>
+        </div>
+    );
 }
 
 class RouteViewer extends React.Component {
