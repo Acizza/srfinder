@@ -9,7 +9,9 @@ class RouteMap extends React.Component {
         this.state = {
             isLoaded: false
         };
+    }
 
+    componentDidMount() {
         setDefaultOptions({ css: true });
 
         loadModules(["esri/Map", "esri/views/MapView", "esri/widgets/BasemapToggle"]).then(([Map, MapView, BasemapToggle]) => {
