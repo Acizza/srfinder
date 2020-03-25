@@ -1,3 +1,12 @@
+:root {
+    --hover-color: #555555;
+    --bg-color: #444444;
+    --tab-color: #333333;
+    --border-color: #222222;
+
+    --text-color: #d2d2d2;
+}
+
 #route-map {
     width: 80%;
     height: 100%;
@@ -12,6 +21,8 @@
     position: fixed;
     top: 0;
     right: 0;
-    background-color: #555555;
-    border-left: 2px solid #333333;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: Lekton;
+    border-left: 2px solid var(--border-color);
 }

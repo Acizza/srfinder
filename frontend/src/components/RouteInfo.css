@@ -1,4 +1,42 @@
 .tabs {
-    height: 60%;
-    border-bottom: 3px solid #333333;
+    height: 50%;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.route-table {
+    text-transform: uppercase;
+    text-align: center;
+    border-collapse: collapse;
+    font-size: 3vh;
+    width: 100%;
+}
+
+.route-table thead {
+    background-color: var(--tab-color);
+}
+
+.route-table tbody tr:hover {
+    background-color: var(--hover-color);
+}
+
+.route-table tr:first-child {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.route-table tr {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.route-table th,td {
+    font-weight: normal;
+    padding-top: 0.75vh;
+    padding-bottom: 0.75vh;
+}
+
+.route-table th:not(:first-child) {
+    border-left: 1px solid var(--border-color);
+}
+
+.route-table tbody td {
+    border-left: 1px solid var(--border-color);
 }

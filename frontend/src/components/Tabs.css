@@ -7,7 +7,7 @@
     margin: 0;
     height: 35px;
     list-style: none;
-    background-color: #444444;
+    background-color: var(--tab-color);
     text-align: center;
 }
 
@@ -17,21 +17,20 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    color: #e2e2e2;
-    font-family: Lekton;
-    border-bottom: 1px solid #333333;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .tab-header:hover {
-    background-color: #555555;
+    background-color: var(--hover-color);
 }
 
 .tab-header:not(:last-child) {
-    border-right: 2px solid #333333;
+    border-right: 2px solid var(--border-color);
 }
 
 .tab-header.selected-tab {
-    background-color: #666666;
+    background-color: var(--bg-color);
+    border-bottom: 0;
 }
 
 .tab-content {
