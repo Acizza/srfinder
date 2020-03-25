@@ -7,6 +7,22 @@
     --text-color: #d2d2d2;
 }
 
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: Lekton;
+}
+
+#loading-text {
+    text-transform: uppercase;
+    font-weight: normal;
+    font-size: 4vh;
+    position: relative;
+    text-align: center;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
 #route-map {
     width: 80%;
     height: 100%;
@@ -21,8 +37,5 @@
     position: fixed;
     top: 0;
     right: 0;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    font-family: Lekton;
     border-left: 2px solid var(--border-color);
 }
