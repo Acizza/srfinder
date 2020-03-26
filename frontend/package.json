@@ -25,6 +25,7 @@
   "dependencies": {
     "esri-loader": "^2.13.0",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "react-perfect-scrollbar": "^1.5.8"
   }
 }

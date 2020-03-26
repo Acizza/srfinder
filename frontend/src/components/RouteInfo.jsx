@@ -43,10 +43,10 @@ class RouteInfo extends React.Component {
 
 function Filters(props) {
     return (
-        <div>
+        <React.Fragment>
             <p>TODO (1)</p>
             <button onClick={props.onClick}>Replace Routes</button>
-        </div>
+        </React.Fragment>
     );
 }
 

@@ -1,5 +1,6 @@
 .tabs {
     height: 50%;
+    overflow: hidden;
     border-bottom: 2px solid var(--border-color);
 }
 

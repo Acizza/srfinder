@@ -1,4 +1,5 @@
 import React from 'react';
+import PerfectScrollbar from 'react-perfect-scrollbar';
 import './Tabs.css';
 
 class Tabs extends React.Component {
@@ -26,9 +27,9 @@ class Tabs extends React.Component {
                 <ul className="tab-list">
                     {tabHeaders}
                 </ul>
-                <div className="tab-content">
+                <PerfectScrollbar className="tab-content">
                     {this.state.selected.content}
-                </div>
+                </PerfectScrollbar>
             </div>
         );
     }
