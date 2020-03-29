@@ -1,5 +1,6 @@
 import React from 'react';
 import Tabs from './Tabs.jsx';
+import FilterForm from './FilterForm/FilterForm.jsx';
 import './RouteInfo.css';
 
 class RouteInfo extends React.Component {
@@ -16,18 +17,21 @@ class RouteInfo extends React.Component {
     }
 
     // TODO: temporary
-    searchRoutes = () => {
+    onFilterSubmission = (event) => {
         this.setState({
             routes: [
                 { from: "vhhh", to: "ksmf", time: "15:15" },
                 { from: "kdfw", to: "ksea", time: "3:38" }
             ],
         });
+
+        console.log("Filter submission: " + this.state);
+        event.preventDefault();
     }
 
     render() {
         const tabs = [
-            { name: "filters", content: <Filters onClick={this.searchRoutes} /> },
+            { name: "filters", content: <FilterForm id="filter-form" onSubmit={this.onFilterSubmission} /> },
             { name: "runways", content: <p>TODO (2)</p> },
             { name: "freqs", content: <p>TODO (3)</p> },
         ];
@@ -39,15 +43,6 @@ class RouteInfo extends React.Component {
             </React.Fragment>
         );
     }
-}
-
-function Filters(props) {
-    return (
-        <React.Fragment>
-            <p>TODO (1)</p>
-            <button onClick={props.onClick}>Replace Routes</button>
-        </React.Fragment>
-    );
 }
 
 class RouteViewer extends React.Component {
