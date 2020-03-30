@@ -1,8 +1,8 @@
-import React from 'react';
-import Box from './Box.jsx';
-import TimeInput from './TimeInput.jsx';
+import * as React from 'react';
+import Box from './Box';
+import TimeInput from './TimeInput';
 
-function TimeBox(props) {
+function TimeBox() {
     return (
         <Box label="Time" className="time-inputs">
             <TimeInput label="Min" />

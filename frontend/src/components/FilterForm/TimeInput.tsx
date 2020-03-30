@@ -1,18 +1,23 @@
-import React from 'react';
-import Input from './Input.jsx';
-import '../../util.js';
+import * as React from 'react';
+import Input, { InputChangeEvent } from './Input';
+import '../../util';
 
-class TimeInput extends React.Component {
-    constructor(props) {
-        super(props);
+interface Props {
+    label: string,
+}
 
-        this.state = {
-            value: "",
-            isValidTime: true,
-        };
-    }
+interface State {
+    value: string,
+    isValidTime: boolean,
+}
 
-    isValidInput(value) {
+class TimeInput extends React.Component<Props, State> {
+    state = {
+        value: "",
+        isValidTime: true,
+    };
+
+    private static isValidInput(value: string): boolean {
         const hour_min_split = value.split(':');
         const len = hour_min_split.length;
 
@@ -23,14 +28,14 @@ class TimeInput extends React.Component {
             return false;
 
         if (len > 1) {
-            if (!this.isValidTimeFragment(hour_min_split[1]) || !this.isValidMinute(hour_min_split[1]))
+            if (!this.isValidTimeFragment(hour_min_split[1]) || !TimeInput.isValidMinute(hour_min_split[1]))
                 return false;
         }
 
         return len <= 2;
     }
 
-    isValidTime(value) {
+    private static isValidTime(value: string): boolean {
         if (value.length === 0)
             return true;
 
@@ -42,11 +47,11 @@ class TimeInput extends React.Component {
         return this.isValidTimeFragment(hour_min_split[0]) && this.isValidTimeFragment(hour_min_split[1]);
     }
 
-    isValidTimeFragment(value) {
+    private static isValidTimeFragment(value: string): boolean {
         return value.length <= 2 && value.isDigits();
     }
 
-    isValidMinute(value) {
+    private static isValidMinute(value: string): boolean {
         switch (value.length) {
             case 0:
                 return true;
@@ -59,17 +64,17 @@ class TimeInput extends React.Component {
         }
     }
 
-    onChange = (event) => {
+    private onChange = (event: InputChangeEvent) => {
         const value = event.target.value;
 
-        if (!this.isValidInput(value)) {
+        if (!TimeInput.isValidInput(value)) {
             event.preventDefault();
             return;
         }
 
         this.setState({
             value: value,
-            isValidTime: this.isValidTime(value),
+            isValidTime: TimeInput.isValidTime(value),
         });
     }
 

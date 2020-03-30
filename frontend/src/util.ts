@@ -1,9 +1,10 @@
-/**
- * Test if all characters of the string match the given predicate.
- * 
- * @param {(String) => boolean} predicate 
- * @returns {boolean}
- */
+interface String {
+    allChars(predicate: (ch: string) => boolean): boolean,
+    isDigit(): boolean,
+    isDigits(): boolean,
+    isAlphanumericUpper(): boolean,
+}
+
 String.prototype.allChars = function (predicate) {
     for (const ch of this) {
         if (!predicate(ch))
@@ -18,7 +19,7 @@ String.prototype.isDigit = function () {
 }
 
 String.prototype.isDigits = function () {
-    return this.allChars((ch) => ch.isDigit());
+    return this.allChars((ch: string) => ch.isDigit());
 }
 
 String.prototype.isAlphanumericUpper = function () {

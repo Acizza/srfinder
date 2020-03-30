@@ -1,15 +1,17 @@
-import React from 'react';
+import * as React from 'react';
 import { setDefaultOptions, loadModules } from 'esri-loader';
 import './RouteMap.css';
 
-class RouteMap extends React.Component {
-    constructor(props) {
-        super(props);
+interface State {
+    map?: any,
+    view?: any,
+    isLoaded: boolean,
+}
 
-        this.state = {
-            isLoaded: false
-        };
-    }
+class RouteMap extends React.Component<{}, State> {
+    state: State = {
+        isLoaded: false,
+    };
 
     componentDidMount() {
         setDefaultOptions({ css: true });

@@ -1,17 +1,26 @@
-import React from 'react';
+import * as React from 'react';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import './Tabs.css';
 
-class Tabs extends React.Component {
-    constructor(props) {
-        super(props);
+interface Tab {
+    name: string,
+    content: JSX.Element,
+}
 
-        this.state = {
-            selected: props.tabs[0],
-        };
-    }
+interface TabsProps {
+    tabs: Tab[],
+}
 
-    onTabSelected = (tab) => this.setState({ selected: tab });
+interface TabsState {
+    selected: Tab,
+}
+
+class Tabs extends React.Component<TabsProps, TabsState> {
+    state = {
+        selected: this.props.tabs[0],
+    };
+
+    onTabSelected = (tab: Tab) => this.setState({ selected: tab });
 
     render() {
         const tabHeaders = this.props.tabs.map((tab) => {
@@ -35,11 +44,14 @@ class Tabs extends React.Component {
     }
 }
 
-class TabHeader extends React.Component {
-    constructor(props) {
-        super(props);
-    }
+interface TabHeaderProps {
+    name: string,
+    isSelected: boolean,
+    tab: Tab,
+    onSelected(tab: Tab): void;
+}
 
+class TabHeader extends React.Component<TabHeaderProps> {
     onSelected = () => this.props.onSelected(this.props.tab);
 
     render() {

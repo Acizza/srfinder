@@ -1,6 +1,17 @@
-import React from 'react';
+import * as React from 'react';
 
-function Input(props) {
+export type InputChangeEvent = React.ChangeEvent<HTMLInputElement>;
+
+interface Props {
+    label: string,
+    value: string,
+    labelClasses?: string,
+    inputClasses?: string,
+    maxLength?: number,
+    onChange?: (event: InputChangeEvent) => void,
+}
+
+function Input(props: Props): JSX.Element {
     return (
         <React.Fragment>
             <label className={props.labelClasses}>{props.label}</label>

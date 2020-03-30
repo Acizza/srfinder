@@ -1,20 +1,24 @@
 module.exports = {
     mode: "development",
+    devtool: "source-map",
+    resolve: {
+        extensions: [".ts", ".tsx", ".js", ".jsx"],
+    },
     module: {
         rules: [
             {
-                test: /\.(js|jsx)$/,
+                test: /\.ts(x?)$/,
                 exclude: /node_modules/,
-                use: {
-                    loader: "babel-loader",
-                    options: {
-                        presets: [
-                            '@babel/react', {
-                                'plugins': ['@babel/plugin-proposal-class-properties']
-                            }
-                        ]
+                use: [
+                    {
+                        loader: "ts-loader"
                     }
-                },
+                ]
+            },
+            {
+                enforce: "pre",
+                test: /\.js$/,
+                loader: "source-map-loader"
             },
             {
                 test: /\.css$/i,

@@ -1,3 +1,4 @@
 /target
 /frontend/node_modules
-/frontend/dist/main.js
+/frontend/dist/*
+!/frontend/dist/index.html

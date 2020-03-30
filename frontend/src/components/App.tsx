@@ -1,14 +1,10 @@
-import React from 'react';
-import RouteMap from './RouteMap.jsx';
-import RouteInfo from './RouteInfo.jsx';
+import * as React from 'react';
+import RouteMap from './RouteMap';
+import RouteInfo from './RouteInfo';
 import './App.css';
 import 'react-perfect-scrollbar/dist/css/styles.css';
 
-class App extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
+class App extends React.Component<{}, {}> {
     render() {
         return (
             <React.Fragment>
