@@ -1,7 +1,7 @@
 import * as React from 'react';
 import AirportFilters from './AirportFilters/AirportFilters';
 import SpeedInput, { Speed } from './SpeedInput';
-import TimeBox from './TimeBox';
+import TimeRangeBox from './TimeRangeBox';
 import '../../util';
 import './FilterForm.css';
 
@@ -33,7 +33,7 @@ class FilterForm extends React.Component<Props, State> {
                 <SpeedInput speed={this.state.speed} onChange={this.onSpeedChange} />
                 <AirportFilters label="Departure" className="departure-filters" />
                 <AirportFilters label="Arrival" className="arrival-filters" />
-                <TimeBox />
+                <TimeRangeBox />
                 <input type="submit" className="find-routes-btn" value="Find Routes" />
             </form>
         );
