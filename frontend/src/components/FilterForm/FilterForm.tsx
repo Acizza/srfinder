@@ -1,5 +1,5 @@
 import * as React from 'react';
-import FilterBox from './FilterBox';
+import FilterBox from './FilterBox/FilterBox';
 import SpeedInput, { Speed } from './SpeedInput';
 import TimeBox from './TimeBox';
 import '../../util';

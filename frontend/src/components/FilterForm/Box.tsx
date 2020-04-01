@@ -1,4 +1,5 @@
 import * as React from 'react';
+import './Box.css';
 
 interface Props {
     label: string,
