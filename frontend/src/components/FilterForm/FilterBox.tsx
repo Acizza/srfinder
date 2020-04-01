@@ -101,33 +101,42 @@ class RunwayLengthInput extends React.Component<{}, RunwayLengthInputState> {
         selector: LengthSelector.Equal,
     };
 
-    private static parseSelector(value: string): LengthSelector {
+    private static parse(value: string): LengthSelector | null {
         if (value.length === 0)
             return LengthSelector.Equal;
 
+        let type: LengthSelector;
+        let slice: string;
+
         switch (value[0]) {
             case '>':
-                return LengthSelector.GreaterThan;
+                type = LengthSelector.GreaterThan;
+                slice = value.substr(1);
+                break;
             case '<':
-                return LengthSelector.LessThan;
+                type = LengthSelector.LessThan;
+                slice = value.substr(1);
+                break;
             default:
-                return LengthSelector.Equal;
+                type = LengthSelector.Equal;
+                slice = value;
+                break;
         }
-    }
 
-    private static isValid(value: string): boolean {
-        return value.allChars(ch => (ch === '>' || ch === '<') || ch.isDigit());
+        if (!slice.isDigits())
+            return null;
+
+        return type;
     }
 
     private onChange = (event: InputChangeEvent) => {
         const value = event.target.value;
+        const selector = RunwayLengthInput.parse(value);
 
-        if (!RunwayLengthInput.isValid(value)) {
+        if (selector === null) {
             event.preventDefault();
             return;
         }
-
-        const selector = RunwayLengthInput.parseSelector(value);
 
         this.setState({
             value,
