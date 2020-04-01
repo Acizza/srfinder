@@ -30,7 +30,7 @@ class FilterForm extends React.Component<Props, State> {
     render() {
         return (
             <form onSubmit={this.props.onSubmit} className={this.props.className}>
-                <SpeedInput onChange={this.onSpeedChange} />
+                <SpeedInput speed={this.state.speed} onChange={this.onSpeedChange} />
                 <FilterBox label="Departure" className="departure-filters" />
                 <FilterBox label="Arrival" className="arrival-filters" />
                 <TimeBox />

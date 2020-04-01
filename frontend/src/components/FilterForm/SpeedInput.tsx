@@ -2,6 +2,7 @@ import * as React from 'react';
 import Input, { InputChangeEvent } from './Input';
 
 interface Props {
+    speed: Speed,
     onChange?: (newSpeed: Speed) => void;
 }
 
@@ -11,7 +12,7 @@ interface State {
 
 class SpeedInput extends React.Component<Props, State> {
     state = {
-        speed: new Speed(),
+        speed: this.props.speed,
     };
 
     private onChange = (event: InputChangeEvent) => {
