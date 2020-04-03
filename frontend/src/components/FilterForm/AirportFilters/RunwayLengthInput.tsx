@@ -1,10 +1,19 @@
 import * as React from 'react';
 import Input, { InputChangeEvent } from '../Input';
 
-const enum LengthSelector {
+export const enum LengthSelector {
     Equal = "eq",
     GreaterThan = "gt",
     LessThan = "lt",
+}
+
+export interface RunwayLength {
+    length: number,
+    selector: LengthSelector,
+}
+
+interface Props {
+    onChange?: (length: RunwayLength) => void,
 }
 
 interface State {
@@ -12,15 +21,15 @@ interface State {
     selector: LengthSelector,
 }
 
-class RunwayLengthInput extends React.Component<{}, State> {
+class RunwayLengthInput extends React.Component<Props, State> {
     state = {
         value: "",
         selector: LengthSelector.Equal,
     };
 
-    private static parse(value: string): LengthSelector | null {
+    private static parse(value: string): [number, LengthSelector] | null {
         if (value.length === 0)
-            return LengthSelector.Equal;
+            return [0, LengthSelector.GreaterThan];
 
         let type: LengthSelector;
         let slice: string;
@@ -43,22 +52,26 @@ class RunwayLengthInput extends React.Component<{}, State> {
         if (!slice.isDigits())
             return null;
 
-        return type;
+        return [Number(slice), type];
     }
 
     private onChange = (event: InputChangeEvent) => {
         const value = event.target.value;
-        const selector = RunwayLengthInput.parse(value);
+        const result = RunwayLengthInput.parse(value);
 
-        if (selector === null) {
+        if (result === null) {
             event.preventDefault();
             return;
         }
+
+        const [length, selector] = result;
 
         this.setState({
             value,
             selector,
         });
+
+        this.props.onChange?.({ length, selector });
     };
 
     render() {

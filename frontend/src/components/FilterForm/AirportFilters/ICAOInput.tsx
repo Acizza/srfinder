@@ -1,15 +1,12 @@
 import * as React from 'react';
 import Input, { InputChangeEvent } from '../Input';
 
-interface State {
+interface Props {
     value: string,
+    onChange?: (value: string) => void,
 }
 
-class ICAOInput extends React.Component<{}, State> {
-    state = {
-        value: "",
-    };
-
+class ICAOInput extends React.Component<Props> {
     private static isValid(icao: string): boolean {
         return icao.allChars((ch) => ch.isDigit() || ch.isAlphanumericUpper());
     }
@@ -22,9 +19,7 @@ class ICAOInput extends React.Component<{}, State> {
             return;
         }
 
-        this.setState({
-            value: icao,
-        });
+        this.props.onChange?.(icao);
     }
 
     render() {
@@ -33,7 +28,7 @@ class ICAOInput extends React.Component<{}, State> {
                 label="ICAO"
                 inputClasses="icao-input"
                 maxLength={4}
-                value={this.state.value}
+                value={this.props.value}
                 onChange={this.onChange}
             />
         );

@@ -1,25 +1,29 @@
 import * as React from 'react';
 import Input, { InputChangeEvent } from '../Input';
 
-interface State {
-    value: string,
-    selected_countries: string[],
+interface Props {
+    onChange?: (selectedCountries: string[]) => void,
 }
 
-class CountriesInput extends React.Component<{}, State> {
+interface State {
+    value: string,
+}
+
+class CountriesInput extends React.Component<Props, State> {
     state = {
         value: "",
-        selected_countries: [],
+        selectedCountries: [],
     };
 
     private onChange = (event: InputChangeEvent) => {
         const value = event.target.value;
-        const selected = value.split(",").map((country: string) => country.trim());
+        this.setState({ value });
 
-        this.setState({
-            value,
-            selected_countries: selected,
-        });
+        if (this.props.onChange === null)
+            return;
+
+        const selected = value.split(",").map((country: string) => country.trim());
+        this.props.onChange!(selected);
     }
 
     render() {

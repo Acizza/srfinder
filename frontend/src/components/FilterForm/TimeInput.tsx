@@ -2,13 +2,18 @@ import * as React from 'react';
 import Input, { InputChangeEvent } from './Input';
 import '../../util';
 
+export interface Time {
+    hour: number,
+    minutes: number,
+}
+
 interface Props {
     label: string,
+    onChange?: (time: Time | null) => void,
 }
 
 interface State {
     value: string,
-    isValidTime: boolean,
 }
 
 class TimeInput extends React.Component<Props, State> {
@@ -35,18 +40,6 @@ class TimeInput extends React.Component<Props, State> {
         return len <= 2;
     }
 
-    private static isValidTime(value: string): boolean {
-        if (value.length === 0)
-            return true;
-
-        const hour_min_split = value.split(':');
-
-        if (hour_min_split.length < 2)
-            return false;
-
-        return this.isValidTimeFragment(hour_min_split[0]) && this.isValidTimeFragment(hour_min_split[1]);
-    }
-
     private static isValidTimeFragment(value: string): boolean {
         return value.length <= 2 && value.isDigits();
     }
@@ -64,6 +57,26 @@ class TimeInput extends React.Component<Props, State> {
         }
     }
 
+    private static parse(value: string): Time | null {
+        const hour_min_split = value.split(':');
+        const len = hour_min_split.length;
+
+        switch (len) {
+            case 0:
+                return { hour: 0, minutes: 0 };
+            case 2:
+                if (!hour_min_split[0].isDigits() || !hour_min_split[1].isDigits())
+                    return null;
+
+                const hour = Number(hour_min_split[0]);
+                const minutes = Number(hour_min_split[1]);
+
+                return { hour, minutes };
+            default:
+                return null;
+        }
+    }
+
     private onChange = (event: InputChangeEvent) => {
         const value = event.target.value;
 
@@ -72,10 +85,12 @@ class TimeInput extends React.Component<Props, State> {
             return;
         }
 
-        this.setState({
-            value: value,
-            isValidTime: TimeInput.isValidTime(value),
-        });
+        this.setState({ value });
+
+        if (this.props.onChange === null)
+            return;
+
+        this.props.onChange!(TimeInput.parse(value));
     }
 
     render() {

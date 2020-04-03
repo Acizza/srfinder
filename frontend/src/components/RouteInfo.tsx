@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Tabs from './Tabs';
-import FilterForm, { FilterFormSubmitEvent } from './FilterForm/FilterForm';
+import FilterForm, { State as FilterFormState, SubmitEvent } from './FilterForm/FilterForm';
 import './RouteInfo.css';
 
 interface RouteInfoState {
@@ -16,7 +16,7 @@ class RouteInfo extends React.Component<{}, RouteInfoState> {
     };
 
     // TODO: temporary
-    onFilterSubmission = (event: FilterFormSubmitEvent) => {
+    onFilterSubmission = (_: FilterFormState, event: SubmitEvent) => {
         this.setState({
             routes: [
                 { from: "vhhh", to: "ksmf", time: "15:15" },

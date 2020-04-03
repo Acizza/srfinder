@@ -1,21 +1,22 @@
 import * as React from 'react';
-import AirportFilters from './AirportFilters/AirportFilters';
+import AirportFilters, { State as AirportFiltersState } from './AirportFilters/AirportFilters';
 import SpeedInput, { Speed } from './SpeedInput';
-import TimeRangeBox from './TimeRangeBox';
+import TimeRangeBox, { TimeRange } from './TimeRangeBox';
 import '../../util';
 import './FilterForm.css';
 
-export type FilterFormSubmitEvent = React.FormEvent<HTMLFormElement>;
+export type SubmitEvent = React.FormEvent<HTMLFormElement>;
 
 interface Props {
-    onSubmit?: (event: FilterFormSubmitEvent) => void,
+    onSubmit?: (state: State, event: SubmitEvent) => void,
     className?: string,
 }
 
-interface State {
+export interface State {
     speed: Speed,
-    departure?: any,
-    arrival?: any,
+    departure?: AirportFiltersState,
+    arrival?: AirportFiltersState,
+    timeRange?: TimeRange,
 }
 
 class FilterForm extends React.Component<Props, State> {
@@ -23,17 +24,24 @@ class FilterForm extends React.Component<Props, State> {
         speed: new Speed(),
     };
 
-    onSpeedChange = (newSpeed: Speed) => this.setState({
-        speed: newSpeed,
-    });
+    private onAirportFiltersChange = (type: "departure" | "arrival", value: AirportFiltersState) => {
+        switch (type) {
+            case "departure":
+                this.setState({ departure: value });
+                break;
+            case "arrival":
+                this.setState({ arrival: value });
+                break;
+        }
+    }
 
     render() {
         return (
-            <form onSubmit={this.props.onSubmit} className={this.props.className}>
-                <SpeedInput speed={this.state.speed} onChange={this.onSpeedChange} />
-                <AirportFilters label="Departure" className="departure-filters" />
-                <AirportFilters label="Arrival" className="arrival-filters" />
-                <TimeRangeBox />
+            <form onSubmit={event => this.props.onSubmit?.(this.state, event)} className={this.props.className}>
+                <SpeedInput speed={this.state.speed} onChange={speed => this.setState({ speed })} />
+                <AirportFilters label="Departure" className="departure-filters" onChange={value => this.onAirportFiltersChange("departure", value)} />
+                <AirportFilters label="Arrival" className="arrival-filters" onChange={value => this.onAirportFiltersChange("arrival", value)} />
+                <TimeRangeBox onChange={timeRange => this.setState({ timeRange })} />
                 <input type="submit" className="find-routes-btn" value="Find Routes" />
             </form>
         );
