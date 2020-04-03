@@ -17,6 +17,7 @@
 }
 
 .tab-header {
+    cursor: default;
     text-transform: uppercase;
     display: flex;
     align-items: center;

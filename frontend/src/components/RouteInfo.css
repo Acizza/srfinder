@@ -5,6 +5,7 @@
 }
 
 .route-table {
+    cursor: default;
     text-transform: uppercase;
     text-align: center;
     border-collapse: collapse;
