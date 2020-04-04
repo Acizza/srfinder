@@ -1,7 +1,8 @@
-mod search_routes;
+mod server_route;
 
 use actix_files as fs;
 use actix_web::{middleware, web, App, HttpServer};
+use server_route::search_routes::search_routes;
 use std::env;
 use std::io;
 
@@ -14,7 +15,7 @@ async fn main() -> io::Result<()> {
         App::new()
             .wrap(middleware::Logger::default())
             .data(web::JsonConfig::default().limit(2048))
-            .service(search_routes::search_routes)
+            .service(search_routes)
             .service(fs::Files::new("/", "./frontend/dist/").index_file("index.html"))
     })
     .bind("127.0.0.1:8080")?
