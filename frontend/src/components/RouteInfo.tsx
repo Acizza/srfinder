@@ -1,34 +1,55 @@
 import * as React from 'react';
-import Tabs from './Tabs';
+import Tabs, { Tab } from './Tabs';
 import FilterForm, { State as FilterFormState, SubmitEvent } from './FilterForm/FilterForm';
 import './RouteInfo.css';
+import { Time } from './FilterForm/TimeInput';
+
+interface Route {
+    from: string,
+    to: string,
+    distance: number,
+    time: Time,
+}
 
 interface RouteInfoState {
-    routes: RouteProps[],
+    routes: Route[],
 }
 
 class RouteInfo extends React.Component<{}, RouteInfoState> {
     state: RouteInfoState = {
-        routes: [
-            { from: "rjaa", to: "ksfo", time: "10:15" },
-            { from: "klax", to: "klas", time: "1:38" }
-        ],
+        routes: [],
     };
 
-    // TODO: temporary
-    onFilterSubmission = (_: FilterFormState, event: SubmitEvent) => {
-        this.setState({
-            routes: [
-                { from: "vhhh", to: "ksmf", time: "15:15" },
-                { from: "kdfw", to: "ksea", time: "3:38" }
-            ],
-        });
+    private onFilterSubmission = (state: FilterFormState, event: SubmitEvent) => {
+        this.findRoutes(state)
+            .then(routes => this.setState({ routes }))
+            .catch(err => console.error(err));
 
         event.preventDefault();
     }
 
+    private async findRoutes(state: FilterFormState): Promise<Route[]> {
+        const resp = await fetch("/search_routes", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(state)
+        });
+
+        if (!resp.ok)
+            throw Error(`Searching for routes failed with response code: ${resp.status}`);
+
+        const json = await resp.json();
+
+        if (!json.routes)
+            throw Error(`Malformed json response while fetching routes: ${json}`);
+
+        return json.routes;
+    }
+
     render() {
-        const tabs = [
+        const tabs: Tab[] = [
             { name: "filters", content: <FilterForm className="filter-form" onSubmit={this.onFilterSubmission} /> },
             { name: "runways", content: <p>TODO (2)</p> },
             { name: "freqs", content: <p>TODO (3)</p> },
@@ -44,12 +65,12 @@ class RouteInfo extends React.Component<{}, RouteInfoState> {
 }
 
 interface RouteViewerProps {
-    routes: RouteProps[],
+    routes: Route[],
 }
 
 function RouteViewer(props: RouteViewerProps) {
     const routes = props.routes.map((route, i) => (
-        <Route key={i} from={route.from} to={route.to} time={route.time} />
+        <RouteRow key={i} from={route.from} to={route.to} distance={route.distance} time={route.time} />
     ));
 
     return (
@@ -68,18 +89,14 @@ function RouteViewer(props: RouteViewerProps) {
     );
 }
 
-interface RouteProps {
-    from: string,
-    to: string,
-    time: string,
-}
+function RouteRow(route: Route) {
+    const timeStr = `${route.time.hour}:${route.time.minutes}`;
 
-function Route(props: RouteProps) {
     return (
         <tr>
-            <td>{props.from}</td>
-            <td>{props.to}</td>
-            <td>{props.time}</td>
+            <td>{route.from}</td>
+            <td>{route.to}</td>
+            <td>{timeStr}</td>
         </tr>
     );
 }

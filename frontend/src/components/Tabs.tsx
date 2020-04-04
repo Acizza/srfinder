@@ -2,7 +2,7 @@ import * as React from 'react';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import './Tabs.css';
 
-interface Tab {
+export interface Tab {
     name: string,
     content: JSX.Element,
 }
