@@ -23,7 +23,7 @@ body {
     transform: translateY(-50%);
 }
 
-#route-map {
+.route-map {
     width: 80%;
     height: 100%;
     position: fixed;
@@ -31,7 +31,7 @@ body {
     top: 0;
 }
 
-#route-info {
+.route-info {
     width: 20%;
     height: 100%;
     position: fixed;

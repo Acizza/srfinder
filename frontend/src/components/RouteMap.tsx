@@ -46,10 +46,10 @@ class RouteMap extends React.Component<{}, State> {
 
     render() {
         return (
-            <React.Fragment>
+            <div className="route-map">
                 {!this.state.isLoaded && <h2 id="loading-text">Loading map</h2>}
                 <div id="route-map-container"></div>
-            </React.Fragment>
+            </div>
         );
     }
 }

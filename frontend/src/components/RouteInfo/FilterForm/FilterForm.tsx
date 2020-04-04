@@ -2,7 +2,7 @@ import * as React from 'react';
 import AirportFilters, { State as AirportFiltersState } from './AirportFilters/AirportFilters';
 import SpeedInput, { Speed } from './SpeedInput';
 import TimeRangeBox, { TimeRange } from './TimeRangeBox';
-import '../../util';
+import '../../../util';
 import './FilterForm.css';
 
 export type SubmitEvent = React.FormEvent<HTMLFormElement>;
