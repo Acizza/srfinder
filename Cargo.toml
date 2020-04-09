@@ -8,10 +8,20 @@ edition = "2018"
 actix-files = "~0.2.0"
 actix-web = "~2.0.0"
 actix-rt = "~1.0.0"
+anyhow = "~1.0.0"
+chrono = "~0.4.0"
+csv = "~1.1.0"
+dirs = "~2.0.0"
 env_logger = "~0.7.0"
+once_cell = "~1.3.0"
 serde = "~1.0.0"
 serde_derive = "~1.0.0"
+ureq = "~0.12.0"
 
 [dependencies.smol_str]
 version = "~0.1.0"
 features = [ "serde" ]
+
+[profile.release]
+lto = true
+codegen-units = 1

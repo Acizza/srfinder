@@ -1,14 +1,14 @@
 mod filter;
 
+use crate::airport_data::Airport;
 use actix_web::{post, web, HttpResponse};
 use filter::Filters;
 use serde_derive::{Deserialize, Serialize};
-use smol_str::SmolStr;
 
 #[derive(Debug, Serialize)]
-pub struct Route {
-    pub from: SmolStr,
-    pub to: SmolStr,
+pub struct Route<'a> {
+    pub from: &'a Airport,
+    pub to: &'a Airport,
     pub distance: f32,
     pub time: Time,
 }
@@ -30,22 +30,30 @@ impl Time {
 }
 
 #[derive(Serialize)]
-struct RouteResponse {
-    routes: Vec<Route>,
+struct Response<'a> {
+    routes: Vec<Route<'a>>,
 }
 
 #[post("/search_routes")]
-pub async fn search_routes(filters: web::Json<Filters>) -> HttpResponse {
+pub async fn search_routes(
+    filters: web::Json<Filters>,
+    airports: web::Data<Vec<Airport>>,
+) -> HttpResponse {
     println!("{:?}", filters);
 
-    let test_response = RouteResponse {
-        routes: vec![Route {
-            from: "RJAA".into(),
-            to: "KSFO".into(),
-            distance: 5326.2,
-            time: Time::new(13, 24),
-        }],
+    let departure = airports.iter().find(|a| a.icao == "KSFO").unwrap();
+    let arrival = airports.iter().find(|a| a.icao == "RJAA").unwrap();
+
+    let route = Route {
+        from: departure,
+        to: arrival,
+        distance: 5300.0,
+        time: Time::new(13, 30),
     };
 
-    HttpResponse::Ok().json(test_response)
+    let resp = Response {
+        routes: vec![route],
+    };
+
+    HttpResponse::Ok().json(resp)
 }

@@ -1,3 +1,5 @@
+mod airport_data;
+mod path;
 mod server_route;
 
 use actix_files as fs;
@@ -11,9 +13,23 @@ async fn main() -> io::Result<()> {
     env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
 
-    HttpServer::new(|| {
+    if let Err(err) = airport_data::ensure_updated() {
+        panic!("airport data update failed: {}", err);
+    }
+
+    println!("loading airport data..");
+
+    let airports = match airport_data::Airport::load_all() {
+        Ok(airports) => web::Data::new(airports),
+        Err(err) => panic!("error loading airport data: {}", err),
+    };
+
+    println!("finished loaded airport data");
+
+    HttpServer::new(move || {
         App::new()
             .wrap(middleware::Logger::default())
+            .app_data(airports.clone())
             .data(web::JsonConfig::default().limit(2048))
             .service(search_routes)
             .service(fs::Files::new("/", "./frontend/dist/").index_file("index.html"))
