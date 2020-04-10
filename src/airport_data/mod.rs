@@ -1,5 +1,7 @@
 mod data;
 
+pub use self::data::AirportType;
+
 use self::data::DataType;
 use crate::path::FilePath;
 use anyhow::{anyhow, Result};
@@ -230,7 +232,7 @@ impl Airport {
 
             let result = Self {
                 icao: airport.icao,
-                class: airport.class.into(),
+                class: airport.class,
                 position: Position::new(airport.lat_deg, airport.lon_deg),
                 runways: runways.into_iter().filter_map(Runway::from_data).collect(),
                 frequencies: frequencies
@@ -245,34 +247,6 @@ impl Airport {
 
         results.shrink_to_fit();
         Ok(results)
-    }
-}
-
-#[derive(Copy, Clone, Debug, Serialize)]
-#[serde(rename_all = "lowercase")]
-pub enum AirportType {
-    Large = 0,
-    Medium,
-    Small,
-    Closed,
-    Heliport,
-    #[serde(rename = "seaplaneBase")]
-    SeaplaneBase,
-}
-
-impl From<data::AirportType> for AirportType {
-    fn from(source: data::AirportType) -> Self {
-        use data::AirportType as DAT;
-
-        match source {
-            DAT::Large => Self::Large,
-            DAT::Medium => Self::Medium,
-            DAT::Small => Self::Small,
-            DAT::Closed => Self::Closed,
-            DAT::Heliport => Self::Heliport,
-            DAT::SeaplaneBase => Self::SeaplaneBase,
-            DAT::Other => Self::Closed,
-        }
     }
 }
 
@@ -343,17 +317,6 @@ impl RunwayMarker {
     }
 }
 
-#[derive(Debug, Serialize)]
-pub struct Frequency {
-    pub mhz: String,
-}
-
-impl From<data::Frequency> for Frequency {
-    fn from(source: data::Frequency) -> Self {
-        Self { mhz: source.mhz }
-    }
-}
-
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum FrequencyType {
@@ -367,6 +330,7 @@ pub enum FrequencyType {
     Unicom,
 }
 
+// TODO: return None when the source type is the Other variant
 impl From<data::FrequencyType> for FrequencyType {
     fn from(source: data::FrequencyType) -> Self {
         use data::FrequencyType as DFT;

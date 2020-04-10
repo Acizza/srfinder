@@ -1,4 +1,5 @@
 use super::Time;
+use crate::airport_data::AirportType;
 use serde_derive::{Deserialize, Serialize};
 use smol_str::SmolStr;
 
@@ -35,21 +36,6 @@ pub struct AirportFilters {
     pub runway_length: Option<RunwayLength>,
     #[serde(default)]
     pub countries: Vec<String>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "lowercase")]
-pub enum AirportType {
-    None,
-    Large,
-    Medium,
-    Small,
-}
-
-impl Default for AirportType {
-    fn default() -> Self {
-        Self::None
-    }
 }
 
 // TODO: implement as discriminated union and implement Serialize / Deserialize manually

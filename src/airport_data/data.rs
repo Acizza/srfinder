@@ -1,5 +1,6 @@
 use anyhow::Result;
 use serde::de::{Deserialize, Deserializer, Visitor};
+use serde::ser::{Serialize, Serializer};
 use serde_derive::Deserialize;
 use std::collections::HashMap;
 use std::fmt;
@@ -87,21 +88,80 @@ impl DataSource for Airport {
     }
 }
 
-#[derive(Copy, Clone, Debug, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum AirportType {
-    #[serde(rename = "large_airport")]
     Large = 0,
-    #[serde(rename = "medium_airport")]
     Medium,
-    #[serde(rename = "small_airport")]
     Small,
     Closed,
     Heliport,
-    #[serde(rename = "seaplane_base")]
     SeaplaneBase,
-    #[serde(other)]
-    Other,
+    Unknown,
+}
+
+impl AirportType {
+    fn from_str(value: &str) -> Self {
+        match value {
+            "large_airport" => Self::Large,
+            "medium_airport" => Self::Medium,
+            "small_airport" => Self::Small,
+            "closed" => Self::Closed,
+            "heliport" => Self::Heliport,
+            "seaplane_base" => Self::SeaplaneBase,
+            _ => Self::Unknown,
+        }
+    }
+}
+
+impl Default for AirportType {
+    fn default() -> Self {
+        Self::Unknown
+    }
+}
+
+impl<'de> Deserialize<'de> for AirportType {
+    fn deserialize<D>(deserializer: D) -> result::Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct ArptTypeVisitor;
+
+        impl<'de> Visitor<'de> for ArptTypeVisitor {
+            type Value = AirportType;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("an airport type")
+            }
+
+            fn visit_str<E>(self, value: &str) -> result::Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                Ok(AirportType::from_str(value))
+            }
+        }
+
+        deserializer.deserialize_str(ArptTypeVisitor)
+    }
+}
+
+impl Serialize for AirportType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let value = match self {
+            Self::Large => "large",
+            Self::Medium => "medium",
+            Self::Small => "small",
+            Self::Closed => "closed",
+            Self::Heliport => "heliport",
+            Self::SeaplaneBase => "seaplaneBase",
+            Self::Unknown => "unknown",
+        };
+
+        serializer.serialize_str(value)
+    }
 }
 
 #[derive(Debug, Deserialize)]
