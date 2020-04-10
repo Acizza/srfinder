@@ -32,8 +32,8 @@ function RouteRow(route: Route) {
 
     return (
         <tr>
-            <td>{route.from}</td>
-            <td>{route.to}</td>
+            <td>{route.from.icao}</td>
+            <td>{route.to.icao}</td>
             <td>{timeStr}</td>
         </tr>
     );

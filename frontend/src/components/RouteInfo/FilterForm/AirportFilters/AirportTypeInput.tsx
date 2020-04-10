@@ -1,10 +1,14 @@
 import * as React from 'react';
 
+// Each property here must match its equivalent backend airport type.
 interface AirportTypes {
-    none: string,
-    large: string,
-    medium: string,
-    small: string,
+    unknown: string,
+    large_airport: string,
+    medium_airport: string,
+    small_airport: string,
+    closed: string,
+    heliport: string,
+    seaplane_base: string,
 }
 
 export type AirportType = keyof AirportTypes;
@@ -16,10 +20,13 @@ interface Props {
 
 class AirportTypeInput extends React.Component<Props> {
     static readonly typeNames: AirportTypes = {
-        none: "",
-        large: "Large",
-        medium: "Medium",
-        small: "Small",
+        unknown: "",
+        large_airport: "Large",
+        medium_airport: "Medium",
+        small_airport: "Small",
+        closed: "Closed",
+        heliport: "Heliport",
+        seaplane_base: "Seaplane Base",
     };
 
     static readonly types = Object.keys(AirportTypeInput.typeNames).map(type => {

@@ -22,7 +22,7 @@ export interface State {
 class AirportFilters extends React.Component<Props, State> {
     state: State = {
         icao: "",
-        airportType: "none",
+        airportType: "unknown",
         countries: [],
     };
 
