@@ -8,7 +8,7 @@ interface Props {
 
 function RouteViewer(props: Props) {
     const routes = props.routes.map((route, i) => (
-        <RouteRow key={i} from={route.from} to={route.to} distance={route.distance} time={route.time} />
+        <RouteRow key={i} {...route} />
     ));
 
     return (
