@@ -1,7 +1,8 @@
 import * as React from 'react';
 import AirportFilters, { State as AirportFiltersState } from './AirportFilters/AirportFilters';
 import SpeedInput, { Speed } from './SpeedInput';
-import TimeRangeBox, { TimeRange } from './TimeRangeBox';
+import TimeRangeBox from './TimeRangeBox';
+import { TimeRange } from '../../../types/time';
 import '../../../util';
 import './FilterForm.css';
 

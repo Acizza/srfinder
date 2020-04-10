@@ -1,11 +1,7 @@
 import * as React from 'react';
 import Box from './Box';
-import TimeInput, { Time } from './TimeInput';
-
-export interface TimeRange {
-    min?: Time,
-    max?: Time,
-}
+import TimeInput from './TimeInput';
+import { Time, TimeRange } from '../../../types/time';
 
 interface Props {
     onChange?: (timeRange: TimeRange) => void,

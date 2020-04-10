@@ -1,11 +1,7 @@
 import * as React from 'react';
 import Input, { InputChangeEvent } from './Input';
 import '../../../util';
-
-export interface Time {
-    hour: number,
-    minutes: number,
-}
+import { Time } from '../../../types/time';
 
 interface Props {
     label: string,

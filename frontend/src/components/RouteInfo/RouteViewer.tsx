@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Route } from './RouteInfo';
+import { Route } from '../../types/route';
 import './RouteViewer.css';
 
 interface Props {
