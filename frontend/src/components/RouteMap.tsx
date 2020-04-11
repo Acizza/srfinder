@@ -1,6 +1,11 @@
 import * as React from 'react';
 import { setDefaultOptions, loadModules } from 'esri-loader';
+import { Route } from '../types/route';
 import './RouteMap.css';
+
+interface Props {
+    drawRoute?: Route,
+}
 
 interface State {
     map?: any,
@@ -8,7 +13,7 @@ interface State {
     isLoaded: boolean,
 }
 
-class RouteMap extends React.Component<{}, State> {
+class RouteMap extends React.Component<Props, State> {
     state: State = {
         isLoaded: false,
     };
@@ -23,20 +28,20 @@ class RouteMap extends React.Component<{}, State> {
 
             const view = new MapView({
                 container: "route-map-container",
-                map: map,
+                map,
                 zoom: 2
             });
 
             const basemapToggle = new BasemapToggle({
-                view: view,
+                view,
                 nextBasemap: "hybrid"
             });
 
             view.ui.add(basemapToggle, "bottom-right");
 
             this.setState({
-                map: map,
-                view: view,
+                map,
+                view,
                 isLoaded: true,
             });
         }).catch(err => {

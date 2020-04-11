@@ -21,7 +21,7 @@ export interface State {
 }
 
 class FilterForm extends React.Component<Props, State> {
-    state = {
+    state: State = {
         speed: new Speed(),
     };
 

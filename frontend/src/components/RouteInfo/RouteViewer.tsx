@@ -4,11 +4,12 @@ import './RouteViewer.css';
 
 interface Props {
     routes: Route[],
+    onClick?: (route: Route) => void,
 }
 
 function RouteViewer(props: Props) {
     const routes = props.routes.map((route, i) => (
-        <RouteRow key={i} {...route} />
+        <RouteRow key={i} route={route} onClick={props.onClick} />
     ));
 
     return (
@@ -27,11 +28,17 @@ function RouteViewer(props: Props) {
     );
 }
 
-function RouteRow(route: Route) {
+interface RouteProps {
+    route: Route,
+    onClick?: (route: Route) => void,
+}
+
+function RouteRow(props: RouteProps) {
+    const route = props.route;
     const timeStr = `${route.time.hour}:${route.time.minutes}`;
 
     return (
-        <tr>
+        <tr onClick={() => props.onClick?.(route)}>
             <td>{route.from.icao}</td>
             <td>{route.to.icao}</td>
             <td>{timeStr}</td>
