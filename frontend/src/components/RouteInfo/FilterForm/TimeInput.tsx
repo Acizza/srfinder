@@ -82,11 +82,7 @@ class TimeInput extends React.Component<Props, State> {
         }
 
         this.setState({ value });
-
-        if (this.props.onChange === null)
-            return;
-
-        this.props.onChange!(TimeInput.parse(value));
+        this.props.onChange?.(TimeInput.parse(value));
     }
 
     render() {

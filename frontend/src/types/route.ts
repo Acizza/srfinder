@@ -16,8 +16,8 @@ export interface CoordPos {
 export interface Runway {
     lengthFT?: number,
     widthFT?: number,
-    northMarker?: RunwayMarker,
-    southMarker?: RunwayMarker,
+    heMarker?: RunwayMarker,
+    leMarker?: RunwayMarker,
 }
 
 export interface RunwayMarker {

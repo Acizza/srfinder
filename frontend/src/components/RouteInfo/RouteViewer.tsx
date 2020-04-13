@@ -1,16 +1,26 @@
 import * as React from 'react';
-import { Route } from '../../types/route';
+import type { Route, Airport } from '../../types/route';
 import './RouteViewer.css';
 
 interface Props {
     routes: Route[],
     onClick?: (route: Route) => void,
+    onAirportClick?: (departure: Airport) => void,
+    onHover?: (route: Route) => void,
 }
 
 function RouteViewer(props: Props) {
-    const routes = props.routes.map((route, i) => (
-        <RouteRow key={i} route={route} onClick={props.onClick} />
-    ));
+    const routes = props.routes.map((route, i) => {
+        const timeStr = `${route.time.hour}:${route.time.minutes}`;
+
+        return (
+            <tr key={i} onClick={() => props.onClick?.(route)} onMouseOver={() => props.onHover?.(route)}>
+                <td onClick={() => props.onAirportClick?.(route.from)}>{route.from.icao}</td>
+                <td onClick={() => props.onAirportClick?.(route.to)}>{route.to.icao}</td>
+                <td>{timeStr}</td>
+            </tr>
+        );
+    });
 
     return (
         <table className="route-table">
@@ -25,24 +35,6 @@ function RouteViewer(props: Props) {
                 {routes}
             </tbody>
         </table>
-    );
-}
-
-interface RouteProps {
-    route: Route,
-    onClick?: (route: Route) => void,
-}
-
-function RouteRow(props: RouteProps) {
-    const route = props.route;
-    const timeStr = `${route.time.hour}:${route.time.minutes}`;
-
-    return (
-        <tr onClick={() => props.onClick?.(route)}>
-            <td>{route.from.icao}</td>
-            <td>{route.to.icao}</td>
-            <td>{timeStr}</td>
-        </tr>
     );
 }
 
