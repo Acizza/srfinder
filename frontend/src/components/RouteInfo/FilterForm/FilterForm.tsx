@@ -1,5 +1,5 @@
 import * as React from 'react';
-import AirportFilters, { State as AirportFiltersState } from './AirportFilters/AirportFilters';
+import AirportFilters, { TrimmedState as TrimmedAirportFilters, State as AirportFiltersState } from './AirportFilters/AirportFilters';
 import SpeedInput, { Speed } from './SpeedInput';
 import TimeRangeBox from './TimeRangeBox';
 import { TimeRange } from '../../../types/time';
@@ -15,8 +15,8 @@ interface Props {
 
 export interface State {
     speed: Speed,
-    departure?: AirportFiltersState,
-    arrival?: AirportFiltersState,
+    departure?: TrimmedAirportFilters,
+    arrival?: TrimmedAirportFilters,
     timeRange?: TimeRange,
 }
 
@@ -26,12 +26,14 @@ class FilterForm extends React.Component<Props, State> {
     };
 
     private onAirportFiltersChange = (type: "departure" | "arrival", value: AirportFiltersState) => {
+        const state = AirportFilters.trimmed(value);
+
         switch (type) {
             case "departure":
-                this.setState({ departure: value });
+                this.setState({ departure: state });
                 break;
             case "arrival":
-                this.setState({ arrival: value });
+                this.setState({ arrival: state });
                 break;
         }
     }

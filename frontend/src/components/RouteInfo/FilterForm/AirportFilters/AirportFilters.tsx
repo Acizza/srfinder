@@ -19,6 +19,13 @@ export interface State {
     countries: string[],
 }
 
+export interface TrimmedState {
+    icao?: string,
+    airportType?: AirportType,
+    runwayLength?: RunwayLength,
+    countries?: string[],
+}
+
 class AirportFilters extends React.Component<Props, State> {
     state: State = {
         icao: "",
@@ -39,6 +46,20 @@ class AirportFilters extends React.Component<Props, State> {
                 <CountriesInput onChange={countries => this.update({ countries })} />
             </Box>
         );
+    }
+
+    static trimmed(state: State): TrimmedState | undefined {
+        const trimmed = {
+            icao: state.icao.length > 0 ? state.icao : undefined,
+            airportType: state.airportType !== "unknown" ? state.airportType : undefined,
+            runwayLength: state.runwayLength,
+            countries: state.countries.length > 0 ? state.countries : undefined,
+        };
+
+        if (Object.values(trimmed).every(elem => elem === undefined))
+            return undefined;
+
+        return trimmed;
     }
 }
 
