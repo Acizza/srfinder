@@ -11,9 +11,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/react": "^16.9.32",
+    "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
-    "css-loader": "^3.4.2",
+    "css-loader": "^3.5.2",
     "source-map-loader": "^0.2.4",
     "style-loader": "^1.1.3",
     "ts-loader": "^6.2.2",
@@ -22,7 +22,7 @@
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
-    "esri-loader": "^2.13.0",
+    "esri-loader": "2.13.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-perfect-scrollbar": "^1.5.8"
