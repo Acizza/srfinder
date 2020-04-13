@@ -31,21 +31,15 @@ pub struct AirportFilters {
     pub countries: Vec<String>,
 }
 
-// TODO: implement as discriminated union and implement Serialize / Deserialize manually
 #[derive(Debug, Deserialize)]
-pub struct RunwayLength {
-    pub length: u32,
-    pub selector: LengthSelector,
-}
-
-#[derive(Debug, Deserialize)]
-pub enum LengthSelector {
+#[serde(tag = "selector", content = "length")]
+pub enum RunwayLength {
     #[serde(rename = "eq")]
-    Equal,
+    Equal(u32),
     #[serde(rename = "gt")]
-    GreaterThan,
+    GreaterThan(u32),
     #[serde(rename = "lt")]
-    LessThan,
+    LessThan(u32),
 }
 
 #[derive(Debug, Default, Deserialize)]
