@@ -274,20 +274,20 @@ pub struct Runway {
     pub length_ft: Option<i32>,
     #[serde(rename = "widthFT")]
     pub width_ft: Option<i32>,
-    #[serde(rename = "northMarker")]
-    pub north_marker: Option<RunwayMarker>,
-    #[serde(rename = "southMarker")]
-    pub south_marker: Option<RunwayMarker>,
+    #[serde(rename = "heMarker")]
+    pub he_marker: Option<RunwayMarker>,
+    #[serde(rename = "leMarker")]
+    pub le_marker: Option<RunwayMarker>,
 }
 
 impl Runway {
     fn from_data(source: data::Runway) -> Option<Self> {
-        let north_marker = match (source.le_ident, source.le_lat_deg, source.le_lon_deg) {
+        let he_marker = match (source.le_ident, source.le_lat_deg, source.le_lon_deg) {
             (Some(name), Some(lat), Some(lon)) => Some(RunwayMarker::new(name, lat, lon)),
             _ => None,
         };
 
-        let south_marker = match (source.he_ident, source.he_lat_deg, source.he_lon_deg) {
+        let le_marker = match (source.he_ident, source.he_lat_deg, source.he_lon_deg) {
             (Some(name), Some(lat), Some(lon)) => Some(RunwayMarker::new(name, lat, lon)),
             _ => None,
         };
@@ -295,8 +295,8 @@ impl Runway {
         Some(Self {
             length_ft: source.length_ft,
             width_ft: source.width_ft,
-            north_marker,
-            south_marker,
+            he_marker,
+            le_marker,
         })
     }
 }
