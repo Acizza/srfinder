@@ -22,7 +22,7 @@ pub enum SpeedFilter {
 
 #[derive(Debug, Deserialize)]
 pub struct AirportFilters {
-    pub icao: SmolStr,
+    pub icao: Option<SmolStr>,
     #[serde(rename = "airportType", default)]
     pub airport_type: AirportType,
     #[serde(rename = "runwayLength")]
