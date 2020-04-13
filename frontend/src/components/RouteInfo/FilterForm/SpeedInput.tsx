@@ -79,6 +79,13 @@ export class Speed {
     private static isWholeNumber(num: number): boolean {
         return num % 1 === 0;
     }
+
+    toJSON(): { value: number, type: SpeedType } {
+        return {
+            value: Number(this.value),
+            type: this.type,
+        };
+    }
 }
 
 export default SpeedInput;
