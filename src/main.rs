@@ -24,7 +24,7 @@ async fn main() -> io::Result<()> {
         Err(err) => panic!("error loading airport data: {}", err),
     };
 
-    println!("finished loaded airport data");
+    println!("finished loading airport data..");
 
     HttpServer::new(move || {
         App::new()

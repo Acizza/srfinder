@@ -194,12 +194,12 @@ impl Backup {
 #[derive(Debug, Serialize)]
 pub struct Airport {
     pub icao: String,
-    #[serde(rename = "type")]
+    #[serde(skip_serializing)]
     pub class: AirportType,
     pub position: Position,
     pub runways: Vec<Runway>,
     pub frequencies: HashMap<FrequencyType, String>,
-    #[serde(rename = "countryName")]
+    #[serde(skip_serializing)]
     pub country_name: String,
 }
 
@@ -246,16 +246,24 @@ impl Airport {
         }
 
         results.shrink_to_fit();
+        results.sort_unstable_by(|x, y| x.icao.cmp(&y.icao));
+
         Ok(results)
     }
 }
 
-#[derive(Debug, Serialize)]
+impl PartialEq for Airport {
+    fn eq(&self, other: &Self) -> bool {
+        self.icao == other.icao
+    }
+}
+
+#[derive(Copy, Clone, Debug, Serialize)]
 pub struct Position {
     #[serde(rename = "latitudeDeg")]
-    latitude_deg: f32,
+    pub latitude_deg: f32,
     #[serde(rename = "longitudeDeg")]
-    longitude_deg: f32,
+    pub longitude_deg: f32,
 }
 
 impl Position {
@@ -271,9 +279,9 @@ impl Position {
 #[derive(Debug, Serialize)]
 pub struct Runway {
     #[serde(rename = "lengthFT")]
-    pub length_ft: Option<i32>,
+    pub length_ft: Option<u32>,
     #[serde(rename = "widthFT")]
-    pub width_ft: Option<i32>,
+    pub width_ft: Option<u32>,
     #[serde(rename = "heMarker")]
     pub he_marker: Option<RunwayMarker>,
     #[serde(rename = "leMarker")]

@@ -90,7 +90,7 @@ impl DataSource for Airport {
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum AirportType {
-    Large = 0,
+    Large,
     Medium,
     Small,
     Closed,
@@ -168,8 +168,8 @@ impl Serialize for AirportType {
 pub struct Runway {
     pub id: i32,
     pub airport_ref: i32,
-    pub length_ft: Option<i32>,
-    pub width_ft: Option<i32>,
+    pub length_ft: Option<u32>,
+    pub width_ft: Option<u32>,
     pub le_ident: Option<String>,
     #[serde(rename = "le_latitude_deg")]
     pub le_lat_deg: Option<f32>,

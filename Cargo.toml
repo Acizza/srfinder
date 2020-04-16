@@ -14,8 +14,10 @@ csv = "~1.1.0"
 dirs = "~2.0.0"
 env_logger = "~0.7.0"
 once_cell = "~1.3.0"
+rand = "~0.7.0"
 serde = "~1.0.0"
 serde_derive = "~1.0.0"
+smallvec = "~1.3.0"
 ureq = "~0.12.0"
 
 [dependencies.smol_str]
