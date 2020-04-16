@@ -11,7 +11,7 @@ interface Props {
 
 function RouteViewer(props: Props) {
     const routes = props.routes.map((route, i) => {
-        const timeStr = `${route.time.hour}:${route.time.minutes}`;
+        const timeStr = `${zeroPad(route.time.hour)}:${zeroPad(route.time.minutes)}`;
 
         return (
             <tr key={i} onClick={() => props.onClick?.(route)} onMouseOver={() => props.onHover?.(route)}>
@@ -36,6 +36,10 @@ function RouteViewer(props: Props) {
             </tbody>
         </table>
     );
+}
+
+function zeroPad(value: number): string {
+    return value < 10 ? `0${value}` : value.toString();
 }
 
 export default RouteViewer;
