@@ -17,6 +17,7 @@ function RouteViewer(props: Props) {
             <tr key={i} onClick={() => props.onClick?.(route)} onMouseOver={() => props.onHover?.(route)}>
                 <td onClick={() => props.onAirportClick?.(route.from)}>{route.from.icao}</td>
                 <td onClick={() => props.onAirportClick?.(route.to)}>{route.to.icao}</td>
+                <td>{Math.round(route.distance)}</td>
                 <td>{timeStr}</td>
             </tr>
         );
@@ -28,6 +29,7 @@ function RouteViewer(props: Props) {
                 <tr>
                     <th>From</th>
                     <th>To</th>
+                    <th>NM</th>
                     <th>Time</th>
                 </tr>
             </thead>
