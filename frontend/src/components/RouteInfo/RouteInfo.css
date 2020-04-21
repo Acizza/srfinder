@@ -1,5 +1,39 @@
-.route-info .tabs {
-    height: 50%;
+:root {
+    --route-table-height: 40%;
+}
+
+.route-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.route-info .route-table-container {
+    width: 100%;
+    height: var(--route-table-height);
     overflow: hidden;
     border-bottom: 2px solid var(--border-color);
+}
+
+@keyframes open-route-table {
+    from {
+        height: 0;
+    }
+    to {
+        height: var(--route-table-height);
+    }
+}
+
+.route-info .route-table {
+    cursor: default;
+    text-transform: uppercase;
+    text-align: center;
+    border-collapse: collapse;
+    font-size: 2.25vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+.route-info .tabs {
+    min-height: 60%;
+    overflow: hidden;
 }

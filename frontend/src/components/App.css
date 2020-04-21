@@ -13,14 +13,8 @@ body {
     font-family: Lekton;
 }
 
-#loading-text {
+.uppercase {
     text-transform: uppercase;
-    font-weight: normal;
-    font-size: 4vh;
-    position: relative;
-    text-align: center;
-    top: 50%;
-    transform: translateY(-50%);
 }
 
 .route-map {

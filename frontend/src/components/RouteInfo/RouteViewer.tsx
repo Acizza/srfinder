@@ -10,6 +10,8 @@ interface RouteCallbacks {
 
 interface Props extends RouteCallbacks {
     routes: Route[],
+    isLoading: boolean,
+    hide: boolean,
 }
 
 interface State {
@@ -19,12 +21,36 @@ interface State {
 class RouteViewer extends React.Component<Props, State> {
     state: State = {};
 
+    private readonly style: React.CSSProperties | undefined = this.props.hide ? {
+        animation: "open-route-table",
+        animationDuration: "250ms",
+        animationFillMode: "forwards",
+    } : undefined;
+
     private onRouteHover = (route: Route) => {
         this.setState({ hovered: route });
         this.props.onHover?.(route);
     };
 
-    render() {
+    private renderEmptyRoutes() {
+        return (
+            <RouteTableWithBody>
+                <span className="centered-text uppercase">
+                    No routes found
+                </span>
+            </RouteTableWithBody>
+        );
+    }
+
+    private renderLoading() {
+        return (
+            <RouteTableWithBody>
+                <span className="centered-text uppercase">Loading</span>
+            </RouteTableWithBody>
+        );
+    }
+
+    private renderRoutes() {
         const routes = this.props.routes.map((route, i) => {
             const hovered = this.state.hovered ? this.state.hovered === route : false;
 
@@ -41,21 +67,63 @@ class RouteViewer extends React.Component<Props, State> {
         });
 
         return (
-            <table className="route-table">
-                <thead>
-                    <tr>
-                        <th>From</th>
-                        <th>To</th>
-                        <th>NM</th>
-                        <th>Time</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {routes}
-                </tbody>
-            </table>
+            <RouteTable>{routes}</RouteTable>
         );
     }
+
+    render() {
+        if (this.props.hide)
+            return (null);
+
+        let renderRoute: JSX.Element;
+
+        if (this.props.isLoading) {
+            renderRoute = this.renderLoading();
+        } else if (this.props.routes.length === 0) {
+            renderRoute = this.renderEmptyRoutes();
+        } else {
+            renderRoute = this.renderRoutes();
+        }
+
+        return (
+            <div className="route-table-container" style={this.style}>
+                {renderRoute}
+            </div>
+        );
+    }
+}
+
+interface ChildrenProps {
+    children?: JSX.Element | JSX.Element[],
+}
+
+function RouteTable(props: ChildrenProps) {
+    return (
+        <table className="route-table">
+            <thead>
+                <tr>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>NM</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {props.children}
+            </tbody>
+        </table>
+    );
+}
+
+function RouteTableWithBody(props: ChildrenProps) {
+    return (
+        <React.Fragment>
+            <RouteTable />
+            <div className="container-body">
+                {props.children}
+            </div>
+        </React.Fragment>
+    );
 }
 
 interface RouteRowProps extends RouteCallbacks {

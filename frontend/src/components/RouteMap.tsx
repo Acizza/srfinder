@@ -207,7 +207,7 @@ class RouteMap extends React.Component<Props, State> {
     render() {
         return (
             <div className="route-map">
-                {!this.state.isLoaded && <h2 id="loading-text">Loading map</h2>}
+                {!this.state.isLoaded && <h2 className="loading-text uppercase">Loading map</h2>}
                 <div id="route-map-container" ref={this.mapRef}></div>
             </div>
         );

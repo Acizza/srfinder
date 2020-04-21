@@ -13,16 +13,22 @@ interface Props {
 interface State {
     routes: Route[],
     selectedRoute?: Route,
+    isLoadingRoutes: boolean,
+    isFirstRouteFetch: boolean,
 }
 
 class RouteInfo extends React.Component<Props, State> {
     state: State = {
         routes: [],
+        isLoadingRoutes: false,
+        isFirstRouteFetch: true,
     };
 
     private onRoutesRequested = (filters: FilterFormState, event: SubmitEvent) => {
+        this.setState({ isLoadingRoutes: true, isFirstRouteFetch: false });
+
         this.findRoutes(filters)
-            .then(routes => this.setState({ routes }))
+            .then(routes => this.setState({ routes, isLoadingRoutes: false }))
             .catch(err => console.error(err));
 
         event.preventDefault();
@@ -62,13 +68,15 @@ class RouteInfo extends React.Component<Props, State> {
 
         return (
             <div className="route-info">
-                <Tabs tabs={tabs} />
                 <RouteViewer
                     routes={this.state.routes}
+                    isLoading={this.state.isLoadingRoutes}
+                    hide={this.state.isFirstRouteFetch}
                     onClick={this.onRouteSelected}
                     onAirportClick={this.props.onAirportClick}
                     onHover={this.onRouteSelected}
                 />
+                <Tabs tabs={tabs} />
             </div>
         );
     }
