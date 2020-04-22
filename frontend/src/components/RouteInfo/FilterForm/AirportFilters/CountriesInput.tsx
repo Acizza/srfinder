@@ -10,9 +10,8 @@ interface State {
 }
 
 class CountriesInput extends React.Component<Props, State> {
-    state = {
+    state: State = {
         value: "",
-        selectedCountries: [],
     };
 
     private onChange = (event: InputChangeEvent) => {
@@ -22,7 +21,17 @@ class CountriesInput extends React.Component<Props, State> {
         if (!this.props.onChange)
             return;
 
-        const selected = value.split(",").map((country: string) => country.trim());
+        const selected = value
+            .split(',')
+            .reduce((acc, value) => {
+                const trimmed = value.trim();
+
+                if (trimmed.length > 0)
+                    acc.push(trimmed);
+
+                return acc;
+            }, [] as string[]);
+
         this.props.onChange!(selected);
     }
 
