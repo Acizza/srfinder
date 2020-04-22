@@ -52,3 +52,17 @@ input[type="submit"]:hover {
 select {
     font-size: 2vh;
 }
+
+.ps__rail-y > .ps__thumb-y {
+    background-color: var(--border-color);
+    border-radius: 0;
+}
+
+.ps .ps__rail-y:hover, .ps .ps__rail-y.ps--clicking {
+    background-color: var(--tab-color);
+    opacity: 1;
+}
+
+.ps__rail-y:hover > .ps__thumb-y {
+    background-color: var(--hover-color);
+}

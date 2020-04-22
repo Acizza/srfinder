@@ -1,5 +1,6 @@
 import * as React from 'react';
 import type { Route, Airport } from '../../types/route';
+import PerfectScrollbar from 'react-perfect-scrollbar';
 import './RouteViewer.css';
 
 interface RouteCallbacks {
@@ -67,7 +68,9 @@ class RouteViewer extends React.Component<Props, State> {
         });
 
         return (
-            <RouteTable>{routes}</RouteTable>
+            <PerfectScrollbar className="route-table-scrollbar">
+                <RouteTable>{routes}</RouteTable>
+            </PerfectScrollbar>
         );
     }
 

@@ -43,17 +43,3 @@
     padding-top: var(--tabs-padding);
     max-height: calc(100% - var(--tabs-height) - var(--tabs-padding));
 }
-
-.tabs .ps__rail-y > .ps__thumb-y {
-    background-color: var(--border-color);
-    border-radius: 0;
-}
-
-.tabs .ps .ps__rail-y:hover, .tabs .ps .ps__rail-y.ps--clicking {
-    background-color: var(--tab-color);
-    opacity: 1;
-}
-
-.tabs .ps__rail-y:hover > .ps__thumb-y {
-    background-color: var(--hover-color);
-}
