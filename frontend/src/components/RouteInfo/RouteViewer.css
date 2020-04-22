@@ -23,6 +23,10 @@
     height: var(--route-table-header-height);
 }
 
+.route-table tbody tr {
+    transition: background-color 100ms ease-in-out;
+}
+
 .route-table tbody .hovered-route {
     background-color: var(--hover-color);
 }
