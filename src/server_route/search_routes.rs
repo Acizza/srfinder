@@ -249,7 +249,7 @@ impl AirportFilters {
         }
     }
 
-    fn airport_matches<'a, F>(matcher: F, airports: &'a [Airport]) -> AirportList<'a>
+    fn airport_matches<F>(matcher: F, airports: &[Airport]) -> AirportList
     where
         F: Fn(&Airport) -> bool,
     {
