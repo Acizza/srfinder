@@ -1,30 +1,30 @@
 {
-  "name": "frontend",
-  "version": "1.0.0",
-  "description": "",
+  "name": "srfinder",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --mode production"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@types/react": "^16.9.34",
-    "@types/react-dom": "^16.9.6",
-    "css-loader": "^3.5.2",
-    "source-map-loader": "^0.2.4",
-    "style-loader": "^1.1.4",
-    "ts-loader": "^7.0.1",
-    "typescript": "^3.8.3",
-    "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.11"
+    "dev": "vue-cli-service build --mode development --modern --watch",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "esri-loader": "2.13.0",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-perfect-scrollbar": "^1.5.8"
+    "vue": "^2.6.11",
+    "vue-class-component": "^7.2.3",
+    "vue-property-decorator": "^8.4.1"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.26.0",
+    "@typescript-eslint/parser": "^2.26.0",
+    "@vue/cli-plugin-eslint": "~4.3.0",
+    "@vue/cli-plugin-typescript": "~4.3.0",
+    "@vue/cli-service": "~4.3.0",
+    "@vue/eslint-config-prettier": "^6.0.0",
+    "@vue/eslint-config-typescript": "^5.0.2",
+    "eslint": "^6.7.2",
+    "eslint-plugin-prettier": "^3.1.1",
+    "eslint-plugin-vue": "^6.2.2",
+    "prettier": "^1.19.1",
+    "typescript": "~3.8.3",
+    "vue-template-compiler": "^2.6.11"
   }
 }
