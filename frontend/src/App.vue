@@ -8,7 +8,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import RouteMap from "./components/RouteMap.vue";
-import RouteInfo from "./components/RouteInfo.vue";
+import RouteInfo from "./components/RouteInfo/RouteInfo.vue";
 
 @Component({
   components: {
@@ -36,5 +36,22 @@ body {
 
 .uppercase {
   text-transform: uppercase;
+}
+
+.route-map {
+  width: 80%;
+  height: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+
+.route-info {
+  width: 20%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  right: 0;
+  border-left: 2px solid var(--border-color);
 }
 </style>
