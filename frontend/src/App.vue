@@ -34,6 +34,35 @@ body {
   font-family: Lekton;
 }
 
+input,
+select {
+  background-color: #3c3e42;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  font-family: Lekton;
+}
+
+input {
+  font-size: 2.5vh;
+}
+
+input:disabled {
+  background-color: #303135;
+  color: #666666;
+}
+
+input[type="submit"] {
+  transition: background-color 200ms ease-in-out;
+}
+
+input[type="submit"]:hover:not(:disabled) {
+  background-color: var(--hover-color);
+}
+
+select {
+  font-size: 2vh;
+}
+
 .uppercase {
   text-transform: uppercase;
 }

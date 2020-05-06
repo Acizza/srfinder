@@ -2,7 +2,7 @@
   <div class="route-info">
     <tabs>
       <tab name="Filters" :selected="true">
-        <filter-form />
+        <filter-form v-on:submitted="onFiltersSubmitted" />
       </tab>
       <tab name="Runways">
         <p>TODO (2)</p>
@@ -18,8 +18,14 @@
 import { Component, Vue } from "vue-property-decorator";
 import Tabs from "./Tabs/Tabs.vue";
 import Tab from "./Tabs/Tab.vue";
-import FilterForm from "./FilterForm/FilterForm.vue";
+import FilterForm, {
+  State as FilterFormState
+} from "./FilterForm/FilterForm.vue";
 
 @Component({ components: { Tabs, Tab, FilterForm } })
-export default class RouteInfo extends Vue {}
+export default class RouteInfo extends Vue {
+  private onFiltersSubmitted(state: FilterFormState) {
+    console.log(state);
+  }
+}
 </script>
