@@ -13,8 +13,8 @@ import RouteInfo from "./components/RouteInfo/RouteInfo.vue";
 @Component({
   components: {
     RouteMap,
-    RouteInfo
-  }
+    RouteInfo,
+  },
 })
 export default class App extends Vue {}
 </script>

@@ -1,6 +1,9 @@
 <template>
   <box class="airport-filters" :label="label">
-    <icao-input @input="set('icao', $event)" @has-error="setErrorAndPropagate('icao', $event)" />
+    <icao-input
+      @input="set('icao', $event)"
+      @has-error="setErrorAndPropagate('icao', $event)"
+    />
     <airport-type-input @change="set('airportType', $event)" />
     <runway-length-input
       @input="set('runwayLength', $event)"
@@ -14,13 +17,13 @@
 import { Component, Prop } from "vue-property-decorator";
 import {
   VueWithErrorCatcher,
-  ErrorState
+  ErrorState,
 } from "../../../../util/vue_with_error";
 import Box from "../Box.vue";
 import IcaoInput from "./IcaoInput.vue";
 import AirportTypeInput from "./AirportTypeInput.vue";
 import RunwayLengthInput, {
-  Serialized as RunwayLength
+  Serialized as RunwayLength,
 } from "./RunwayLengthInput.vue";
 import CountriesInput from "./CountriesInput.vue";
 
@@ -42,8 +45,8 @@ interface ErrorStates extends ErrorState {
     IcaoInput,
     AirportTypeInput,
     RunwayLengthInput,
-    CountriesInput
-  }
+    CountriesInput,
+  },
 })
 export default class AirportFilters extends VueWithErrorCatcher<ErrorStates> {
   @Prop({ required: true }) label!: string;
@@ -53,7 +56,7 @@ export default class AirportFilters extends VueWithErrorCatcher<ErrorStates> {
   constructor() {
     super({
       icao: false,
-      runwayLength: false
+      runwayLength: false,
     });
   }
 

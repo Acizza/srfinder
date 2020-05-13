@@ -1,5 +1,10 @@
 <template>
-  <form-input label="Cruise Speed" class="speed-input" v-model="currentSpeed" :error="error" />
+  <form-input
+    label="Cruise Speed"
+    class="speed-input"
+    v-model="currentSpeed"
+    :error="error"
+  />
 </template>
 
 <script lang="ts">
@@ -10,13 +15,13 @@ import Result, { ok, err } from "../../../util/result";
 
 export const enum SpeedType {
   Mach = "mach",
-  Knots = "knots"
+  Knots = "knots",
 }
 
 const enum Error {
   Empty = "Must not be empty",
   EqualsZero = "Must be above zero",
-  NotNumber = "Must be a number"
+  NotNumber = "Must be a number",
 }
 
 export class Speed {
@@ -38,7 +43,7 @@ export class Speed {
   toJSON(): { value: number; type: SpeedType } {
     return {
       value: Number(this.value),
-      type: this.type
+      type: this.type,
     };
   }
 }

@@ -17,7 +17,12 @@
       @changed="state.arrival = $event"
       @has-error="setError('arrival', $event)"
     />
-    <input type="submit" class="find-routes-btn" value="Find Routes" :disabled="hasError" />
+    <input
+      type="submit"
+      class="find-routes-btn"
+      value="Find Routes"
+      :disabled="hasError"
+    />
   </form>
 </template>
 
@@ -25,7 +30,7 @@
 import { Component } from "vue-property-decorator";
 import SpeedInput, { Speed, SpeedType } from "./SpeedInput.vue";
 import AirportFilters, {
-  State as AirportFilterState
+  State as AirportFilterState,
 } from "./AirportFilters/AirportFilters.vue";
 import { VueWithErrorCatcher, ErrorState } from "../../../util/vue_with_error";
 
@@ -46,7 +51,7 @@ interface ErrorStates extends ErrorState {
 @Component({ components: { SpeedInput, AirportFilters } })
 export default class FilterForm extends VueWithErrorCatcher<ErrorStates> {
   private state: State = {
-    speed: new Speed("0.770", SpeedType.Mach)
+    speed: new Speed("0.770", SpeedType.Mach),
   };
 
   constructor() {
@@ -54,7 +59,7 @@ export default class FilterForm extends VueWithErrorCatcher<ErrorStates> {
       speed: false,
       departure: false,
       arrival: false,
-      timeDist: false
+      timeDist: false,
     });
   }
 

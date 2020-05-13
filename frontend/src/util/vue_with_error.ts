@@ -15,7 +15,7 @@ export abstract class VueWithErrorCatcher<T extends ErrorState> extends Vue {
   }
 
   get hasError(): boolean {
-    return Object.values(this.errorStates).some(err => err === true);
+    return Object.values(this.errorStates).some((err) => err === true);
   }
 
   protected setError<K extends keyof T>(state: K, value: boolean) {

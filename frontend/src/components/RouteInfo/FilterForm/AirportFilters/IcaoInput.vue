@@ -1,5 +1,11 @@
 <template>
-  <form-input label="ICAO" class="icao-input" maxlength="4" v-model="currentICAO" :error="error" />
+  <form-input
+    label="ICAO"
+    class="icao-input"
+    maxlength="4"
+    v-model="currentICAO"
+    :error="error"
+  />
 </template>
 
 <script lang="ts">
@@ -9,7 +15,7 @@ import "../../../../util/string";
 import VueWithError from "../../../../util/vue_with_error";
 
 const enum Error {
-  NotAlphanumeric = "Must only contain digits and/or letters"
+  NotAlphanumeric = "Must only contain digits and/or letters",
 }
 
 @Component({ components: { FormInput } })
@@ -24,7 +30,7 @@ export default class IcaoInput extends VueWithError<Error> {
     this.icao = icao.toUpperCase();
 
     const isValid = this.icao.allChars(
-      ch => ch.isAlphanumericUpper() || ch.isDigit()
+      (ch) => ch.isAlphanumericUpper() || ch.isDigit()
     );
 
     this.setError(isValid ? null : Error.NotAlphanumeric);

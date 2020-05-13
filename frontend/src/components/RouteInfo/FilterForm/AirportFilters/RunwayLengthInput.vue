@@ -16,18 +16,18 @@ import Result, { ok, err } from "../../../../util/result";
 
 const enum Error {
   InvalidSelector = "Must start with <, >, or number",
-  MustBeNumber = "Must only contain numbers, excluding the selector"
+  MustBeNumber = "Must only contain numbers, excluding the selector",
 }
 
 const enum ParseError {
   Empty,
-  InvalidDigits
+  InvalidDigits,
 }
 
 const enum LengthSelector {
   Equal = "eq",
   GreaterThan = "gt",
-  LessThan = "lt"
+  LessThan = "lt",
 }
 
 export interface Serialized {
@@ -92,7 +92,7 @@ export default class RunwayLengthInput extends VueWithError<Error> {
 
     return ok({
       length: Number(slice),
-      selector: type
+      selector: type,
     });
   }
 }

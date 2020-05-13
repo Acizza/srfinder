@@ -7,7 +7,9 @@
         :class="{ 'selected-tab': tab.isSelected }"
         class="tab-header uppercase"
         @click="selectTab(tab)"
-      >{{ tab.name }}</li>
+      >
+        {{ tab.name }}
+      </li>
     </ul>
     <slot />
   </div>
@@ -25,7 +27,7 @@ export default class Tabs extends Vue {
 
   mounted() {
     this.tabs = this.$children as Tab[];
-    this.lastTab = this.tabs.find(tab => tab.isSelected) || null;
+    this.lastTab = this.tabs.find((tab) => tab.isSelected) || null;
   }
 
   selectTab(tab: Tab) {

@@ -19,7 +19,7 @@ import { Component, Vue } from "vue-property-decorator";
 import Tabs from "./Tabs/Tabs.vue";
 import Tab from "./Tabs/Tab.vue";
 import FilterForm, {
-  State as FilterFormState
+  State as FilterFormState,
 } from "./FilterForm/FilterForm.vue";
 
 @Component({ components: { Tabs, Tab, FilterForm } })
