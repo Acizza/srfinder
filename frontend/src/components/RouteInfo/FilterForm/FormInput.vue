@@ -4,8 +4,7 @@
       <label>{{ label }}</label>
       <input
         type="text"
-        :name="name"
-        :maxlength="maxLength"
+        :maxlength="maxlength"
         :value="value"
         @input="$emit('input', $event.target.value)"
       />
@@ -23,10 +22,9 @@ import { Component, Prop } from "vue-property-decorator";
 @Component
 export default class FormInput extends Vue {
   @Prop({ required: true }) label!: string;
-  @Prop({ required: true }) name!: string;
-  @Prop() maxLength!: number;
+  @Prop() maxlength!: number;
   @Prop() value!: string;
-  @Prop() error!: string;
+  @Prop({ default: null }) error!: string | null;
 }
 </script>
 

@@ -2,7 +2,7 @@
   <div class="route-info">
     <tabs>
       <tab name="Filters" :selected="true">
-        <filter-form v-on:submitted="onFiltersSubmitted" />
+        <filter-form v-on:submitted="filtersSubmitted" />
       </tab>
       <tab name="Runways">
         <p>TODO (2)</p>
@@ -24,8 +24,8 @@ import FilterForm, {
 
 @Component({ components: { Tabs, Tab, FilterForm } })
 export default class RouteInfo extends Vue {
-  private onFiltersSubmitted(state: FilterFormState) {
-    console.log(state);
+  private filtersSubmitted(state: FilterFormState) {
+    console.log(JSON.stringify(state));
   }
 }
 </script>

@@ -1,34 +1,65 @@
 <template>
-  <form v-on:submit.prevent="onSubmitted" class="filter-form">
-    <speed-input name="speed" @error="hasError = $event" />
+  <form v-on:submit.prevent="submitted" class="filter-form">
+    <speed-input
+      :initial-speed="state.speed"
+      @input="state.speed = $event"
+      @has-error="setError('speed', $event)"
+    />
+    <airport-filters
+      label="Departure"
+      class="departure-filters"
+      @changed="state.departure = $event"
+      @has-error="setError('departure', $event)"
+    />
+    <airport-filters
+      label="Arrival"
+      class="arrival-filters"
+      @changed="state.arrival = $event"
+      @has-error="setError('arrival', $event)"
+    />
     <input type="submit" class="find-routes-btn" value="Find Routes" :disabled="hasError" />
   </form>
 </template>
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import Vue from "vue";
-import SpeedInput, { Speed } from "./SpeedInput.vue";
+import SpeedInput, { Speed, SpeedType } from "./SpeedInput.vue";
+import AirportFilters, {
+  State as AirportFilterState
+} from "./AirportFilters/AirportFilters.vue";
+import { VueWithErrorCatcher, ErrorState } from "../../../util/vue_with_error";
 
 export interface State {
   speed: Speed;
-  departure?: any;
-  arrival?: any;
+  departure?: AirportFilterState;
+  arrival?: AirportFilterState;
   timeDist?: any;
 }
 
-@Component({ components: { SpeedInput } })
-export default class FilterForm extends Vue {
-  private hasError = false;
+interface ErrorStates extends ErrorState {
+  speed: boolean;
+  departure: boolean;
+  arrival: boolean;
+  timeDist: boolean;
+}
 
-  private onSubmitted(event: any) {
-    const target = event.target;
+@Component({ components: { SpeedInput, AirportFilters } })
+export default class FilterForm extends VueWithErrorCatcher<ErrorStates> {
+  private state: State = {
+    speed: new Speed("0.770", SpeedType.Mach)
+  };
 
-    const state: State = {
-      speed: Speed.parse(target.speed.value)
-    };
+  constructor() {
+    super({
+      speed: false,
+      departure: false,
+      arrival: false,
+      timeDist: false
+    });
+  }
 
-    this.$emit("submitted", state);
+  private submitted() {
+    this.$emit("submitted", this.state);
   }
 }
 </script>

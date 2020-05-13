@@ -1,37 +1,16 @@
 <template>
-  <form-input
-    label="Cruise Speed"
-    class="speed-input"
-    :name="name"
-    v-model="currentSpeed"
-    :error="error"
-  />
+  <form-input label="Cruise Speed" class="speed-input" v-model="currentSpeed" :error="error" />
 </template>
 
 <script lang="ts">
-import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import FormInput from "./FormInput.vue";
+import VueWithError from "../../../util/vue_with_error";
+import Result, { ok, err } from "../../../util/result";
 
-const enum SpeedType {
+export const enum SpeedType {
   Mach = "mach",
   Knots = "knots"
-}
-
-export class Speed {
-  private constructor(public value: number, public type: SpeedType) {}
-
-  static parse(value: number): Speed {
-    const type = value % 1 === 0 ? SpeedType.Knots : SpeedType.Mach;
-    return new Speed(value, type);
-  }
-
-  toJSON(): { value: number; type: SpeedType } {
-    return {
-      value: this.value,
-      type: this.type
-    };
-  }
 }
 
 const enum Error {
@@ -40,43 +19,54 @@ const enum Error {
   NotNumber = "Must be a number"
 }
 
-@Component({ components: { FormInput } })
-export default class SpeedInput extends Vue {
-  @Prop({ required: true }) name!: string;
+export class Speed {
+  constructor(public value: string, public type: SpeedType) {}
 
-  private speed = "0.770";
-  private error: Error | null = null;
-
-  get currentSpeed(): string {
-    return this.speed;
-  }
-
-  set currentSpeed(value: string) {
-    this.speed = value;
-
-    if (value.length === 0) {
-      this.setError(Error.Empty);
-      return;
-    }
+  static parse(value: string): Result<Speed, Error> {
+    if (value.length === 0) return err(Error.Empty);
 
     const numValue = Number(value);
 
-    if (Number.isNaN(numValue)) {
-      this.setError(Error.NotNumber);
-      return;
-    }
+    if (Number.isNaN(numValue)) return err(Error.NotNumber);
+    if (numValue < 0.01) return err(Error.EqualsZero);
 
-    if (numValue < 0.01) {
-      this.setError(Error.EqualsZero);
-      return;
-    }
+    const type = numValue % 1 === 0 ? SpeedType.Knots : SpeedType.Mach;
 
-    if (this.error !== null) this.setError(null);
+    return ok(new Speed(value, type));
   }
 
-  private setError(error: Error | null) {
-    this.error = error;
-    this.$emit("error", this.error !== null);
+  toJSON(): { value: number; type: SpeedType } {
+    return {
+      value: Number(this.value),
+      type: this.type
+    };
+  }
+}
+
+@Component({ components: { FormInput } })
+export default class SpeedInput extends VueWithError<Error> {
+  @Prop({ required: true }) private initialSpeed!: Speed;
+
+  private value = this.initialSpeed.value;
+
+  get currentSpeed(): string {
+    return this.value;
+  }
+
+  set currentSpeed(value: string) {
+    this.value = value;
+
+    const parsed = Speed.parse(value);
+
+    switch (parsed.kind) {
+      case "ok":
+        this.setError(null);
+        this.$emit("input", parsed.value);
+        break;
+      case "err":
+        this.setError(parsed.value);
+        break;
+    }
   }
 }
 </script>
