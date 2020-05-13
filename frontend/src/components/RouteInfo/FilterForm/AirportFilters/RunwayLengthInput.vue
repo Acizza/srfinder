@@ -12,7 +12,7 @@
 import { Component } from "vue-property-decorator";
 import VueWithError from "../../../../util/vue_with_error";
 import FormInput from "../FormInput.vue";
-import Result, { ok, err } from "../../../../util/result";
+import Result from "../../../../util/result";
 
 const enum Error {
   InvalidSelector = "Must start with <, >, or number",
@@ -68,7 +68,7 @@ export default class RunwayLengthInput extends VueWithError<Error> {
   }
 
   private static parse(value: string): Result<Serialized, ParseError> {
-    if (value.length === 0) return err(ParseError.Empty);
+    if (value.length === 0) return Result.err(ParseError.Empty);
 
     let type: LengthSelector;
     let slice: string;
@@ -88,9 +88,9 @@ export default class RunwayLengthInput extends VueWithError<Error> {
         break;
     }
 
-    if (!slice.isDigits()) return err(ParseError.InvalidDigits);
+    if (!slice.isDigits()) return Result.err(ParseError.InvalidDigits);
 
-    return ok({
+    return Result.ok({
       length: Number(slice),
       selector: type,
     });

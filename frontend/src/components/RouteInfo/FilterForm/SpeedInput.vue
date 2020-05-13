@@ -1,17 +1,12 @@
 <template>
-  <form-input
-    label="Cruise Speed"
-    class="speed-input"
-    v-model="currentSpeed"
-    :error="error"
-  />
+  <form-input label="Cruise Speed" class="speed-input" v-model="currentSpeed" :error="error" />
 </template>
 
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import FormInput from "./FormInput.vue";
 import VueWithError from "../../../util/vue_with_error";
-import Result, { ok, err } from "../../../util/result";
+import Result from "../../../util/result";
 
 export const enum SpeedType {
   Mach = "mach",
@@ -28,16 +23,16 @@ export class Speed {
   constructor(public value: string, public type: SpeedType) {}
 
   static parse(value: string): Result<Speed, Error> {
-    if (value.length === 0) return err(Error.Empty);
+    if (value.length === 0) return Result.err(Error.Empty);
 
     const numValue = Number(value);
 
-    if (Number.isNaN(numValue)) return err(Error.NotNumber);
-    if (numValue < 0.01) return err(Error.EqualsZero);
+    if (Number.isNaN(numValue)) return Result.err(Error.NotNumber);
+    if (numValue < 0.01) return Result.err(Error.EqualsZero);
 
     const type = numValue % 1 === 0 ? SpeedType.Knots : SpeedType.Mach;
 
-    return ok(new Speed(value, type));
+    return Result.ok(new Speed(value, type));
   }
 
   toJSON(): { value: number; type: SpeedType } {
