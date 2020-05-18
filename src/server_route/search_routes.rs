@@ -4,8 +4,8 @@ use rand::seq::SliceRandom;
 use serde_derive::{Deserialize, Serialize};
 use smallvec::{smallvec, SmallVec};
 use smol_str::SmolStr;
+use std::fmt;
 use std::ptr;
-use std::{f32, u8};
 
 const MAX_AIRPORTS_TO_GET: usize = 2000;
 const MAX_AIRPORTS_TO_RETURN: usize = 100;
@@ -49,16 +49,18 @@ pub async fn search_routes(
 
             let route = Route::new(departure, arrival, filters.speed);
 
-            if let Some(min) = filters.time_range.min {
-                if route.time < min {
-                    continue;
+            match &filters.time_or_dist {
+                Some(TimeOrDistance::Time(time_range)) => {
+                    if !time_range.within(&route.time) {
+                        continue;
+                    }
                 }
-            }
-
-            if let Some(max) = filters.time_range.max {
-                if route.time > max {
-                    continue;
+                Some(TimeOrDistance::Distance(dist_range)) => {
+                    if !dist_range.within(&route.distance) {
+                        continue;
+                    }
                 }
+                None => (),
             }
 
             routes.push(route);
@@ -124,7 +126,7 @@ impl<'a> Route<'a> {
     }
 }
 
-#[derive(Copy, Clone, Debug, Deserialize, Serialize, PartialEq, PartialOrd)]
+#[derive(Copy, Clone, Debug, Default, Deserialize, Serialize, PartialEq, PartialOrd)]
 pub struct Time {
     pub hour: u8,
     pub minutes: u8,
@@ -142,12 +144,6 @@ impl Time {
             minutes: minutes as u8,
         }
     }
-}
-
-#[derive(Debug, Default, Deserialize)]
-pub struct TimeRange {
-    pub min: Option<Time>,
-    pub max: Option<Time>,
 }
 
 #[derive(Copy, Clone, Debug, Deserialize)]
@@ -175,8 +171,8 @@ pub struct Filters {
     pub speed: Speed,
     pub departure: Option<AirportFilters>,
     pub arrival: Option<AirportFilters>,
-    #[serde(rename = "timeRange", default)]
-    pub time_range: TimeRange,
+    #[serde(rename = "timeDist", default)]
+    pub time_or_dist: Option<TimeOrDistance>,
 }
 
 type AirportList<'a> = SmallVec<[&'a Airport; 1]>;
@@ -304,4 +300,43 @@ impl RunwayLength {
             None => false,
         })
     }
+}
+
+#[derive(Debug, Default, Deserialize)]
+pub struct Range<T>
+where
+    T: fmt::Debug + Default + PartialOrd,
+{
+    pub min: Option<T>,
+    pub max: Option<T>,
+}
+
+impl<T> Range<T>
+where
+    T: fmt::Debug + Default + PartialOrd,
+{
+    fn within(&self, value: &T) -> bool {
+        if let Some(min) = &self.min {
+            if value < min {
+                return false;
+            }
+        }
+
+        if let Some(max) = &self.max {
+            if value > max {
+                return false;
+            }
+        }
+
+        true
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "lowercase")]
+#[serde(tag = "type", content = "value")]
+pub enum TimeOrDistance {
+    #[serde(rename = "timeRange")]
+    Time(Range<Time>),
+    Distance(Range<f32>),
 }
