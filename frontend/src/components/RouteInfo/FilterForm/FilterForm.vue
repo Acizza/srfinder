@@ -17,6 +17,10 @@
       @changed="state.arrival = $event"
       @has-error="setError('arrival', $event)"
     />
+    <time-dist-tabs
+      @changed="state.timeDist = $event"
+      @has-error="setError('timeDist', $event)"
+    />
     <input
       type="submit"
       class="find-routes-btn"
@@ -28,17 +32,20 @@
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
+import { VueWithErrorCatcher, ErrorState } from "../../../util/vue_with_error";
 import SpeedInput, { Speed, SpeedType } from "./SpeedInput.vue";
 import AirportFilters, {
   State as AirportFilterState,
 } from "./AirportFilters/AirportFilters.vue";
-import { VueWithErrorCatcher, ErrorState } from "../../../util/vue_with_error";
+import TimeDistTabs, {
+  Serialized as TimeDistState,
+} from "./TimeDistTabs/TimeDistTabs.vue";
 
 export interface State {
   speed: Speed;
   departure?: AirportFilterState;
   arrival?: AirportFilterState;
-  timeDist?: any;
+  timeDist?: TimeDistState;
 }
 
 interface ErrorStates extends ErrorState {
@@ -48,7 +55,7 @@ interface ErrorStates extends ErrorState {
   timeDist: boolean;
 }
 
-@Component({ components: { SpeedInput, AirportFilters } })
+@Component({ components: { SpeedInput, AirportFilters, TimeDistTabs } })
 export default class FilterForm extends VueWithErrorCatcher<ErrorStates> {
   private state: State = {
     speed: new Speed("0.770", SpeedType.Mach),
@@ -82,7 +89,7 @@ export default class FilterForm extends VueWithErrorCatcher<ErrorStates> {
 }
 
 .find-routes-btn {
-  margin-top: 3vh;
+  margin-top: 50px;
   width: 60%;
   align-self: center;
   font-size: 3vh;

@@ -12,7 +12,7 @@
 import { Component } from "vue-property-decorator";
 import VueWithError from "../../../../util/vue_with_error";
 import FormInput from "../FormInput.vue";
-import Result from "../../../../util/result";
+import Result from "../../../../types/result";
 
 const enum Error {
   InvalidSelector = "Must start with <, >, or number",

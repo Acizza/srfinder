@@ -30,11 +30,13 @@ export default class Tabs extends Vue {
     this.lastTab = this.tabs.find((tab) => tab.isSelected) || null;
   }
 
-  selectTab(tab: Tab) {
+  private selectTab(tab: Tab) {
     if (this.lastTab) this.lastTab.isSelected = false;
 
     tab.isSelected = true;
     this.lastTab = tab;
+
+    this.$emit("tab-changed", tab);
   }
 }
 </script>

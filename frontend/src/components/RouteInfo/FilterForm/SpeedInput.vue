@@ -1,12 +1,17 @@
 <template>
-  <form-input label="Cruise Speed" class="speed-input" v-model="currentSpeed" :error="error" />
+  <form-input
+    label="Cruise Speed"
+    class="speed-input"
+    v-model="currentSpeed"
+    :error="error"
+  />
 </template>
 
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import FormInput from "./FormInput.vue";
 import VueWithError from "../../../util/vue_with_error";
-import Result from "../../../util/result";
+import Result from "../../../types/result";
 
 export const enum SpeedType {
   Mach = "mach",

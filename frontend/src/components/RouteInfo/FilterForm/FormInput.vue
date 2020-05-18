@@ -18,13 +18,14 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
+import ErrorString from "../../../types/error_string";
 
 @Component
 export default class FormInput extends Vue {
   @Prop({ required: true }) label!: string;
   @Prop() maxlength!: number;
   @Prop() value!: string;
-  @Prop({ default: null }) error!: string | null;
+  @Prop({ default: null }) error!: ErrorString;
 }
 </script>
 

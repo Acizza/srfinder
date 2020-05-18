@@ -4,6 +4,10 @@ export interface ErrorState {
   [name: string]: boolean;
 }
 
+function emitHasError<T extends Vue>(vue: T, hasError: boolean) {
+  vue.$emit("has-error", hasError);
+}
+
 export abstract class VueWithErrorCatcher<T extends ErrorState> extends Vue {
   protected errorStates: T;
 
@@ -24,7 +28,13 @@ export abstract class VueWithErrorCatcher<T extends ErrorState> extends Vue {
 
   protected setErrorAndPropagate<K extends keyof T>(state: K, value: boolean) {
     this.setError(state, value);
-    this.$emit("has-error", this.hasError);
+    emitHasError(this, this.hasError);
+  }
+}
+
+export abstract class VueWithErrorPropagator extends Vue {
+  protected emitHasError(hasError: boolean) {
+    emitHasError(this, hasError);
   }
 }
 
@@ -35,6 +45,6 @@ export default abstract class VueWithError<T> extends Vue {
     if (this.error === error) return;
 
     this.error = error;
-    this.$emit("has-error", this.error !== null);
+    emitHasError(this, this.error !== null);
   }
 }
