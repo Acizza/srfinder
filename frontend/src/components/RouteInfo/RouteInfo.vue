@@ -1,11 +1,7 @@
 <template>
   <div class="route-info">
     <transition name="open-route-viewer">
-      <route-viewer
-        v-if="hasRequestedRoutes"
-        :routes="routes"
-        :loading="loadingRoutes"
-      />
+      <route-viewer v-if="hasRequestedRoutes" :routes="routes" :loading="loadingRoutes" />
     </transition>
     <tabs>
       <tab name="Filters" :selected="true">
@@ -56,7 +52,7 @@ export default class RouteInfo extends Vue {
   }
 
   private async findRoutes(state: FilterFormState): Promise<Route[]> {
-    const resp = await fetch("/search_routes", {
+    const resp = await fetch("/api/search_routes", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
