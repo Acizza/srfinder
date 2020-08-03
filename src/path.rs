@@ -12,7 +12,7 @@ impl FilePath {
     fn path(self) -> PathBuf {
         static LOCAL_DATA_PATH: Lazy<PathBuf> = Lazy::new(|| {
             let mut dir =
-                dirs::data_local_dir().unwrap_or_else(|| PathBuf::from("~/.local/share/"));
+                dirs_next::data_local_dir().unwrap_or_else(|| PathBuf::from("~/.local/share/"));
             dir.push(env!("CARGO_PKG_NAME"));
             dir
         });
