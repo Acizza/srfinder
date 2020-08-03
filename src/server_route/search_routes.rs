@@ -3,7 +3,6 @@ use actix_web::{post, web, HttpResponse};
 use rand::seq::SliceRandom;
 use serde_derive::{Deserialize, Serialize};
 use smallvec::{smallvec, SmallVec};
-use smol_str::SmolStr;
 use std::fmt;
 use std::ptr;
 
@@ -179,7 +178,7 @@ type AirportList<'a> = SmallVec<[&'a Airport; 1]>;
 
 #[derive(Debug, Deserialize)]
 pub struct AirportFilters {
-    pub icao: Option<SmolStr>,
+    pub icao: Option<String>,
     #[serde(rename = "airportType", default)]
     pub airport_type: AirportType,
     #[serde(rename = "runwayLength")]
