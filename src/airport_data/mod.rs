@@ -60,14 +60,18 @@ where
     let path = dir.join(name);
     let backup = Backup::create(&path)?;
 
-    let resp = ureq::get(&format!("{}/{}", BASE_URL, name))
-        .timeout_connect(15_000)
-        .timeout_read(15_000)
-        .call();
+    let resp = attohttpc::get(format!("{}/{}", BASE_URL, name))
+        .timeout(Duration::seconds(15).to_std().unwrap())
+        .send()?;
 
-    if let Some(err) = resp.synthetic_error() {
+    if !resp.is_success() {
         backup.restore()?;
-        return Err(anyhow!("{}", err));
+
+        return Err(anyhow!(
+            "received code {} while downloading {}",
+            resp.status(),
+            name
+        ));
     }
 
     let file = match File::create(path) {
@@ -78,7 +82,7 @@ where
         }
     };
 
-    let mut reader = resp.into_reader();
+    let (_, _, mut reader) = resp.split();
     let mut writer = BufWriter::new(file);
 
     match io::copy(&mut reader, &mut writer) {
