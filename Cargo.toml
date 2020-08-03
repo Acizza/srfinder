@@ -25,5 +25,5 @@ default-features = false
 features = [ "tls-rustls" ]
 
 [profile.release]
-lto = true
+lto = "thin"
 codegen-units = 1
