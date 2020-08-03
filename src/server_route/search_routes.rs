@@ -1,6 +1,7 @@
 use crate::airport_data::{Airport, AirportType, Position, Runway};
-use actix_web::{post, web, HttpResponse};
 use rand::seq::SliceRandom;
+use rocket::State;
+use rocket_contrib::json::{Json, JsonValue};
 use serde_derive::{Deserialize, Serialize};
 use smallvec::{smallvec, SmallVec};
 use std::fmt;
@@ -9,23 +10,8 @@ use std::ptr;
 const MAX_AIRPORTS_TO_GET: usize = 2000;
 const MAX_AIRPORTS_TO_RETURN: usize = 100;
 
-#[derive(Serialize)]
-struct Response<'a> {
-    routes: &'a [Route<'a>],
-}
-
-impl<'a> Response<'a> {
-    #[inline(always)]
-    fn new(routes: &'a [Route<'a>]) -> Self {
-        Self { routes }
-    }
-}
-
-#[post("/search_routes")]
-pub async fn search_routes(
-    filters: web::Json<Filters>,
-    airports: web::Data<Vec<Airport>>,
-) -> HttpResponse {
+#[post("/search_routes", format = "json", data = "<filters>")]
+pub fn search_routes<'a>(filters: Json<Filters>, airports: State<'a, Vec<Airport>>) -> JsonValue {
     let departures = filters
         .departure
         .as_ref()
@@ -73,7 +59,7 @@ pub async fn search_routes(
         routes = shuffled;
     }
 
-    HttpResponse::Ok().json(Response::new(routes))
+    json!({ "routes": routes })
 }
 
 #[inline(always)]

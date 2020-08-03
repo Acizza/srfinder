@@ -1,40 +1,43 @@
+#[macro_use]
+extern crate rocket;
+
+#[macro_use]
+extern crate rocket_contrib;
+
 mod airport_data;
 mod path;
 mod server_route;
 
-use actix_files as fs;
-use actix_web::{middleware, web, App, HttpServer};
-use server_route::search_routes::search_routes;
-use std::env;
-use std::io;
+use anyhow::Result;
+use anyhow::{anyhow, Context};
+use rocket::config::{Config, Environment};
+use rocket_contrib::serve::StaticFiles;
 
-#[actix_rt::main]
-async fn main() -> io::Result<()> {
-    env::set_var("RUST_LOG", "actix_web=info");
-    env_logger::init();
-
+#[rocket::main]
+async fn main() -> Result<()> {
     if let Err(err) = airport_data::ensure_updated() {
-        panic!("airport data update failed: {}", err);
+        return Err(anyhow!("airport data update failed: {}", err));
     }
 
     println!("loading airport data..");
 
     let airports = match airport_data::Airport::load_all() {
-        Ok(airports) => web::Data::new(airports),
-        Err(err) => panic!("error loading airport data: {}", err),
+        Ok(airports) => airports,
+        Err(err) => return Err(anyhow!("error loading airport data: {}", err)),
     };
 
     println!("finished loading airport data..");
 
-    HttpServer::new(move || {
-        App::new()
-            .wrap(middleware::Logger::default())
-            .app_data(airports.clone())
-            .data(web::JsonConfig::default().limit(2048))
-            .service(search_routes)
-            .service(fs::Files::new("/", "./frontend/dist/").index_file("index.html"))
-    })
-    .bind("127.0.0.1:8080")?
-    .run()
-    .await
+    let config = Config::build(Environment::active().unwrap())
+        .workers(1)
+        .finalize()
+        .context("failed to build Rocket config")?;
+
+    rocket::custom(config)
+        .manage(airports)
+        .mount("/", StaticFiles::from("frontend/dist/"))
+        .mount("/api", routes![server_route::search_routes::search_routes])
+        .launch()
+        .await
+        .with_context(|| anyhow!("failed to initialize Rocket"))
 }
