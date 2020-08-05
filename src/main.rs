@@ -35,7 +35,7 @@ async fn main() -> Result<()> {
 
     rocket::custom(config)
         .manage(airports)
-        .mount("/", StaticFiles::from("frontend/dist/"))
+        .mount("/", StaticFiles::from("frontend/public/"))
         .mount("/api", routes![server_route::search_routes::search_routes])
         .launch()
         .await

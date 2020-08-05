@@ -1,30 +1,24 @@
 {
   "name": "srfinder",
   "version": "0.1.0",
-  "private": true,
   "scripts": {
-    "dev": "vue-cli-service build --mode development --modern --watch",
-    "build": "vue-cli-service build --mode production --modern",
-    "lint": "vue-cli-service lint"
-  },
-  "dependencies": {
-    "vue": "^2.6.11",
-    "vue-class-component": "^7.2.3",
-    "vue-property-decorator": "^8.4.1"
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "validate": "svelte-check"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^2.34.0",
-    "@typescript-eslint/parser": "^2.34.0",
-    "@vue/cli-plugin-eslint": "~4.3.0",
-    "@vue/cli-plugin-typescript": "~4.3.0",
-    "@vue/cli-service": "~4.3.0",
-    "@vue/eslint-config-prettier": "^6.0.0",
-    "@vue/eslint-config-typescript": "^5.0.2",
-    "eslint": "^7.1.0",
-    "eslint-plugin-prettier": "^3.1.1",
-    "eslint-plugin-vue": "^6.2.2",
-    "prettier": "^2.0.5",
-    "typescript": "^3.9.3",
-    "vue-template-compiler": "^2.6.11"
+    "@rollup/plugin-commonjs": "^12.0.0",
+    "@rollup/plugin-node-resolve": "^8.0.0",
+    "rollup": "^2.3.4",
+    "rollup-plugin-livereload": "^1.0.0",
+    "rollup-plugin-svelte": "^5.0.3",
+    "rollup-plugin-terser": "^5.1.2",
+    "svelte": "^3.0.0",
+    "svelte-check": "^1.0.0",
+    "svelte-preprocess": "^4.0.0",
+    "@rollup/plugin-typescript": "^4.0.0",
+    "typescript": "^3.9.7",
+    "tslib": "^2.0.0",
+    "@tsconfig/svelte": "^1.0.0"
   }
 }
