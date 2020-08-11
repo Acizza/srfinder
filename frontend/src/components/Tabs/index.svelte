@@ -42,21 +42,28 @@
     list-style: none;
     padding: 0;
     margin: 0 0 1em;
-    font-size: 1.15em;
-    border-bottom: 1px solid var(--border-color);
+    font-size: 1em;
     cursor: pointer;
+    background-color: var(--tab-color);
   }
 
   .tab-header {
     display: flex;
-    padding: 0.75em 0;
-    height: 100%;
+    padding: 0.75em 0.5em;
     width: 100%;
     justify-content: center;
   }
 
   .tab-header:hover {
     background-color: var(--hover-color);
+  }
+
+  .tab-header.selected {
+    background-color: var(--bg-color);
+  }
+
+  .tab-header:not(.selected) {
+    border-bottom: 1px solid var(--border-color);
   }
 
   .tab-header:not(:last-child) {
@@ -67,7 +74,12 @@
 <div class="tabs">
   <ul class="tab-headers">
     {#each headers as header, idx}
-      <li class="tab-header" on:click={() => changeTab(idx)}>{header}</li>
+      <li
+        class="tab-header"
+        class:selected={tabs[idx] === $selected}
+        on:click={() => changeTab(idx)}>
+        {header}
+      </li>
     {/each}
   </ul>
   <slot />

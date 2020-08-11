@@ -9,7 +9,7 @@
 <style>
   .route-map {
     display: flex;
-    flex: 1 1 0;
+    flex: 1 1 85%;
   }
 </style>
 

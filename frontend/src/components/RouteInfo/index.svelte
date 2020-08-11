@@ -1,34 +1,26 @@
 <script lang="ts">
   import Tabs from "../Tabs/index.svelte";
   import Tab from "../Tabs/Tab.svelte";
-
-  export let routeSelected: ((route: any) => void) | null = null;
-  export let airportClicked: ((airport: any) => void) | null = null;
-
-  let loadingRoutes = false;
-  let isFirstFetch = true;
-  let routes: any[];
-  let selectedRoute;
+  import FilterForm from "./FilterForm/index.svelte";
 
   const tabHeaders = ["FILTERS", "RUNWAYS", "FREQS"];
 </script>
-
-<svelte:options immutable />
 
 <style>
   .route-info {
     display: flex;
     flex-direction: column;
-    flex: 0 0 20%;
+    flex: 1 0 15%;
     border-left: 2px solid var(--border-color);
     height: 100vh;
   }
 </style>
 
+<svelte:options immutable />
 <div class="route-info">
   <Tabs headers={tabHeaders}>
     <Tab>
-      <span>TODO (1)</span>
+      <FilterForm />
     </Tab>
 
     <Tab>
