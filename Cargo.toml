@@ -23,13 +23,13 @@ features = [ "tls-rustls" ]
 [dependencies.rocket]
 # Waiting for version 0.5
 git = "https://github.com/SergioBenitez/Rocket"
-rev = "45b4436ed3a7ab913d96c2b69ee4df7fd8c0c618"
+rev = "02b79e28f71ccbd1fce0e369469c92caedb38cd8"
 default-features = false
 
 [dependencies.rocket_contrib]
 # Waiting for version 0.5
 git = "https://github.com/SergioBenitez/Rocket"
-rev = "45b4436ed3a7ab913d96c2b69ee4df7fd8c0c618"
+rev = "02b79e28f71ccbd1fce0e369469c92caedb38cd8"
 default-features = false
 features = [ "json", "serve" ]
 
