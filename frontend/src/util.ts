@@ -1,9 +1,9 @@
 declare global {
     interface String {
         allChars(predicate: (ch: string) => boolean): boolean,
-        isDigit(): boolean,
+        isCharDigit(): boolean,
         isDigits(): boolean,
-        isAlphanumericUpper(): boolean,
+        isAlphanumeric(): boolean,
     }
 }
 
@@ -19,16 +19,20 @@ String.prototype.allChars = function (predicate) {
     return true;
 }
 
-String.prototype.isDigit = function () {
+String.prototype.isCharDigit = function () {
     return this >= '0' && this <= '9';
 }
 
 String.prototype.isDigits = function () {
-    return this.allChars((ch: string) => ch.isDigit());
+    return this.allChars((ch: string) => ch.isCharDigit());
 }
 
-String.prototype.isAlphanumericUpper = function () {
-    return this >= 'A' && this <= 'Z';
+String.prototype.isAlphanumeric = function () {
+    return this.allChars(ch =>
+        (ch >= '0' && ch <= '9') ||
+        (ch >= 'a' && ch <= 'z') ||
+        (ch >= 'A' && ch <= 'Z')
+    );
 }
 
 export default {}

@@ -1,17 +1,10 @@
 <script lang="ts">
-  import Input from "../Input.svelte";
+  export let value: string = "";
 
-  export let value: string;
+  export function parse(): string[] | undefined {
+    return value.length > 0 ? value.split(",") : undefined;
+  }
 </script>
 
-<style>
-  :global(.countries-input) {
-    width: 4em;
-  }
-</style>
-
-<Input
-  inputClass="countries-input"
-  name="countries"
-  label="Countries"
-  bind:value />
+<label for="countries">Countries</label>
+<input name="countries" bind:value />

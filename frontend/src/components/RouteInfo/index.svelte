@@ -2,8 +2,13 @@
   import Tabs from "../Tabs/index.svelte";
   import Tab from "../Tabs/Tab.svelte";
   import FilterForm from "./FilterForm/index.svelte";
+  import type { FindRoutesQuery } from "./FilterForm/types";
 
   const tabHeaders = ["FILTERS", "RUNWAYS", "FREQS"];
+
+  function findRoutes(query: CustomEvent<FindRoutesQuery>) {
+    console.log(JSON.stringify(query.detail));
+  }
 </script>
 
 <style>
@@ -20,7 +25,7 @@
 <div class="route-info">
   <Tabs headers={tabHeaders}>
     <Tab>
-      <FilterForm />
+      <FilterForm on:findroutes={findRoutes} />
     </Tab>
 
     <Tab>

@@ -1,26 +1,41 @@
 <script lang="ts">
+  import type { InputResult } from "./types";
+
   export let name: string;
   export let label: string;
-  export let value: string;
+  export let value: any;
+  export let type: string = "text";
 
-  export let maxLength: number | undefined = undefined;
-  export let inputClass = "";
+  export let validate: (input: string) => InputResult;
+
+  let inputRef: HTMLInputElement | null;
+
+  function handleInput(event: any) {
+    const newValue = event.target.value;
+
+    const result = validate(newValue);
+    let error: string;
+
+    switch (result.kind) {
+      case "ok":
+        value = result.value;
+        error = "";
+        break;
+      case "err":
+        value = newValue;
+        error = result.value;
+        break;
+    }
+
+    inputRef?.setCustomValidity(error);
+  }
 </script>
 
-<style>
-  .input-group {
-    display: flex;
-    flex-wrap: nowrap;
-  }
-</style>
-
-<div class="input-group">
-  <label for={name}>{label}</label>
-  <input
-    class={inputClass}
-    {name}
-    type="text"
-    maxlength={maxLength}
-    bind:value
-    on:input />
-</div>
+<label for={name}>{label}</label>
+<input
+  {name}
+  {type}
+  {value}
+  bind:this={inputRef}
+  on:input={handleInput}
+  {...$$restProps} />

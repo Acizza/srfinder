@@ -1,23 +1,19 @@
 <script lang="ts">
   import Input from "../Input.svelte";
+  import type { InputResult } from "../types";
 
-  export let value: string;
+  export function parse(): string | undefined {
+    return value.length > 0 ? value : undefined;
+  }
 
-  function onInput(event: any) {
-    value = event.target.value.toUpperCase();
+  let value: string = "";
+
+  function validate(newValue: string): InputResult {
+    if (newValue.length > 0 && !newValue.isAlphanumeric())
+      return { kind: "err", value: "Can only contain A-Z and 0-9" };
+
+    return { kind: "ok", value: newValue.toUpperCase() };
   }
 </script>
 
-<style>
-  :global(.icao-input) {
-    width: 2em;
-  }
-</style>
-
-<Input
-  inputClass="icao-input"
-  name="icao"
-  label="ICAO"
-  maxLength={4}
-  on:input={onInput}
-  {value} />
+<Input name="icao" label="ICAO" maxlength={4} {validate} bind:value />

@@ -18,28 +18,18 @@
 </script>
 
 <script lang="ts">
-  import type { AirportTypes } from "../types";
+  import type { AirportTypes, AirportType } from "../types";
 
-  export let value: string;
+  export let value: AirportType = "unknown";
+
+  export function parse(): AirportType | undefined {
+    return value !== "unknown" ? value : undefined;
+  }
 </script>
 
-<style>
-  .type-selection {
-    display: flex;
-    flex-wrap: nowrap;
-  }
-
-  select {
-    width: 5em;
-    font-size: 0.75em;
-  }
-</style>
-
-<div class="type-selection">
-  <label for="type">Type</label>
-  <select name="type" bind:value>
-    {#each typeNames as { type, display }}
-      <option value={type}>{display}</option>
-    {/each}
-  </select>
-</div>
+<label for="type">Type</label>
+<select name="type" bind:value>
+  {#each typeNames as { type, display }}
+    <option value={type}>{display}</option>
+  {/each}
+</select>

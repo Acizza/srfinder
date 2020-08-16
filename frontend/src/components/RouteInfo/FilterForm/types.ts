@@ -1,39 +1,47 @@
+export type Ok<T> = {
+  kind: "ok",
+  value: T,
+}
+
+export type Err<T> = {
+  kind: "err",
+  value: T,
+}
+
+export type Result<T, E> = Ok<T> | Err<E>;
+export type InputResult = Result<string, string>;
+
+export function okOrUndefined<T, E>(value: Result<T, E>): T | undefined {
+  switch (value.kind) {
+    case "ok":
+      return value.value;
+    case "err":
+      return undefined;
+  }
+}
+
+export interface FindRoutesQuery {
+  speed: ParsedSpeed;
+  departure?: ParsedAirportFilters;
+  arrival?: ParsedAirportFilters;
+  timeDist?: any;
+}
+
+export interface ParsedSpeed {
+  value: number,
+  type: SpeedType,
+}
+
 export const enum SpeedType {
   Mach = "mach",
   Knots = "knots",
 }
 
-export class Speed {
-  constructor(public value: number, public type: SpeedType) { }
-
-  static parse(value: string): Speed | null {
-    const num = Number(value);
-
-    if (Number.isNaN(num))
-      return null;
-
-    const type = Speed.isWholeNumber(num) ? SpeedType.Knots : SpeedType.Mach;
-
-    return new Speed(num, type);
-  }
-
-  private static isWholeNumber(value: number): boolean {
-    return value % 1 === 0;
-  }
-
-  toJSON(): { value: number, type: SpeedType } {
-    return {
-      value: this.value,
-      type: this.type,
-    };
-  }
-}
-
-export interface AirportFiltersInput {
-  icao: string;
-  type: AirportType;
-  length: string;
-  countries: string;
+export interface ParsedAirportFilters {
+  icao?: string;
+  type?: AirportType;
+  length?: ParsedRunwayLength;
+  countries?: string[];
 }
 
 export interface AirportTypes {
@@ -47,3 +55,14 @@ export interface AirportTypes {
 }
 
 export type AirportType = keyof AirportTypes;
+
+export interface ParsedRunwayLength {
+  value: number,
+  selector: LengthSelector
+}
+
+export const enum LengthSelector {
+  LessThan = "lt",
+  Equal = "eq",
+  GreaterThan = "gt",
+}

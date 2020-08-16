@@ -16,7 +16,7 @@
   }
 
   .box-content {
-    display: flex;
+    display: grid;
     flex-direction: column;
     row-gap: 1em;
     overflow: hidden;
@@ -26,8 +26,14 @@
   }
 
   :global(.box-content label) {
+    grid-column: 1 / 2;
     padding-right: 0.5em;
     align-self: center;
+  }
+
+  :global(.box-content input, .box-content select) {
+    grid-column: 2 / 3;
+    max-width: 5em;
   }
 </style>
 

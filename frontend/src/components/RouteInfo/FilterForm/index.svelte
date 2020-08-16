@@ -1,21 +1,28 @@
 <script lang="ts">
   import SpeedInput from "./SpeedInput.svelte";
   import AirportFilters from "./AirportFilters/index.svelte";
-  import type { AirportFiltersInput } from "./types";
+  import type { FindRoutesQuery } from "./types";
+  import { createEventDispatcher } from "svelte";
 
-  interface InputState {
-    speed?: string;
-    departure?: AirportFiltersInput;
-    arrival?: AirportFiltersInput;
-    timeDist?: any;
-  }
+  let speedRef: any = null;
+  let departureRef: any = null;
+  let arrivalRef: any = null;
 
-  let state: InputState = {
-    speed: "0.770",
-  };
+  const dispatch = createEventDispatcher();
 
-  $: {
-    console.log(state);
+  function filtersSubmitted() {
+    const speed = speedRef?.parsed;
+
+    if (!speed) return;
+
+    const query: FindRoutesQuery = {
+      speed,
+      departure: departureRef?.parse() || undefined,
+      arrival: arrivalRef?.parse() || undefined,
+      // timeDist
+    };
+
+    dispatch("findroutes", query);
   }
 </script>
 
@@ -30,6 +37,7 @@
 
   .find-routes-btn {
     margin-top: 2em;
+    padding: 0.25em;
     font-size: 1.5em;
     width: 60%;
     align-self: center;
@@ -44,9 +52,9 @@
   }
 </style>
 
-<form class="filter-form">
-  <SpeedInput bind:value={state.speed} />
-  <AirportFilters name="Departure" bind:state={state.departure} />
-  <AirportFilters name="Arrival" bind:state={state.arrival} />
+<form class="filter-form" on:submit|preventDefault={filtersSubmitted}>
+  <SpeedInput bind:this={speedRef} />
+  <AirportFilters name="Departure" bind:this={departureRef} />
+  <AirportFilters name="Arrival" bind:this={arrivalRef} />
   <input type="submit" class="find-routes-btn" value="Find Routes" />
 </form>

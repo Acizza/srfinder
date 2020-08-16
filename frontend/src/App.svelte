@@ -18,10 +18,11 @@
     --border-color: #222222;
 
     --text-color: #d2d2d2;
+    --button-color: #323436;
   }
 
   :global(input, select) {
-    background-color: #323436;
+    background-color: var(--button-color);
     border: 1px solid var(--border-color);
     color: var(--text-color);
     font-family: Lekton;

@@ -1,39 +1,54 @@
 <script lang="ts">
-  import Input from "../Input.svelte";
   import "../../../../util";
+  import { LengthSelector } from "../types";
+  import type { ParsedRunwayLength, InputResult } from "../types";
+  import Input from "../Input.svelte";
 
-  const enum Selector {
-    LessThan = "lt",
-    Equal = "eq",
-    GreaterThan = "gt",
-  }
+  export let parsed: ParsedRunwayLength | undefined = undefined;
 
-  export let value: string;
-
-  function parseSelector(newValue: string): [Selector, string] {
+  function validate(newValue: string): InputResult {
     if (newValue.length === 0) {
-      return [Selector.GreaterThan, newValue];
+      parsed = undefined;
+      return { kind: "ok", value: newValue };
     }
+
+    let selector: LengthSelector;
+    let slice: string;
 
     switch (newValue[0]) {
       case ">":
-        return [Selector.GreaterThan, newValue.substr(1)];
+        [selector, slice] = [LengthSelector.GreaterThan, newValue.substr(1)];
+        break;
       case "<":
-        return [Selector.LessThan, newValue.substr(1)];
+        [selector, slice] = [LengthSelector.LessThan, newValue.substr(1)];
+        break;
       default:
-        return [Selector.Equal, newValue];
+        if (!newValue[0].isCharDigit()) {
+          parsed = undefined;
+          return { kind: "err", value: "Valid selectors are < and >" };
+        }
+
+        [selector, slice] = [LengthSelector.Equal, newValue];
+        break;
     }
+
+    const isSliceEmpty = slice.length === 0;
+
+    if (!isSliceEmpty && !slice.isDigits()) {
+      parsed = undefined;
+
+      return {
+        kind: "err",
+        value: "Can only contain selector (< or >) and digits",
+      };
+    }
+
+    parsed = { value: isSliceEmpty ? 0 : Number(slice), selector };
+
+    return { kind: "ok", value: newValue };
   }
 </script>
 
-<style>
-  :global(.runway-length-input) {
-    width: 3em;
-  }
-</style>
+<svelte:options accessors />
 
-<Input
-  inputClass="runway-length-input"
-  name="length"
-  label="Length"
-  bind:value />
+<Input name="length" label="Length" {validate} value="" />
