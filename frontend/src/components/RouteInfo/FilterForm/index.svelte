@@ -6,7 +6,7 @@
   import ErrorMessage from "./ErrorMessage.svelte";
 
   export let error: string | null = null;
-  export let isLoadingRoutes: boolean;
+  export let loadingRoutes: boolean;
 
   let speedRef: any = null;
   let departureRef: any = null;
@@ -72,6 +72,6 @@
   <input
     type="submit"
     class="find-routes-btn"
-    value={isLoadingRoutes ? 'Searching..' : 'Find Routes'}
-    disabled={isLoadingRoutes} />
+    value={loadingRoutes ? 'Searching..' : 'Find Routes'}
+    disabled={loadingRoutes} />
 </form>

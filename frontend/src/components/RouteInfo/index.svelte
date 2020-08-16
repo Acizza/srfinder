@@ -2,19 +2,23 @@
   import Tabs from "../Tabs/index.svelte";
   import Tab from "../Tabs/Tab.svelte";
   import FilterForm from "./FilterForm/index.svelte";
+  import RouteViewer from "./RouteViewer.svelte";
   import type { FindRoutesQuery, Route } from "./types";
 
   const tabHeaders = ["FILTERS", "RUNWAYS", "FREQS"];
 
   let error: string | null = null;
-  let isLoadingRoutes = false;
+  let loadingRoutes = false;
+  let firstRouteFetch = true;
+  let routes: Route[] = [];
 
   function routesRequested(query: CustomEvent<FindRoutesQuery>) {
-    isLoadingRoutes = true;
+    loadingRoutes = true;
 
     findRoutes(query.detail)
-      .then((routes) => {
-        console.log(routes);
+      .then((newRoutes) => {
+        routes = newRoutes;
+        firstRouteFetch = false;
         error = null;
       })
       .catch((err: Error) => {
@@ -22,7 +26,7 @@
         error = err.message;
       })
       .finally(() => {
-        isLoadingRoutes = false;
+        loadingRoutes = false;
       });
   }
 
@@ -52,14 +56,16 @@
     flex: 1 0 15%;
     border-left: 2px solid var(--border-color);
     height: 100vh;
+    overflow: hidden;
   }
 </style>
 
 <svelte:options immutable />
 <div class="route-info">
+  <RouteViewer {routes} loading={loadingRoutes} firstRender={firstRouteFetch} />
   <Tabs headers={tabHeaders}>
     <Tab>
-      <FilterForm on:findroutes={routesRequested} {error} {isLoadingRoutes} />
+      <FilterForm on:findroutes={routesRequested} {error} {loadingRoutes} />
     </Tab>
 
     <Tab>
