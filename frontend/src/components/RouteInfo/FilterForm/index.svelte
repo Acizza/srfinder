@@ -1,8 +1,12 @@
 <script lang="ts">
   import SpeedInput from "./SpeedInput.svelte";
   import AirportFilters from "./AirportFilters/index.svelte";
-  import type { FindRoutesQuery } from "./types";
+  import type { FindRoutesQuery } from "../types";
   import { createEventDispatcher } from "svelte";
+  import ErrorMessage from "./ErrorMessage.svelte";
+
+  export let error: string | null = null;
+  export let isLoadingRoutes: boolean;
 
   let speedRef: any = null;
   let departureRef: any = null;
@@ -43,6 +47,11 @@
     align-self: center;
   }
 
+  .find-routes-btn:disabled {
+    color: var(--disabled-text-color);
+    background-color: var(--disabled-color);
+  }
+
   :global(.filter-form .box:not(:first-child)) {
     margin-top: 1em;
   }
@@ -52,9 +61,17 @@
   }
 </style>
 
+{#if error}
+  <ErrorMessage {error} />
+{/if}
+
 <form class="filter-form" on:submit|preventDefault={filtersSubmitted}>
   <SpeedInput bind:this={speedRef} />
   <AirportFilters name="Departure" bind:this={departureRef} />
   <AirportFilters name="Arrival" bind:this={arrivalRef} />
-  <input type="submit" class="find-routes-btn" value="Find Routes" />
+  <input
+    type="submit"
+    class="find-routes-btn"
+    value={isLoadingRoutes ? 'Searching..' : 'Find Routes'}
+    disabled={isLoadingRoutes} />
 </form>

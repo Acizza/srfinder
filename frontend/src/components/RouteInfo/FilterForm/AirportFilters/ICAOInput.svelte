@@ -1,12 +1,12 @@
 <script lang="ts">
   import Input from "../Input.svelte";
-  import type { InputResult } from "../types";
+  import type { InputResult } from "./types";
 
   export function parse(): string | undefined {
     return value.length > 0 ? value : undefined;
   }
 
-  let value: string = "";
+  let value = "";
 
   function validate(newValue: string): InputResult {
     if (newValue.length > 0 && !newValue.isAlphanumeric())

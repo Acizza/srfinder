@@ -19,6 +19,12 @@
 
     --text-color: #d2d2d2;
     --button-color: #323436;
+
+    --error-color: #9e1010;
+    --error-text-color: #e2cdcd;
+
+    --disabled-text-color: #9999;
+    --disabled-color: #2d2d31;
   }
 
   :global(input, select) {

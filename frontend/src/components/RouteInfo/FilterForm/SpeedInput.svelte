@@ -1,6 +1,7 @@
 <script lang="ts">
-  import type { ParsedSpeed, InputResult } from "./types";
-  import { SpeedType } from "./types";
+  import type { ParsedSpeed } from "./AirportFilters/types";
+  import { SpeedType } from "./AirportFilters/types";
+  import type { InputResult } from "../types";
   import Input from "./Input.svelte";
 
   export let value: string = "0.77";

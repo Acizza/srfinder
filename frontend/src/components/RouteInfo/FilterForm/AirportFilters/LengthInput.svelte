@@ -1,7 +1,8 @@
 <script lang="ts">
   import "../../../../util";
-  import { LengthSelector } from "../types";
-  import type { ParsedRunwayLength, InputResult } from "../types";
+  import { LengthSelector } from "./types";
+  import type { ParsedRunwayLength } from "./types";
+  import type { InputResult } from "../../types";
   import Input from "../Input.svelte";
 
   export let parsed: ParsedRunwayLength | undefined = undefined;

@@ -18,7 +18,7 @@
 </script>
 
 <script lang="ts">
-  import type { AirportTypes, AirportType } from "../types";
+  import type { AirportTypes, AirportType } from "./types";
 
   export let value: AirportType = "unknown";
 

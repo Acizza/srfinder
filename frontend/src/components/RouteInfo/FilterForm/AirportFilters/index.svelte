@@ -4,7 +4,7 @@
   import IcaoInput from "./ICAOInput.svelte";
   import LengthInput from "./LengthInput.svelte";
   import CountriesInput from "./CountriesInput.svelte";
-  import type { ParsedAirportFilters } from "../types";
+  import type { ParsedAirportFilters } from "./types";
 
   export let name: string;
 
