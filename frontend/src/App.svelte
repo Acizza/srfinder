@@ -32,6 +32,10 @@
     font-size: 1em;
   }
 
+  :global(input:invalid:focus) {
+    outline: none;
+  }
+
   :global(input[type="submit"]) {
     transition: background-color 200ms ease-in-out;
   }
