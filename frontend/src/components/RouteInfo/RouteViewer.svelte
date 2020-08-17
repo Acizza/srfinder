@@ -80,6 +80,12 @@
   .route span:hover {
     background-color: var(--secondary-hover-color);
   }
+
+  .no-routes-text {
+    justify-content: center;
+    align-self: center;
+    font-size: 1.5em;
+  }
 </style>
 
 <div class="route-viewer" class:hidden={firstRender}>
@@ -92,7 +98,7 @@
   <div class="body">
     {#if loading}
       <Spinner />
-    {:else}
+    {:else if routes.length > 0}
       {#each routes as route}
         <div class="route">
           <span>{route.from.icao}</span>
@@ -101,6 +107,8 @@
           <span>{routeTime(route)}</span>
         </div>
       {/each}
+    {:else}
+      <span class="no-routes-text">NO ROUTES FOUND</span>
     {/if}
   </div>
 </div>
