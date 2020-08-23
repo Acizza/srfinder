@@ -4,6 +4,11 @@
 </script>
 
 <style>
+  :global(.scrollbar) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-main-color) var(--scrollbar-track-color);
+  }
+
   :global(body) {
     background-color: var(--bg-color);
     color: var(--text-color);
@@ -26,6 +31,9 @@
 
     --disabled-text-color: #9999;
     --disabled-color: #2d2d31;
+
+    --scrollbar-main-color: #525257;
+    --scrollbar-track-color: #2d2d31;
   }
 
   :global(input, select) {

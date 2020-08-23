@@ -32,6 +32,7 @@
 
 <style>
   .filter-form {
+    margin-top: 1em;
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
@@ -40,7 +41,7 @@
   }
 
   .find-routes-btn {
-    margin-top: 2em;
+    margin: 2em 0;
     padding: 0.25em;
     font-size: 1.5em;
     width: 60%;

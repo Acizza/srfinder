@@ -56,6 +56,7 @@
     flex: 1 0 15%;
     border-left: 2px solid var(--border-color);
     height: 100vh;
+    overflow: hidden;
   }
 </style>
 

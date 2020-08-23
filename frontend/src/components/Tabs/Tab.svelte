@@ -15,11 +15,12 @@
 <style>
   .tab-content {
     flex: 1 1 0;
+    overflow: hidden auto;
   }
 </style>
 
 <svelte:options immutable />
 
-<div class="tab-content" style={tabStyle}>
+<div class="tab-content scrollbar" style={tabStyle}>
   <slot />
 </div>

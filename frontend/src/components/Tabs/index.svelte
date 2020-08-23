@@ -41,7 +41,7 @@
     overflow: hidden;
     list-style: none;
     padding: 0;
-    margin: 0 0 1em;
+    margin: 0;
     font-size: 1em;
     cursor: pointer;
     background-color: var(--tab-color);

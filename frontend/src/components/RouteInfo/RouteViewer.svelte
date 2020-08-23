@@ -52,9 +52,9 @@
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
-    justify-content: center;
+    justify-content: flex-start;
     flex: 1 0;
-    overflow: hidden;
+    overflow: hidden auto;
   }
 
   .route {
@@ -95,7 +95,7 @@
     <span>NM</span>
     <span>Time</span>
   </div>
-  <div class="body">
+  <div class="body scrollbar">
     {#if loading}
       <Spinner />
     {:else if routes.length > 0}
