@@ -208,6 +208,8 @@ pub struct Airport {
 }
 
 impl Airport {
+    const ICAO_MAX_LEN: usize = 4;
+
     pub fn load_all() -> Result<Vec<Self>> {
         let dir = validated_dir()?;
 
@@ -219,6 +221,10 @@ impl Airport {
         let mut results = Vec::with_capacity(airports.len());
 
         for airport in airports {
+            if airport.icao.len() > Self::ICAO_MAX_LEN {
+                continue;
+            }
+
             let runways = match runways.remove(&airport.id) {
                 Some(runways) => runways,
                 None => continue,
