@@ -17,8 +17,8 @@
   }
 
   :global(:root) {
-    --hover-color: #3e3e41;
-    --secondary-hover-color: #545458;
+    --hover-color: #545458;
+    --secondary-hover-color: #3e3e41;
     --bg-color: #353538;
     --tab-color: #2e2e30;
     --border-color: #222222;

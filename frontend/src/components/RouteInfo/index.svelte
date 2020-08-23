@@ -2,7 +2,7 @@
   import Tabs from "../Tabs/index.svelte";
   import Tab from "../Tabs/Tab.svelte";
   import FilterForm from "./FilterForm/index.svelte";
-  import RouteViewer from "./RouteViewer.svelte";
+  import RouteViewer from "./RouteViewer/index.svelte";
   import type { FindRoutesQuery, Route } from "./types";
 
   const tabHeaders = ["FILTERS", "RUNWAYS", "FREQS"];
