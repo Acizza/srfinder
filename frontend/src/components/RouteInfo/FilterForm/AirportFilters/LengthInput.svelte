@@ -44,7 +44,7 @@
       };
     }
 
-    parsed = { value: isSliceEmpty ? 0 : Number(slice), selector };
+    parsed = { length: isSliceEmpty ? 0 : Number(slice), selector };
 
     return { kind: "ok", value: newValue };
   }

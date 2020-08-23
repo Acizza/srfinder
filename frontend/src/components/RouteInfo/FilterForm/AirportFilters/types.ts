@@ -1,7 +1,7 @@
 export interface ParsedAirportFilters {
   icao?: string;
   type?: AirportType;
-  length?: ParsedRunwayLength;
+  runwayLength?: ParsedRunwayLength;
   countries?: string[];
 }
 
@@ -28,7 +28,7 @@ export interface AirportTypes {
 export type AirportType = keyof AirportTypes;
 
 export interface ParsedRunwayLength {
-  value: number,
+  length: number,
   selector: LengthSelector
 }
 

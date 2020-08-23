@@ -17,7 +17,7 @@
     const result: ParsedAirportFilters = {
       icao: icaoRef?.parse(),
       type: typeRef?.parse(),
-      length: lengthRef?.parsed,
+      runwayLength: lengthRef?.parsed,
       countries: countriesRef?.parse(),
     };
 
