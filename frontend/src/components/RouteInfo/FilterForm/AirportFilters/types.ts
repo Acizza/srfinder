@@ -1,6 +1,6 @@
 export interface ParsedAirportFilters {
   icao?: string;
-  type?: AirportType;
+  airportType?: AirportType;
   runwayLength?: ParsedRunwayLength;
   countries?: string[];
 }

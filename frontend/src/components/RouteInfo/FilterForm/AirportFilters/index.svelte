@@ -16,7 +16,7 @@
   export function parse(): ParsedAirportFilters | undefined {
     const result: ParsedAirportFilters = {
       icao: icaoRef?.parse(),
-      type: typeRef?.parse(),
+      airportType: typeRef?.parse(),
       runwayLength: lengthRef?.parsed,
       countries: countriesRef?.parse(),
     };
