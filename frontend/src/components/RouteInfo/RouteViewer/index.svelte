@@ -3,6 +3,8 @@
   import Spinner from "../../Spinner.svelte";
   import RouteTable from "./RouteTable.svelte";
 
+  export let selectedRoute: Route | undefined = undefined;
+
   export let routes: Route[];
   export let loading: boolean;
   export let firstRender: boolean;
@@ -52,6 +54,6 @@
       {/if}
     </div>
   {:else}
-    <RouteTable {routes} />
+    <RouteTable {routes} bind:selectedRoute on:view-airport />
   {/if}
 </div>

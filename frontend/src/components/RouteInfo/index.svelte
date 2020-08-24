@@ -5,6 +5,8 @@
   import RouteViewer from "./RouteViewer/index.svelte";
   import type { FindRoutesQuery, Route } from "./types";
 
+  export let selectedRoute: Route | undefined = undefined;
+
   const tabHeaders = ["FILTERS", "RUNWAYS", "FREQS"];
 
   let error: string | null = null;
@@ -62,7 +64,12 @@
 
 <svelte:options immutable />
 <div class="route-info">
-  <RouteViewer {routes} loading={loadingRoutes} firstRender={firstRouteFetch} />
+  <RouteViewer
+    {routes}
+    loading={loadingRoutes}
+    firstRender={firstRouteFetch}
+    bind:selectedRoute
+    on:view-airport />
   <Tabs headers={tabHeaders}>
     <Tab>
       <FilterForm on:findroutes={routesRequested} {error} {loadingRoutes} />

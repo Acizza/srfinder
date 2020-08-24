@@ -1,7 +1,11 @@
 <script lang="ts">
-  import type { Route } from "../types";
+  import type { Route, Airport } from "../types";
+  import { createEventDispatcher } from "svelte";
 
   export let routes: Route[] = [];
+  export let selectedRoute: Route | undefined = undefined;
+
+  const dispatch = createEventDispatcher();
 
   function zeroPad(value: number): string {
     return value < 10 ? `0${value}` : value.toString();
@@ -9,6 +13,10 @@
 
   function routeTime(route: Route): string {
     return `${zeroPad(route.time.hour)}:${zeroPad(route.time.minutes)}`;
+  }
+
+  function viewAirport(arpt: Airport) {
+    dispatch("view-airport", arpt);
   }
 </script>
 
@@ -41,6 +49,10 @@
     border-bottom: 1px solid var(--border-color);
   }
 
+  tr.selected {
+    background-color: var(--secondary-hover-color);
+  }
+
   tr:hover {
     background-color: var(--secondary-hover-color);
   }
@@ -59,9 +71,11 @@
   </thead>
   <tbody>
     {#each routes as route}
-      <tr>
-        <td>{route.from.icao}</td>
-        <td>{route.to.icao}</td>
+      <tr
+        on:mouseover={() => (selectedRoute = route)}
+        class:selected={selectedRoute === route}>
+        <td on:click={() => viewAirport(route.from)}>{route.from.icao}</td>
+        <td on:click={() => viewAirport(route.to)}>{route.to.icao}</td>
         <td>{Math.round(route.distance)}</td>
         <td>{routeTime(route)}</td>
       </tr>
