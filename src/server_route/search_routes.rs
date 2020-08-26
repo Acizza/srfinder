@@ -321,7 +321,8 @@ where
 #[serde(rename_all = "lowercase")]
 #[serde(tag = "type", content = "value")]
 pub enum TimeOrDistance {
-    #[serde(rename = "timeRange")]
+    #[serde(rename = "time")]
     Time(Range<Time>),
+    #[serde(rename = "dist")]
     Distance(Range<f32>),
 }
