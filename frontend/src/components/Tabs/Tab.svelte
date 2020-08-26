@@ -3,24 +3,35 @@
   import { tabsContext } from "./index.svelte";
   import nextGlobalID from "../../id";
 
-  const { registerTab, selected } = getContext(tabsContext);
+  const { registerTab, selected, renderNonSelected, canScroll } = getContext(
+    tabsContext
+  );
   const id = nextGlobalID();
 
   registerTab(id);
 
-  // Dormant tabs should be hidden
-  $: tabStyle = ($selected !== id && "display: none") || undefined;
+  $: isSelected = $selected === id;
+  $: contentStyle = canScroll ? "overflow: hidden auto" : undefined;
 </script>
 
 <style>
   .tab-content {
     flex: 1 1 0;
-    overflow: hidden auto;
+  }
+
+  .tab-content.hidden {
+    display: none;
   }
 </style>
 
 <svelte:options immutable />
 
-<div class="tab-content scrollbar" style={tabStyle}>
-  <slot />
-</div>
+{#if renderNonSelected || isSelected}
+  <div
+    class="tab-content"
+    class:scrollbar={canScroll}
+    class:hidden={!isSelected}
+    style={contentStyle}>
+    <slot />
+  </div>
+{/if}
