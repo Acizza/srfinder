@@ -17,12 +17,10 @@
 
   .box-content {
     display: grid;
-    flex-direction: column;
     row-gap: 1em;
     overflow: hidden;
     border: 1px solid var(--border-color);
     padding: 1em 0.75em;
-    font-size: 1.1em;
   }
 
   :global(.box-content label) {
