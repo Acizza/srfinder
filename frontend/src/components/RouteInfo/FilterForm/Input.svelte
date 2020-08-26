@@ -4,7 +4,6 @@
   export let name: string;
   export let label: string;
   export let value: any;
-  export let type: string = "text";
 
   export let validate: (input: string) => InputResult;
 
@@ -34,8 +33,8 @@
 <label for={name}>{label}</label>
 <input
   {name}
-  {type}
   {value}
+  type="text"
   bind:this={inputRef}
   on:input={handleInput}
   {...$$restProps} />

@@ -5,26 +5,38 @@
   import Input from "./Input.svelte";
 
   export let value: string = "0.77";
-  export let parsed: ParsedSpeed | undefined = undefined;
 
-  function validate(newValue: string): InputResult {
-    const num = Number(newValue);
+  function validate(input: string): InputResult {
+    if (input.length === 0)
+      return { kind: "err", value: "Speed must be specified" };
 
-    if (Number.isNaN(num)) {
-      parsed = undefined;
-      return { kind: "err", value: "Must be a number." };
-    }
+    const num = Number(input);
 
-    const type = num % 1 === 0 ? SpeedType.Knots : SpeedType.Mach;
-    parsed = { value: num, type };
+    if (Number.isNaN(num)) return { kind: "err", value: "Must be a number" };
+
+    if (num < 0.01) return { kind: "err", value: "Must be greater than 0.01" };
+    if (num > 99999) return { kind: "err", value: "Must be less than 9999" };
 
     return {
       kind: "ok",
-      value: newValue,
+      value: input,
     };
   }
 
-  validate(value);
+  export function parse(): ParsedSpeed | undefined {
+    const num = Number(value);
+
+    if (Number.isNaN(num)) return undefined;
+
+    // We need to look for a '.' in the value to check for a floating point number as checking the remainder via
+    // value % 1 === 0 will not catch numbers like 2.0 (which we want to interpret as a mach speed)
+    const type = value.includes(".") ? SpeedType.Mach : SpeedType.Knots;
+
+    return {
+      type,
+      value: num,
+    };
+  }
 </script>
 
 <style>
@@ -35,15 +47,9 @@
   }
 </style>
 
-<svelte:options accessors />
-
 <Input
   name="speed"
   label="Cruise Speed"
   class="speed-input"
-  type="number"
-  step="0.01"
-  min="0.01"
-  max="9999"
   bind:value
   {validate} />

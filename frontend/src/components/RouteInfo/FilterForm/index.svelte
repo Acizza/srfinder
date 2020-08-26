@@ -17,8 +17,7 @@
   const dispatch = createEventDispatcher();
 
   function filtersSubmitted() {
-    const speed = speedRef?.parsed;
-
+    const speed = speedRef?.parse();
     if (!speed) return;
 
     const query: FindRoutesQuery = {
