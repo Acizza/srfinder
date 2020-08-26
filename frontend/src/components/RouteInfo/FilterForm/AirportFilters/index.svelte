@@ -5,6 +5,7 @@
   import LengthInput from "./LengthInput.svelte";
   import CountriesInput from "./CountriesInput.svelte";
   import type { ParsedAirportFilters } from "./types";
+  import { trimObject } from "../../util";
 
   export let name: string;
 
@@ -14,16 +15,12 @@
   let countriesRef: any = null;
 
   export function parse(): ParsedAirportFilters | undefined {
-    const result: ParsedAirportFilters = {
+    return trimObject({
       icao: icaoRef?.parse(),
       airportType: typeRef?.parse(),
       runwayLength: lengthRef?.parsed,
       countries: countriesRef?.parse(),
-    };
-
-    const hasAnyValue = Object.values(result).some((val) => val !== undefined);
-
-    return hasAnyValue ? result : undefined;
+    });
   }
 </script>
 

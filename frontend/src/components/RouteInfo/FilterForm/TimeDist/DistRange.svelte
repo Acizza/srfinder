@@ -1,6 +1,7 @@
 <script lang="ts">
   import GenericRange from "./GenericRange.svelte";
   import type { InputResult, ParsedRange, TimeDistVariant } from "../../types";
+  import { trimObject } from "../../util";
 
   let minValue: string = "";
   let maxValue: string = "";
@@ -19,14 +20,12 @@
     const minNum = Number(minValue);
     const maxNum = Number(maxValue);
 
-    const result = {
+    const result = trimObject({
       min: Number.isNaN(minNum) || minNum === 0 ? undefined : minNum,
       max: Number.isNaN(maxNum) || maxNum === 0 ? undefined : maxNum,
-    };
+    });
 
-    const hasAnyValue = Object.values(result).some((val) => val !== undefined);
-
-    return hasAnyValue ? ["dist", result] : undefined;
+    return result && ["dist", result];
   }
 </script>
 

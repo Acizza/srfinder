@@ -6,6 +6,7 @@
     TimeDistVariant,
     Time,
   } from "../../types";
+  import { trimObject } from "../../util";
 
   let minValue: string = "";
   let maxValue: string = "";
@@ -43,14 +44,12 @@
   }
 
   export function parse(): [TimeDistVariant, ParsedRange<Time>] | undefined {
-    const result = {
+    const result = trimObject({
       min: parseTime(minValue),
       max: parseTime(maxValue),
-    };
+    });
 
-    const hasAnyValue = Object.values(result).some((val) => val !== undefined);
-
-    return hasAnyValue ? ["time", result] : undefined;
+    return result && ["time", result];
   }
 </script>
 
