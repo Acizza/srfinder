@@ -301,16 +301,12 @@ where
     T: fmt::Debug + Default + PartialOrd,
 {
     fn within(&self, value: &T) -> bool {
-        if let Some(min) = &self.min {
-            if value < min {
-                return false;
-            }
+        if let Some(true) = self.min.as_ref().map(|min| value < min) {
+            return false;
         }
 
-        if let Some(max) = &self.max {
-            if value > max {
-                return false;
-            }
+        if let Some(true) = self.max.as_ref().map(|max| value > max) {
+            return false;
         }
 
         true
