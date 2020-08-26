@@ -326,3 +326,42 @@ pub enum TimeOrDistance {
     #[serde(rename = "dist")]
     Distance(Range<f32>),
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn range_within() {
+        macro_rules! within {
+            ($min:expr => $max:expr, $value:expr) => {
+                Range::within(
+                    &Range {
+                        min: $min,
+                        max: $max,
+                    },
+                    &$value,
+                )
+            };
+        }
+
+        assert_eq!(within!(Some(1) => Some(3), 2), true);
+        assert_eq!(within!(Some(2) => Some(3), 2), true);
+        assert_eq!(within!(Some(2) => Some(3), 3), true);
+
+        assert_eq!(within!(Some(1) => Some(5), 10), false);
+        assert_eq!(within!(Some(10) => Some(100), 9), false);
+    }
+
+    #[test]
+    fn runway_length_fits() {
+        assert_eq!(RunwayLength::Equal(12345).fits(12345), true);
+        assert_eq!(RunwayLength::Equal(12345).fits(12346), false);
+
+        assert_eq!(RunwayLength::GreaterThan(1000).fits(1001), true);
+        assert_eq!(RunwayLength::GreaterThan(1000).fits(1000), false);
+
+        assert_eq!(RunwayLength::LessThan(1000).fits(999), true);
+        assert_eq!(RunwayLength::LessThan(1000).fits(1000), false);
+    }
+}
