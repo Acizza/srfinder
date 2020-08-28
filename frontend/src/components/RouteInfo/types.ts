@@ -53,6 +53,7 @@ export interface Frequencies {
   ground?: string,
   tower?: string,
   unicom?: string,
+  [key: string]: string | undefined,
 }
 
 export interface Route {

@@ -7,7 +7,6 @@
   import { writable } from "svelte/store";
 
   export let headers: string[] = [];
-  export let renderNonSelected: boolean = true;
   export let canScroll: boolean = true;
 
   let tabs: number[] = [];
@@ -15,7 +14,6 @@
 
   setContext(tabsContext, {
     selected,
-    renderNonSelected,
     canScroll,
     registerTab(id: number) {
       tabs = [...tabs, id];

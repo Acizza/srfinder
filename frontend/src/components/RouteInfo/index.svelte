@@ -3,11 +3,10 @@
   import Tab from "../Tabs/Tab.svelte";
   import FilterForm from "./FilterForm/index.svelte";
   import RouteViewer from "./RouteViewer/index.svelte";
+  import AirportInfo from "./AirportInfo/index.svelte";
   import type { FindRoutesQuery, Route } from "./types";
 
   export let selectedRoute: Route | undefined = undefined;
-
-  const tabHeaders = ["FILTERS", "RUNWAYS", "FREQS"];
 
   let error: string | null = null;
   let loadingRoutes = false;
@@ -68,17 +67,13 @@
     firstRender={firstRouteFetch}
     bind:selectedRoute
     on:view-airport />
-  <Tabs headers={tabHeaders}>
+  <Tabs headers={['FILTERS', 'AIRPORT INFO']}>
     <Tab>
       <FilterForm on:findroutes={routesRequested} {error} {loadingRoutes} />
     </Tab>
 
-    <Tab>
-      <span>TODO (2)</span>
-    </Tab>
-
-    <Tab>
-      <span>TODO (3)</span>
+    <Tab alwaysRender={false}>
+      <AirportInfo route={selectedRoute} />
     </Tab>
   </Tabs>
 </div>

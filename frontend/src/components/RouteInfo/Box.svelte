@@ -1,5 +1,6 @@
 <script lang="ts">
   export let name: string;
+  export let className: string = "";
 </script>
 
 <style>
@@ -35,7 +36,7 @@
   }
 </style>
 
-<div class="box">
+<div class={`box ${className}`}>
   <span>{name}</span>
   <div class="box-content">
     <slot />

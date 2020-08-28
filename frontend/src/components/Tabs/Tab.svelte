@@ -3,9 +3,9 @@
   import { tabsContext } from "./index.svelte";
   import nextGlobalID from "../../id";
 
-  const { registerTab, selected, renderNonSelected, canScroll } = getContext(
-    tabsContext
-  );
+  export let alwaysRender: boolean = true;
+
+  const { registerTab, selected, canScroll } = getContext(tabsContext);
   const id = nextGlobalID();
 
   registerTab(id);
@@ -17,6 +17,8 @@
 <style>
   .tab-content {
     flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
   }
 
   .tab-content.hidden {
@@ -26,7 +28,7 @@
 
 <svelte:options immutable />
 
-{#if renderNonSelected || isSelected}
+{#if alwaysRender || isSelected}
   <div
     class="tab-content"
     class:scrollbar={canScroll}

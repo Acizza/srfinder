@@ -50,17 +50,14 @@
 </style>
 
 <div class="time-dist-container">
-  <Tabs
-    headers={['TIME', 'DISTANCE']}
-    renderNonSelected={false}
-    canScroll={false}>
-    <Tab>
+  <Tabs headers={['TIME', 'DISTANCE']} canScroll={false}>
+    <Tab alwaysRender={false}>
       <div class="time-dist-content">
         <TimeRange bind:this={inputRef} />
       </div>
     </Tab>
 
-    <Tab>
+    <Tab alwaysRender={false}>
       <div class="time-dist-content">
         <DistRange bind:this={inputRef} />
       </div>
