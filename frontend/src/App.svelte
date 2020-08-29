@@ -23,7 +23,7 @@
   :global(body) {
     background-color: var(--bg-color);
     color: var(--text-color);
-    font-family: Lekton;
+    font-family: Lekton, sans-serif;
     margin: 0;
   }
 
