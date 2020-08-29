@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Airport, Runway, Frequencies } from "../types";
+  import type { Airport, Runway } from "../types";
   import DataColumn from "./DataColumn.svelte";
   import Box from "../Box.svelte";
   import { hasAnyValues } from "../util";
@@ -26,11 +26,9 @@
     return undefined;
   }
 
-  function frequency<K extends keyof Frequencies>(freq: K): string | undefined {
-    const value = airport.frequencies[freq];
-    if (!value) return undefined;
-
-    return value.padEnd(7, "0");
+  function formatFreq(freq: string | undefined): string | undefined {
+    // Pad length of 7 ensures frequencies look as follows: 118.000
+    return freq?.padEnd(7, "0") || undefined;
   }
 
   $: hasAnyFreqs = hasAnyValues(airport.frequencies);
@@ -75,13 +73,23 @@
   {#if hasAnyFreqs || hasAnyRunways}
     {#if hasAnyFreqs}
       <Box name="Frequencies" className="frequencies">
-        <DataColumn label="ATIS" value={frequency('atis')} />
-        <DataColumn label="GND" value={frequency('ground')} />
-        <DataColumn label="TWR" value={frequency('tower')} />
-        <DataColumn label="DEP" value={frequency('departure')} />
-        <DataColumn label="DEP/ARR" value={frequency('arrivalDeparture')} />
-        <DataColumn label="ARR" value={frequency('arrival')} />
-        <DataColumn label="UNIC" value={frequency('unicom')} />
+        <DataColumn label="ATIS" value={formatFreq(airport.frequencies.atis)} />
+        <DataColumn
+          label="GND"
+          value={formatFreq(airport.frequencies.ground)} />
+        <DataColumn label="TWR" value={formatFreq(airport.frequencies.tower)} />
+        <DataColumn
+          label="DEP"
+          value={formatFreq(airport.frequencies.departure)} />
+        <DataColumn
+          label="DEP/ARR"
+          value={formatFreq(airport.frequencies.arrivalDeparture)} />
+        <DataColumn
+          label="ARR"
+          value={formatFreq(airport.frequencies.arrival)} />
+        <DataColumn
+          label="UNIC"
+          value={formatFreq(airport.frequencies.unicom)} />
       </Box>
     {/if}
     {#if hasAnyRunways}
