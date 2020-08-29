@@ -1,6 +1,6 @@
 <script lang="ts">
   import Input from "../Input.svelte";
-  import type { InputResult } from "./types";
+  import type { InputResult } from "../../types";
 
   export function parse(): string | undefined {
     return value.length > 0 ? value : undefined;
