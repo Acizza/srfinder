@@ -4,8 +4,6 @@
   import { setDefaultOptions, loadModules } from "esri-loader";
   import type { Airport, Route } from "./RouteInfo/types";
 
-  const lineColor = "#960096";
-
   export let selectedRoute: Route | undefined = undefined;
 
   let mapContainer: any = undefined;
@@ -115,7 +113,6 @@
 
     const lineSymbol = new SimpleLineSymbol({
       width: 2,
-      color: lineColor,
     });
 
     const geodesicLine = geometryEngine.geodesicDensify(linePath, 10_000);
@@ -123,7 +120,6 @@
     const marker = new SimpleMarkerSymbol({
       style: "diamond",
       size: "10px",
-      color: lineColor,
     });
 
     view.graphics.add(new Graphic(depPos, marker));
@@ -131,7 +127,7 @@
     view.graphics.add(new Graphic(geodesicLine, lineSymbol));
 
     let nameProps = {
-      color: "black",
+      color: "white",
       text: "DEP",
       yoffset: 7,
       font: { size: 8, family: "sans-serif" },
