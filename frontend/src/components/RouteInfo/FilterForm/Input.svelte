@@ -3,7 +3,9 @@
 
   export let name: string;
   export let label: string;
-  export let value: any;
+  export let value: any = "";
+
+  export let tooltip: string | undefined = undefined;
 
   export let validate: (input: string) => InputResult;
 
@@ -30,11 +32,33 @@
   }
 </script>
 
-<label for={name}>{label}</label>
-<input
-  {name}
-  {value}
-  type="text"
-  bind:this={inputRef}
-  on:input={handleInput}
-  {...$$restProps} />
+<style>
+  label {
+    display: flex;
+  }
+
+  .tooltip {
+    font-family: Tahoma, Geneva, sans-serif;
+    font-weight: bold;
+    font-size: 0.5em;
+    text-align: center;
+    align-self: center;
+    padding: 0.15em;
+    margin-left: 0.5em;
+    border-radius: 25%;
+    color: var(--help-text-color);
+    background-color: var(--help-text-background-color);
+  }
+</style>
+
+<label for={name} title={tooltip}>{label}
+  {#if tooltip}<span class="tooltip">?</span>{/if}</label>
+<slot>
+  <input
+    {name}
+    {value}
+    type="text"
+    bind:this={inputRef}
+    on:input={handleInput}
+    {...$$restProps} />
+</slot>

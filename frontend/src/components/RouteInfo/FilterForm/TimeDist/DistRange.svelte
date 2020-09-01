@@ -27,6 +27,16 @@
 
     return result && ["dist", result];
   }
+
+  function formatTooltip(variant: "Minimum" | "Maximum"): string {
+    return `${variant} distance a route can be, in nautical miles.`;
+  }
 </script>
 
-<GenericRange name="dist" {validate} bind:minValue bind:maxValue />
+<GenericRange
+  name="dist"
+  minTooltip={formatTooltip('Minimum')}
+  maxTooltip={formatTooltip('Maximum')}
+  {validate}
+  bind:minValue
+  bind:maxValue />

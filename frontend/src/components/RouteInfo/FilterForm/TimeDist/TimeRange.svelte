@@ -51,6 +51,16 @@
 
     return result && ["time", result];
   }
+
+  function formatTooltip(variant: "Minimum" | "Maximum"): string {
+    return `${variant} time a route can take to complete at the specified cruise speed, formatted as HH:MM.`;
+  }
 </script>
 
-<GenericRange name="time" {validate} bind:minValue bind:maxValue />
+<GenericRange
+  name="time"
+  minTooltip={formatTooltip('Minimum')}
+  maxTooltip={formatTooltip('Maximum')}
+  {validate}
+  bind:minValue
+  bind:maxValue />

@@ -50,6 +50,7 @@
 <Input
   name="speed"
   label="Cruise Speed"
+  tooltip="Use whole numbers to indicate knots, and decimal numbers to indicate mach."
   class="speed-input"
   bind:value
   {validate} />

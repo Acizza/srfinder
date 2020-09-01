@@ -45,6 +45,9 @@
 
     --scrollbar-main-color: #525257;
     --scrollbar-track-color: #2d2d31;
+
+    --help-text-background-color: #302f2f;
+    --help-text-color: #73758d;
   }
 
   :global(input, select) {
