@@ -1,6 +1,6 @@
 <script lang="ts">
+  import Spinner from "../../../Spinner.svelte";
   import type { Route } from "../types";
-  import Spinner from "../../Spinner.svelte";
   import RouteTable from "./RouteTable.svelte";
 
   export let selectedRoute: Route | undefined = undefined;
@@ -23,7 +23,7 @@
     display: flex;
     flex-direction: column;
     flex: 1 0 40%;
-    max-height: 40%;
+    max-height: 35vh;
     transition: max-height 0.3s ease-in-out;
     overflow: hidden auto;
   }
@@ -49,9 +49,7 @@
     <div class="container">
       {#if loading}
         <Spinner />
-      {:else}
-        <span class="no-routes-text">NO ROUTES FOUND</span>
-      {/if}
+      {:else}<span class="no-routes-text">NO ROUTES FOUND</span>{/if}
     </div>
   {:else}
     <RouteTable {routes} bind:selectedRoute on:view-airport />

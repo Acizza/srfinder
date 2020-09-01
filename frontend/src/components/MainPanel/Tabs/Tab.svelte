@@ -1,12 +1,19 @@
+<script lang="ts" context="module">
+  let tabID = 0;
+
+  export function nextTabID() {
+    return tabID++;
+  }
+</script>
+
 <script lang="ts">
   import { getContext } from "svelte";
   import { tabsContext } from "./index.svelte";
-  import nextGlobalID from "../../id";
 
   export let alwaysRender: boolean = true;
 
   const { registerTab, selected, canScroll } = getContext(tabsContext);
-  const id = nextGlobalID();
+  const id = nextTabID();
 
   registerTab(id);
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import "../../../../util";
+  import "../../../../../util";
   import { LengthSelector } from "./types";
   import type { ParsedRunwayLength } from "./types";
   import type { InputResult } from "../../types";

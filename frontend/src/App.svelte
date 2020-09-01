@@ -1,7 +1,7 @@
 <script lang="ts">
   import RouteMap from "./components/RouteMap.svelte";
-  import RouteInfo from "./components/RouteInfo/index.svelte";
-  import type { Route, Airport } from "./components/RouteInfo/types";
+  import MainPanel from "./components/MainPanel/index.svelte";
+  import type { Route, Airport } from "./components/MainPanel/RouteInfo/types";
 
   export let selectedRoute: Route | undefined = undefined;
 
@@ -82,5 +82,5 @@
 
 <main>
   <RouteMap {selectedRoute} bind:this={routeMapRef} />
-  <RouteInfo bind:selectedRoute on:view-airport={(arpt) => viewAirport(arpt)} />
+  <MainPanel bind:selectedRoute on:view-airport={(arpt) => viewAirport(arpt)} />
 </main>

@@ -20,6 +20,7 @@
   .airport-info .help-text {
     align-self: center;
     font-size: 1.4em;
+    padding: 0.25em;
   }
 </style>
 
@@ -27,7 +28,5 @@
   {#if route}
     <AirportData name={route.from.icao} airport={route.from} />
     <AirportData name={route.to.icao} airport={route.to} />
-  {:else}
-    <span class="help-text">SELECT AN AIRPORT</span>
-  {/if}
+  {:else}<span class="help-text">SELECT AN AIRPORT</span>{/if}
 </div>
