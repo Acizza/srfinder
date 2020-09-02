@@ -1,5 +1,6 @@
 <script lang="ts">
   import RouteInfo from "./RouteInfo/index.svelte";
+  import Footer from "./Footer/index.svelte";
   import type { Route } from "./RouteInfo/types";
 
   export let selectedRoute: Route | undefined = undefined;
@@ -18,4 +19,5 @@
 
 <div class="main-panel">
   <RouteInfo bind:selectedRoute on:view-airport />
+  <Footer />
 </div>
