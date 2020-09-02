@@ -1,3 +1,10 @@
+<script lang="ts" context="module">
+  const tooltip =
+    "Required runway length.\n\n" +
+    "Can be prefixed with < to exclude lengths less than the following number, or > for lengths greater than the following number.\n\n" +
+    "Example: The value >12500 will filter out airports that don't have any runways that are at least 12,500 feet long.";
+</script>
+
 <script lang="ts">
   import "../../../../../util";
   import { LengthSelector } from "./types";
@@ -52,9 +59,4 @@
 
 <svelte:options accessors />
 
-<Input
-  name="length"
-  label="Length"
-  tooltip="Required runway length. Can be prefixed with < to exclude lengths less than the following number, or > for lengths greater than the following number. Example: The value >12500 will filter out airports that don't have any runways that are at least 12,500 feet long."
-  {validate}
-  value="" />
+<Input name="length" label="Length" {tooltip} {validate} value="" />
