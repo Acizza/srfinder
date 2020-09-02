@@ -20,24 +20,15 @@
 <script lang="ts">
   import Input from "../Input.svelte";
   import type { AirportTypes, AirportType } from "./types";
-  import type { InputResult } from "../../types";
 
   export let value: AirportType = "unknown";
 
   export function parse(): AirportType | undefined {
     return value !== "unknown" ? value : undefined;
   }
-
-  function validate(input: string): InputResult {
-    return { kind: "ok", value: input };
-  }
 </script>
 
-<Input
-  name="type"
-  label="Type"
-  tooltip="Airport size / type to include."
-  {validate}>
+<Input name="type" label="Type" tooltip="Airport size / type to include.">
   <select name="type" bind:value>
     {#each typeNames as { type, display }}
       <option value={type}>{display}</option>

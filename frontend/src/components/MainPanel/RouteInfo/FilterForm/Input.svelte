@@ -7,7 +7,9 @@
 
   export let tooltip: string | undefined = undefined;
 
-  export let validate: (input: string) => InputResult;
+  export let validate: (input: string) => InputResult = (input) => {
+    return { kind: "ok", value: input };
+  };
 
   let inputRef: HTMLInputElement | null;
 
