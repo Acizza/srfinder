@@ -9,8 +9,8 @@
   .main-panel {
     display: flex;
     flex-direction: column;
-    flex: 1 0 max-content;
-    border-left: 2px solid var(--border-color);
+    flex: 1 0 15em;
+    border-left: 3px solid var(--border-color);
     height: 100vh;
     overflow: hidden;
   }
