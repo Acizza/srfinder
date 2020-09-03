@@ -14,6 +14,7 @@
     text-align: center;
     margin-bottom: 0.5em;
     font-size: 1.25em;
+    cursor: default;
   }
 
   .box-content {
