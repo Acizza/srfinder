@@ -47,6 +47,7 @@
     font-size: 1.4em;
     width: 60%;
     align-self: center;
+    cursor: pointer;
   }
 
   .find-routes-btn:disabled {
