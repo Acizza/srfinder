@@ -21,6 +21,7 @@
     align-self: center;
     font-size: 1.4em;
     padding: 0.25em;
+    cursor: default;
   }
 </style>
 
