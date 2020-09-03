@@ -10,7 +10,7 @@
   import { LengthSelector } from "./types";
   import type { ParsedRunwayLength } from "./types";
   import type { InputResult } from "../../types";
-  import Input from "../Input.svelte";
+  import Input from "../../../Input.svelte";
 
   export let parsed: ParsedRunwayLength | undefined = undefined;
 

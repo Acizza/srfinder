@@ -18,7 +18,7 @@
 </script>
 
 <script lang="ts">
-  import Input from "../Input.svelte";
+  import Input from "../../../Input.svelte";
   import type { AirportTypes, AirportType } from "./types";
 
   export let value: AirportType = "unknown";

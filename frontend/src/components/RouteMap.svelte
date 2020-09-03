@@ -2,7 +2,8 @@
   import Spinner from "./Spinner.svelte";
   import { onMount, onDestroy } from "svelte";
   import { setDefaultOptions, loadModules } from "esri-loader";
-  import type { Airport, Route } from "./RouteInfo/types";
+  import type { Airport, Route } from "./MainPanel/RouteInfo/types";
+  import { currentTheme, Theme } from "../theme";
 
   export let selectedRoute: Route | undefined = undefined;
 
@@ -14,8 +15,39 @@
 
   let drawingRoute = false;
 
-  $: {
-    drawRouteAndRunways(selectedRoute).catch((err) => console.error(err));
+  let textColor: string;
+  let basemap: string;
+
+  $: updateTheme($currentTheme);
+  $: drawRouteAndRunways(selectedRoute).catch((err) => console.error(err));
+
+  function updateTheme(theme: Theme) {
+    textColor = textColorFromTheme(theme);
+    basemap = basemapFromTheme(theme);
+
+    if (!map) return;
+
+    map.basemap = basemap;
+    // Trigger a route redraw so it uses our new colors
+    selectedRoute = selectedRoute;
+  }
+
+  function basemapFromTheme(theme: Theme): string {
+    switch (theme) {
+      case Theme.Dark:
+        return "dark-gray-vector";
+      case Theme.Light:
+        return "gray-vector";
+    }
+  }
+
+  function textColorFromTheme(theme: Theme): string {
+    switch (theme) {
+      case Theme.Dark:
+        return "white";
+      case Theme.Light:
+        return "black";
+    }
   }
 
   onMount(async () => {
@@ -29,7 +61,7 @@
       "esri/layers/GraphicsLayer",
     ]);
 
-    map = new Map({ basemap: "dark-gray-vector" });
+    map = new Map({ basemap });
     view = new MapView({ container: mapContainer, map, zoom: 2 });
 
     const basemapToggle = new BasemapToggle({ view, nextBasemap: "hybrid" });
@@ -127,7 +159,7 @@
     view.graphics.add(new Graphic(geodesicLine, lineSymbol));
 
     let nameProps = {
-      color: "white",
+      color: textColor,
       text: "DEP",
       yoffset: 7,
       font: { size: 8, family: "sans-serif" },
@@ -183,7 +215,7 @@
       runwayLayer.graphics.add(new Graphic(runwayLine, runwaySymbol));
 
       let nameProps = {
-        color: "black",
+        color: textColor,
         text: runway.heMarker.name,
         angle: angleFromPoints(hePos, lePos),
         yoffset: -10,

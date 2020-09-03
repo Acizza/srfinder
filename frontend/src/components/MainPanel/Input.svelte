@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { InputResult } from "../types";
+  import type { InputResult } from "./RouteInfo/types";
 
   export let name: string;
   export let label: string;

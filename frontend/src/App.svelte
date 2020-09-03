@@ -2,6 +2,7 @@
   import RouteMap from "./components/RouteMap.svelte";
   import MainPanel from "./components/MainPanel/index.svelte";
   import type { Route, Airport } from "./components/MainPanel/RouteInfo/types";
+  import { applyTheme, currentTheme } from "./theme";
 
   export let selectedRoute: Route | undefined = undefined;
 
@@ -12,6 +13,8 @@
       ?.viewAirport(event.detail)
       .catch((err: any) => console.error(err));
   }
+
+  applyTheme($currentTheme, false);
 </script>
 
 <style>
@@ -28,7 +31,11 @@
   }
 
   :global(:root) {
-    --hover-color: #545458;
+    --bg-color: #353538;
+  }
+
+  :global(html[data-theme="dark"]) {
+    --hover-color: #464649;
     --secondary-hover-color: #3e3e41;
     --bg-color: #353538;
     --tab-color: #2e2e30;
@@ -48,6 +55,29 @@
 
     --help-text-background-color: #302f2f;
     --help-text-color: #73758d;
+  }
+
+  :global(html[data-theme="light"]) {
+    --hover-color: #fbfbff;
+    --secondary-hover-color: #cacad1;
+    --bg-color: #d3d3db;
+    --tab-color: #ebebf1;
+    --border-color: #a0a0a0;
+
+    --text-color: #565656;
+    --button-color: #e5e5eb;
+
+    --error-color: #9e1010;
+    --error-text-color: #e2cdcd;
+
+    --disabled-text-color: #797979;
+    --disabled-color: #c0c0c0;
+
+    --scrollbar-main-color: #707070;
+    --scrollbar-track-color: #acacac;
+
+    --help-text-background-color: #949496;
+    --help-text-color: #b4b6ce;
   }
 
   :global(input, select) {

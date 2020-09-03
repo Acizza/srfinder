@@ -1,7 +1,10 @@
 <script lang="ts">
-  import { version } from "../../../../package.json";
+  import { version } from "../../../package.json";
   import Icon from "fa-svelte";
   import { faCog } from "@fortawesome/free-solid-svg-icons";
+  import { createEventDispatcher } from "svelte";
+
+  const dispatch = createEventDispatcher();
 </script>
 
 <style>
@@ -14,9 +17,15 @@
     padding: 0.5em;
     align-items: center;
     font-size: 0.75em;
+    cursor: default;
   }
 
-  footer :global(.settings) {
+  .settings-wrapper {
+    cursor: pointer;
+  }
+
+  footer :global(.settings-icon),
+  .settings-wrapper {
     width: 1.25em;
     height: 1.25em;
   }
@@ -24,5 +33,7 @@
 
 <footer>
   <span>Version {version}</span>
-  <Icon class="settings" icon={faCog} />
+  <div class="settings-wrapper" on:click={() => dispatch('toggle-settings')}>
+    <Icon class="settings-icon" icon={faCog} />
+  </div>
 </footer>
