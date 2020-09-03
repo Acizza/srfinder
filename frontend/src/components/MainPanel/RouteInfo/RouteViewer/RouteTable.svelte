@@ -30,6 +30,7 @@
     position: sticky;
     top: 0;
     background-color: var(--tab-color);
+    cursor: default;
   }
 
   th {
@@ -47,6 +48,11 @@
     padding: 0.5em;
     text-align: center;
     border-bottom: 1px solid var(--border-color);
+    cursor: default;
+  }
+
+  td.clickable {
+    cursor: pointer;
   }
 
   tr.selected {
@@ -74,8 +80,12 @@
       <tr
         on:mouseover={() => (selectedRoute = route)}
         class:selected={selectedRoute === route}>
-        <td on:click={() => viewAirport(route.from)}>{route.from.icao}</td>
-        <td on:click={() => viewAirport(route.to)}>{route.to.icao}</td>
+        <td class="clickable" on:click={() => viewAirport(route.from)}>
+          {route.from.icao}
+        </td>
+        <td class="clickable" on:click={() => viewAirport(route.to)}>
+          {route.to.icao}
+        </td>
         <td>{Math.round(route.distance)}</td>
         <td>{routeTime(route)}</td>
       </tr>
