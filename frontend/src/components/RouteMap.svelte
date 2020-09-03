@@ -22,32 +22,22 @@
   $: drawRouteAndRunways(selectedRoute).catch((err) => console.error(err));
 
   function updateTheme(theme: Theme) {
-    textColor = textColorFromTheme(theme);
-    basemap = basemapFromTheme(theme);
+    switch (theme) {
+      case Theme.Dark:
+        textColor = "white";
+        basemap = "dark-gray-vector";
+        break;
+      case Theme.Light:
+        textColor = "black";
+        basemap = "gray-vector";
+        break;
+    }
 
     if (!map) return;
 
     map.basemap = basemap;
     // Trigger a route redraw so it uses our new colors
     selectedRoute = selectedRoute;
-  }
-
-  function basemapFromTheme(theme: Theme): string {
-    switch (theme) {
-      case Theme.Dark:
-        return "dark-gray-vector";
-      case Theme.Light:
-        return "gray-vector";
-    }
-  }
-
-  function textColorFromTheme(theme: Theme): string {
-    switch (theme) {
-      case Theme.Dark:
-        return "white";
-      case Theme.Light:
-        return "black";
-    }
   }
 
   onMount(async () => {
