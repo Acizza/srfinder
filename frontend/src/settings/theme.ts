@@ -1,13 +1,11 @@
-import { writable } from "svelte/store";
+import { writable } from 'svelte/store';
 
 export enum Theme {
     Dark = "dark",
     Light = "light",
 }
 
-export const currentTheme = writable(detectPreferredTheme());
-
-function detectPreferredTheme(): Theme {
+function detectPreferredSiteTheme(): Theme {
     const stored = localStorage.getItem("theme");
 
     if (!stored) {
@@ -24,11 +22,14 @@ function detectPreferredTheme(): Theme {
     return stored as Theme;
 }
 
-export function applyTheme(theme: Theme, save: boolean) {
+export function applySiteTheme(theme: Theme, save: boolean) {
     document.documentElement.setAttribute("data-theme", theme);
 
     if (save)
         localStorage.setItem("theme", theme);
 
-    currentTheme.set(theme);
+    siteTheme.set(theme);
 }
+
+
+export const siteTheme = writable(detectPreferredSiteTheme());

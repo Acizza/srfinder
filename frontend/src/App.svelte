@@ -2,7 +2,7 @@
   import RouteMap from "./components/RouteMap.svelte";
   import MainPanel from "./components/MainPanel/index.svelte";
   import type { Route, Airport } from "./components/MainPanel/RouteInfo/types";
-  import { applyTheme, currentTheme } from "./theme";
+  import { applySiteTheme, siteTheme } from "./settings/theme";
 
   export let selectedRoute: Route | undefined = undefined;
 
@@ -14,7 +14,7 @@
       .catch((err: any) => console.error(err));
   }
 
-  applyTheme($currentTheme, false);
+  applySiteTheme($siteTheme, false);
 </script>
 
 <style>

@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { applyTheme, currentTheme, Theme } from "../../../theme";
+  import { applySiteTheme, siteTheme, Theme } from "../../../settings/theme";
   import Input from "../Input.svelte";
 
-  const initialTheme = $currentTheme;
+  const initialTheme = $siteTheme;
 
   let value: Theme;
 
   function applySelected() {
-    applyTheme(value, true);
+    applySiteTheme(value, true);
   }
 </script>
 
