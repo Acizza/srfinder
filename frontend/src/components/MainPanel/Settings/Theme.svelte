@@ -1,13 +1,14 @@
 <script lang="ts">
-  import { applySiteTheme, siteTheme, Theme } from "../../../settings/theme";
+  import { curTheme, ThemeKind, Theme } from "../../../settings/theme";
   import Input from "../Input.svelte";
 
-  const initialTheme = $siteTheme;
+  const initialTheme = $curTheme;
 
-  let value: Theme;
+  let value: ThemeKind;
 
   function applySelected() {
-    applySiteTheme(value, true);
+    Theme.apply(value);
+    Theme.save();
   }
 </script>
 
@@ -17,7 +18,7 @@
     bind:value
     on:change={applySelected}
     on:blur={applySelected}>
-    {#each Object.entries(Theme) as [display, value]}
+    {#each Object.entries(ThemeKind) as [display, value]}
       <option {value} selected={value === initialTheme}>{display}</option>
     {/each}
   </select>

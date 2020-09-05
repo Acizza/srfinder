@@ -3,7 +3,7 @@
   import { onMount, onDestroy } from "svelte";
   import { setDefaultOptions, loadModules } from "esri-loader";
   import type { Airport, Route } from "./MainPanel/RouteInfo/types";
-  import { siteTheme, Theme } from "../settings/theme";
+  import { ThemeKind, curTheme } from "../settings/theme";
 
   export let selectedRoute: Route | undefined = undefined;
 
@@ -18,16 +18,16 @@
   let textColor: string;
   let basemap: string;
 
-  $: updateTheme($siteTheme);
+  $: updateTheme($curTheme);
   $: drawRouteAndRunways(selectedRoute).catch((err) => console.error(err));
 
-  function updateTheme(theme: Theme) {
+  function updateTheme(theme: ThemeKind) {
     switch (theme) {
-      case Theme.Dark:
+      case ThemeKind.Dark:
         textColor = "white";
         basemap = "dark-gray-vector";
         break;
-      case Theme.Light:
+      case ThemeKind.Light:
         textColor = "black";
         basemap = "gray-vector";
         break;

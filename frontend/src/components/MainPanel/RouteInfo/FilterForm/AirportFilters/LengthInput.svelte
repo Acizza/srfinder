@@ -2,7 +2,8 @@
   const tooltip =
     "Required runway length.\n\n" +
     "Can be prefixed with < to exclude lengths less than the following number, or > for lengths greater than the following number.\n\n" +
-    "Example: The value >12500 will filter out airports that don't have any runways that are at least 12,500 feet long.";
+    "Example: The value >12500 will filter out airports that don't have any runways that are at least 12,500 feet (default) / meters long.\n\n" +
+    "The unit used to specify length can be changed in the settings panel on the bottom right.";
 </script>
 
 <script lang="ts">
@@ -11,8 +12,18 @@
   import type { ParsedRunwayLength } from "./types";
   import type { InputResult } from "../../types";
   import Input from "../../../Input.svelte";
+  import { LengthUnit } from "../../../../../settings/units";
 
-  export let parsed: ParsedRunwayLength | undefined = undefined;
+  let parsed: ParsedRunwayLength | undefined = undefined;
+
+  export function parse(): ParsedRunwayLength | undefined {
+    if (!parsed) return undefined;
+
+    return {
+      length: LengthUnit.fromCurrent(parsed.length),
+      selector: parsed.selector,
+    };
+  }
 
   function validate(newValue: string): InputResult {
     if (newValue.length === 0) {
@@ -51,12 +62,13 @@
       };
     }
 
-    parsed = { length: isSliceEmpty ? 0 : Number(slice), selector };
+    parsed = {
+      length: isSliceEmpty ? 0 : Number(slice),
+      selector,
+    };
 
     return { kind: "ok", value: newValue };
   }
 </script>
-
-<svelte:options accessors />
 
 <Input name="length" label="Length" {tooltip} {validate} value="" />

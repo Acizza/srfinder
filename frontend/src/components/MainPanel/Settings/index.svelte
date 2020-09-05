@@ -1,4 +1,7 @@
 <script lang="ts">
+  import Box from "../RouteInfo/Box.svelte";
+  import DistanceUnit from "./DistanceUnit.svelte";
+  import LengthUnit from "./LengthUnit.svelte";
   import Theme from "./Theme.svelte";
 </script>
 
@@ -18,27 +21,35 @@
     font-weight: normal;
   }
 
-  .settings-list {
+  .misc-settings {
     display: grid;
     row-gap: 0.25em;
     font-size: 1.4em;
     padding: 1em;
   }
 
-  .settings-list :global(label) {
+  .misc-settings :global(label) {
     grid-column: 1 / 2;
     align-self: center;
   }
 
-  .settings-list :global(select) {
+  .misc-settings :global(select) {
     grid-column: 2 / 3;
     font-size: 0.9em;
+  }
+
+  .settings-panel :global(.unit-settings) {
+    padding: 0.25em 2em;
   }
 </style>
 
 <div class="settings-panel">
   <h1>Settings</h1>
-  <div class="settings-list">
+  <div class="misc-settings">
     <Theme />
   </div>
+  <Box name="Units" className="unit-settings">
+    <LengthUnit />
+    <DistanceUnit />
+  </Box>
 </div>

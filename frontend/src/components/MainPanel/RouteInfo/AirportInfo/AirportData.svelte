@@ -3,9 +3,16 @@
   import DataColumn from "./DataColumn.svelte";
   import Box from "../Box.svelte";
   import { hasAnyValues } from "../util";
+  import {
+    LengthUnitKind,
+    LengthUnit,
+    curLengthUnit,
+  } from "../../../../settings/units";
 
   export let name: string;
   export let airport: Airport;
+
+  let unitSuffix: string;
 
   function runwayName(runway: Runway): string {
     const hasBoth = runway.heMarker && runway.leMarker;
@@ -18,12 +25,21 @@
   }
 
   function runwaySize(runway: Runway): string | undefined {
-    if (runway.lengthFT && runway.widthFT)
-      return `${runway.lengthFT}x${runway.widthFT}`;
+    const length = runway.lengthFT && LengthUnit.toCurrent(runway.lengthFT);
+    const width = runway.widthFT && LengthUnit.toCurrent(runway.widthFT);
 
-    if (runway.lengthFT) return runway.lengthFT.toString();
+    if (length) return width ? `${length}x${width}` : length.toString();
 
     return undefined;
+  }
+
+  function unitName(unit: LengthUnitKind): string {
+    switch (unit) {
+      case LengthUnitKind.Feet:
+        return "FT";
+      case LengthUnitKind.Meters:
+        return "M";
+    }
   }
 
   function formatFreq(freq: string | undefined): string | undefined {
@@ -33,6 +49,12 @@
 
   $: hasAnyFreqs = hasAnyValues(airport.frequencies);
   $: hasAnyRunways = hasAnyValues(airport.runways);
+
+  $: {
+    unitSuffix = unitName($curLengthUnit);
+    // Since our units changed, trigger a redraw of the airport
+    airport = airport;
+  }
 </script>
 
 <style>
@@ -98,7 +120,7 @@
           <DataColumn
             label={runwayName(runway)}
             value={runwaySize(runway)}
-            suffix={' FT'} />
+            suffix={` ${unitSuffix}`} />
         {/each}
       </Box>
     {/if}

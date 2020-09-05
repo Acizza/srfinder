@@ -18,7 +18,7 @@
     return trimObject({
       icao: icaoRef?.parse(),
       airportType: typeRef?.parse(),
-      runwayLength: lengthRef?.parsed,
+      runwayLength: lengthRef?.parse(),
       countries: countriesRef?.parse(),
     });
   }

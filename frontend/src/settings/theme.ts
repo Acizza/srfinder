@@ -1,35 +1,35 @@
 import { writable } from 'svelte/store';
+import { tryFetch } from './util';
+import { get_store_value } from 'svelte/internal';
 
-export enum Theme {
+export enum ThemeKind {
     Dark = "dark",
     Light = "light",
 }
 
-function detectPreferredSiteTheme(): Theme {
-    const stored = localStorage.getItem("theme");
+export class Theme {
+    static storageName = "theme";
 
-    if (!stored) {
-        return window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? Theme.Dark
-            : Theme.Light;
+    static preferred(): ThemeKind {
+        const stored = tryFetch(Theme.storageName, ThemeKind);
+
+        if (!stored) {
+            return window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? ThemeKind.Dark
+                : ThemeKind.Light;
+        }
+
+        return stored;
     }
 
-    // Check that the stored theme value is actually valid
-    if (!Object.values(Theme).includes(stored as Theme)) {
-        return Theme.Dark;
+    static save() {
+        localStorage.setItem(Theme.storageName, get_store_value(curTheme));
     }
 
-    return stored as Theme;
+    static apply(theme: ThemeKind) {
+        document.documentElement.setAttribute("data-theme", theme);
+        curTheme.set(theme);
+    }
 }
 
-export function applySiteTheme(theme: Theme, save: boolean) {
-    document.documentElement.setAttribute("data-theme", theme);
-
-    if (save)
-        localStorage.setItem("theme", theme);
-
-    siteTheme.set(theme);
-}
-
-
-export const siteTheme = writable(detectPreferredSiteTheme());
+export const curTheme = writable(Theme.preferred());

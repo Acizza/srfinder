@@ -2,6 +2,7 @@
   import GenericRange from "./GenericRange.svelte";
   import type { InputResult, ParsedRange, TimeDistVariant } from "../../types";
   import { trimObject } from "../../util";
+  import { DistanceUnit } from "../../../../../settings/units";
 
   let minValue: string = "";
   let maxValue: string = "";
@@ -16,20 +17,28 @@
     return { kind: "ok", value: input };
   }
 
-  export function parse(): [TimeDistVariant, ParsedRange<number>] | undefined {
-    const minNum = Number(minValue);
-    const maxNum = Number(maxValue);
+  function validRangeValue(value: string): number | undefined {
+    const num = Number(value);
 
+    return Number.isNaN(num) || num === 0
+      ? undefined
+      : DistanceUnit.fromCurrent(num);
+  }
+
+  export function parse(): [TimeDistVariant, ParsedRange<number>] | undefined {
     const result = trimObject({
-      min: Number.isNaN(minNum) || minNum === 0 ? undefined : minNum,
-      max: Number.isNaN(maxNum) || maxNum === 0 ? undefined : maxNum,
+      min: validRangeValue(minValue),
+      max: validRangeValue(maxValue),
     });
 
     return result && ["dist", result];
   }
 
   function formatTooltip(variant: "Minimum" | "Maximum"): string {
-    return `${variant} distance a route can be, in nautical miles.`;
+    return (
+      `${variant} distance a route can be, in nautical miles (default) / miles / kilometers.\n\n` +
+      "You can change which unit to use in the settings panel located in the bottom right."
+    );
   }
 </script>
 

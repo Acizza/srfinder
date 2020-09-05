@@ -1,9 +1,16 @@
 <script lang="ts">
   import type { Route, Airport } from "../types";
   import { createEventDispatcher } from "svelte";
+  import {
+    curDistanceUnit,
+    DistanceUnit,
+    DistanceUnitKind,
+  } from "../../../../settings/units";
 
   export let routes: Route[] = [];
   export let selectedRoute: Route | undefined = undefined;
+
+  let distUnitName: string;
 
   const dispatch = createEventDispatcher();
 
@@ -17,6 +24,23 @@
 
   function viewAirport(arpt: Airport) {
     dispatch("view-airport", arpt);
+  }
+
+  function distanceName(unit: DistanceUnitKind): string {
+    switch (unit) {
+      case DistanceUnitKind.NauticalMiles:
+        return "NM";
+      case DistanceUnitKind.Miles:
+        return "MI";
+      case DistanceUnitKind.Kilometers:
+        return "KM";
+    }
+  }
+
+  $: {
+    distUnitName = distanceName($curDistanceUnit);
+    // Since our unit changed, we need to redraw our routes
+    routes = routes;
   }
 </script>
 
@@ -72,7 +96,7 @@
   <thead>
     <th>From</th>
     <th>To</th>
-    <th>NM</th>
+    <th>{distUnitName}</th>
     <th>Time</th>
   </thead>
   <tbody>
@@ -86,7 +110,7 @@
         <td class="clickable" on:click={() => viewAirport(route.to)}>
           {route.to.icao}
         </td>
-        <td>{Math.round(route.distance)}</td>
+        <td>{DistanceUnit.toCurrent(route.distance)}</td>
         <td>{routeTime(route)}</td>
       </tr>
     {/each}
