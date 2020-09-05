@@ -23,7 +23,7 @@ The frontend is made with [Svelte](https://svelte.dev/) and the backend with [Ru
 This project requires the following dependencies:
 
 * A recent stable version of Rust
-* A recent version of NodeJS
+* A recent version of npm
 * pkg-config
 
 The following sections describe how to build each part of the project. Either step can be done first.
