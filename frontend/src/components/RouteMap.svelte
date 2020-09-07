@@ -82,6 +82,7 @@
     if (!view || drawingRoute) return;
 
     view.graphics.removeAll();
+    runwayLayer?.graphics.removeAll();
 
     if (!route) return;
 
