@@ -1,17 +1,26 @@
 <script lang="ts">
-  import Spinner from "./Spinner.svelte";
+  import Spinner from "../Spinner.svelte";
   import { onMount, onDestroy } from "svelte";
   import { setDefaultOptions, loadModules } from "esri-loader";
-  import type { Airport, Route } from "./MainPanel/RouteInfo/types";
-  import { ThemeKind, curTheme } from "../settings/theme";
+  import type { Airport, Route } from "../MainPanel/RouteInfo/types";
+  import { ThemeKind, curTheme } from "../../settings/theme";
+  import { AirportRunways } from "./runways";
+  import type Map from "esri/Map";
+  import type Basemap from "esri/Basemap";
+  import type { Point, Polyline } from "esri/geometry";
+  import type {
+    SimpleLineSymbol,
+    SimpleMarkerSymbol,
+    TextSymbol,
+  } from "esri/symbols";
 
   export let selectedRoute: Route | undefined = undefined;
 
   let mapContainer: any = undefined;
 
-  let map: any;
+  let map: Map;
   let view: any;
-  let runwayLayer: any;
+  let airportRunways: AirportRunways;
 
   let drawingRoute = false;
 
@@ -21,7 +30,7 @@
   $: updateTheme($curTheme);
   $: drawRouteAndRunways(selectedRoute).catch((err) => console.error(err));
 
-  function updateTheme(theme: ThemeKind) {
+  async function updateTheme(theme: ThemeKind) {
     switch (theme) {
       case ThemeKind.Dark:
         textColor = "white";
@@ -35,7 +44,7 @@
 
     if (!map) return;
 
-    map.basemap = basemap;
+    map.basemap = (basemap as unknown) as Basemap;
     // Trigger a route redraw so it uses our new colors
     selectedRoute = selectedRoute;
   }
@@ -44,11 +53,10 @@
     // TODO: currently locked on version 4.14 because there's an issue in later versions where rotated text isn't properly aligned
     setDefaultOptions({ version: "4.14", css: true });
 
-    const [Map, MapView, BasemapToggle, GraphicsLayer] = await loadModules([
+    const [Map, MapView, BasemapToggle] = await loadModules([
       "esri/Map",
       "esri/views/MapView",
       "esri/widgets/BasemapToggle",
-      "esri/layers/GraphicsLayer",
     ]);
 
     map = new Map({ basemap });
@@ -57,12 +65,11 @@
     const basemapToggle = new BasemapToggle({ view, nextBasemap: "hybrid" });
     view?.ui.add(basemapToggle, "bottom-right");
 
-    runwayLayer = new GraphicsLayer({ minScale: 200_000 });
-    map?.add(runwayLayer);
+    airportRunways = await AirportRunways.initAsync(map);
   });
 
   onDestroy(() => {
-    view.container = null;
+    if (view) view.container = null;
   });
 
   export async function viewAirport(airport: Airport) {
@@ -75,14 +82,14 @@
       longitude: airport.position.longitudeDeg,
     });
 
-    view.goTo({ center, scale: runwayLayer?.minScale / 2 || 100_000 });
+    view.goTo({ center, scale: airportRunways.layer.minScale / 2 || 100_000 });
   }
 
   async function drawRouteAndRunways(route: Route | undefined) {
     if (!view || drawingRoute) return;
 
     view.graphics.removeAll();
-    runwayLayer?.graphics.removeAll();
+    airportRunways.clear();
 
     if (!route) return;
 
@@ -90,8 +97,8 @@
 
     try {
       await drawRoute(route);
-      await drawAirportRunways(route.from);
-      await drawAirportRunways(route.to);
+      await airportRunways.draw(route.from, textColor);
+      await airportRunways.draw(route.to, textColor);
     } catch (err) {
       throw err;
     } finally {
@@ -118,7 +125,7 @@
       "esri/Graphic",
     ]);
 
-    const pointFromArpt = (arpt: Airport) =>
+    const pointFromArpt = (arpt: Airport): Point =>
       new Point({
         latitude: arpt.position.latitudeDeg,
         longitude: arpt.position.longitudeDeg,
@@ -127,26 +134,29 @@
     const depPos = pointFromArpt(route.from);
     const arrPos = pointFromArpt(route.to);
 
-    const linePath = new Polyline({
+    const linePath: Polyline = new Polyline({
       paths: [
         [depPos.x, depPos.y],
         [arrPos.x, arrPos.y],
       ],
     });
 
-    const lineSymbol = new SimpleLineSymbol({
+    const lineSymbol: SimpleLineSymbol = new SimpleLineSymbol({
       width: 2,
     });
 
-    const geodesicLine = geometryEngine.geodesicDensify(linePath, 10_000);
+    const geodesicLine: Polyline = geometryEngine.geodesicDensify(
+      linePath,
+      10_000
+    );
 
-    const marker = new SimpleMarkerSymbol({
+    const symbol: SimpleMarkerSymbol = new SimpleMarkerSymbol({
       style: "diamond",
       size: "10px",
     });
 
-    view.graphics.add(new Graphic(depPos, marker));
-    view.graphics.add(new Graphic(arrPos, marker));
+    view.graphics.add(new Graphic(depPos, symbol));
+    view.graphics.add(new Graphic(arrPos, symbol));
     view.graphics.add(new Graphic(geodesicLine, lineSymbol));
 
     let nameProps = {
@@ -156,104 +166,12 @@
       font: { size: 8, family: "sans-serif" },
     };
 
-    const depMarker = new TextSymbol(nameProps);
+    const depMarker: TextSymbol = new TextSymbol(nameProps);
     nameProps.text = "ARR";
-    const arrMarker = new TextSymbol(nameProps);
+    const arrMarker: TextSymbol = new TextSymbol(nameProps);
 
     view.graphics.add(new Graphic(depPos, depMarker));
     view.graphics.add(new Graphic(arrPos, arrMarker));
-  }
-
-  async function drawAirportRunways(airport: Airport) {
-    if (airport.runways.length === 0 || !runwayLayer) return;
-
-    const [
-      SimpleLineSymbol,
-      Point,
-      Polyline,
-      TextSymbol,
-      Graphic,
-    ] = await loadModules([
-      "esri/symbols/SimpleLineSymbol",
-      "esri/geometry/Point",
-      "esri/geometry/Polyline",
-      "esri/symbols/TextSymbol",
-      "esri/Graphic",
-    ]);
-
-    const runwaySymbol = new SimpleLineSymbol({ width: 3, color: "black" });
-
-    for (const runway of airport.runways) {
-      if (!runway.heMarker || !runway.leMarker) continue;
-
-      const hePos = new Point({
-        x: runway.heMarker.position.longitudeDeg,
-        y: runway.heMarker.position.latitudeDeg,
-      });
-
-      const lePos = new Point({
-        x: runway.leMarker.position.longitudeDeg,
-        y: runway.leMarker.position.latitudeDeg,
-      });
-
-      const runwayLine = new Polyline({
-        paths: [
-          [hePos.x, hePos.y],
-          [lePos.x, lePos.y],
-        ],
-      });
-
-      runwayLayer.graphics.add(new Graphic(runwayLine, runwaySymbol));
-
-      let nameProps = {
-        color: textColor,
-        text: runway.heMarker.name,
-        angle: angleFromPoints(hePos, lePos),
-        yoffset: -10,
-        font: { size: 8, family: "sans-serif" },
-      };
-
-      const heText = new TextSymbol(nameProps);
-      runwayLayer.graphics.add(new Graphic(hePos, heText));
-
-      nameProps.text = runway.leMarker.name;
-      nameProps.angle += 180;
-
-      const leText = new TextSymbol(nameProps);
-      runwayLayer.graphics.add(new Graphic(lePos, leText));
-    }
-  }
-
-  type Point = { x: number; y: number };
-
-  // https://stackoverflow.com/a/18738281
-  function angleFromPoints(start: Point, end: Point): number {
-    const startRad: Point = {
-      x: toRad(start.x),
-      y: toRad(start.y),
-    };
-
-    const endRad: Point = {
-      x: toRad(end.x),
-      y: toRad(end.y),
-    };
-
-    const deltaLon = endRad.x - startRad.x;
-
-    const y = Math.sin(deltaLon) * Math.cos(endRad.y);
-    const x =
-      Math.cos(startRad.y) * Math.sin(endRad.y) -
-      Math.sin(startRad.y) * Math.cos(endRad.y) * Math.cos(deltaLon);
-
-    return (toDeg(Math.atan2(y, x)) + 360) % 360;
-  }
-
-  function toRad(ang: number): number {
-    return ang * (Math.PI / 180);
-  }
-
-  function toDeg(ang: number): number {
-    return ang * (180 / Math.PI);
   }
 </script>
 

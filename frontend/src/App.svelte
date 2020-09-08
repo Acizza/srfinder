@@ -1,5 +1,5 @@
 <script lang="ts">
-  import RouteMap from "./components/RouteMap.svelte";
+  import RouteMap from "./components/RouteMap/index.svelte";
   import MainPanel from "./components/MainPanel/index.svelte";
   import type { Route, Airport } from "./components/MainPanel/RouteInfo/types";
   import { Theme, curTheme } from "./settings/theme";

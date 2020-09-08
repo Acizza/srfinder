@@ -19,6 +19,10 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": [
+      "arcgis-js-api",
+      "svelte",
+    ]
   },
 }
