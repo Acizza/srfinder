@@ -68,24 +68,25 @@ export class RouteLine extends Layer {
 
         let nameProps = {
             color: textColor,
-            text: "DEP",
+            text: route.from.icao,
             yoffset: 7,
             font: { size: 8, family: "sans-serif" },
         };
 
         const depMarker: TextSymbol = new TextSymbol(nameProps);
-        nameProps.text = "ARR";
+
+        nameProps.text = route.to.icao;
         const arrMarker: TextSymbol = new TextSymbol(nameProps);
 
         this.layer.addMany([
             // Departure / arrival position markers
             new Graphic(depPos, posSymbol),
             new Graphic(arrPos, posSymbol),
+            // Route line
+            new Graphic(geodesicLine, lineSymbol),
             // Departure / arrival labels
             new Graphic(depPos, depMarker),
             new Graphic(arrPos, arrMarker),
-            // Route line
-            new Graphic(geodesicLine, lineSymbol),
         ]);
     }
 }
