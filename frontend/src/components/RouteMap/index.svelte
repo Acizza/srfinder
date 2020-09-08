@@ -85,7 +85,7 @@
     view.goTo({ center, scale: airportRunways.layer.minScale / 2 || 100_000 });
   }
 
-  async function drawRouteAndRunways(route: Route | undefined) {
+  async function drawRouteAndRunways(route: Route | undefined): Promise<void> {
     if (!view || drawingRoute) return;
 
     view.graphics.removeAll();
@@ -95,15 +95,13 @@
 
     drawingRoute = true;
 
-    try {
-      await drawRoute(route);
-      await airportRunways.draw(route.from, textColor);
-      await airportRunways.draw(route.to, textColor);
-    } catch (err) {
-      throw err;
-    } finally {
-      drawingRoute = false;
-    }
+    const result = Promise.all([
+      drawRoute(route),
+      airportRunways.draw(route.from, textColor),
+      airportRunways.draw(route.to, textColor),
+    ]);
+
+    return result.then(() => {}).finally(() => (drawingRoute = false));
   }
 
   async function drawRoute(route: Route) {
