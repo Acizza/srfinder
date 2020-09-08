@@ -6,26 +6,26 @@
   import { ThemeKind, curTheme } from "../../settings/theme";
   import { AirportRunways } from "./runways";
   import type Map from "esri/Map";
+  import type MapView from "esri/views/MapView";
   import type Basemap from "esri/Basemap";
-  import type { Point, Polyline } from "esri/geometry";
-  import type {
-    SimpleLineSymbol,
-    SimpleMarkerSymbol,
-    TextSymbol,
-  } from "esri/symbols";
+  import type BasemapToggle from "esri/widgets/BasemapToggle";
+  import { RouteLine } from "./route-line";
+  import type { Point } from "esri/geometry";
 
   export let selectedRoute: Route | undefined = undefined;
 
-  let mapContainer: any = undefined;
+  let mapContainer: any;
 
-  let map: Map;
-  let view: any;
+  let map: Map | undefined;
+  let view: MapView | undefined;
+
+  let routeLine: RouteLine;
   let airportRunways: AirportRunways;
-
-  let drawingRoute = false;
 
   let textColor: string;
   let basemap: string;
+
+  let drawingRoute = false;
 
   $: updateTheme($curTheme);
   $: drawRouteAndRunways(selectedRoute).catch((err) => console.error(err));
@@ -59,17 +59,24 @@
       "esri/widgets/BasemapToggle",
     ]);
 
-    map = new Map({ basemap });
-    view = new MapView({ container: mapContainer, map, zoom: 2 });
+    // Casting tells TypeScript that these values won't be undefined anymore
+    map = new Map({ basemap }) as Map;
+    view = new MapView({ container: mapContainer, map, zoom: 2 }) as MapView;
 
-    const basemapToggle = new BasemapToggle({ view, nextBasemap: "hybrid" });
-    view?.ui.add(basemapToggle, "bottom-right");
+    const basemapToggle: BasemapToggle = new BasemapToggle({
+      view,
+      nextBasemap: "hybrid",
+    });
 
+    view.ui.add(basemapToggle, "bottom-right");
+
+    routeLine = await RouteLine.initAsync(map);
     airportRunways = await AirportRunways.initAsync(map);
   });
 
   onDestroy(() => {
-    if (view) view.container = null;
+    // Destroy the map view
+    if (view) view.container = null as any;
   });
 
   export async function viewAirport(airport: Airport) {
@@ -77,18 +84,21 @@
 
     const [Point] = await loadModules(["esri/geometry/Point"]);
 
-    const center = new Point({
+    const center: Point = new Point({
       latitude: airport.position.latitudeDeg,
       longitude: airport.position.longitudeDeg,
     });
 
-    view.goTo({ center, scale: airportRunways.layer.minScale / 2 || 100_000 });
+    // Set our scale to be at the edge of the runway layer
+    const scale = airportRunways.layer.minScale / 2 || 100_000;
+
+    view.goTo({ center, scale });
   }
 
   async function drawRouteAndRunways(route: Route | undefined): Promise<void> {
-    if (!view || drawingRoute) return;
+    if (drawingRoute) return;
 
-    view.graphics.removeAll();
+    routeLine.clear();
     airportRunways.clear();
 
     if (!route) return;
@@ -96,80 +106,12 @@
     drawingRoute = true;
 
     const result = Promise.all([
-      drawRoute(route),
+      routeLine.draw(route, textColor),
       airportRunways.draw(route.from, textColor),
       airportRunways.draw(route.to, textColor),
     ]);
 
     return result.then(() => {}).finally(() => (drawingRoute = false));
-  }
-
-  async function drawRoute(route: Route) {
-    const [
-      SimpleMarkerSymbol,
-      SimpleLineSymbol,
-      TextSymbol,
-      Polyline,
-      geometryEngine,
-      Point,
-      Graphic,
-    ] = await loadModules([
-      "esri/symbols/SimpleMarkerSymbol",
-      "esri/symbols/SimpleLineSymbol",
-      "esri/symbols/TextSymbol",
-      "esri/geometry/Polyline",
-      "esri/geometry/geometryEngine",
-      "esri/geometry/Point",
-      "esri/Graphic",
-    ]);
-
-    const pointFromArpt = (arpt: Airport): Point =>
-      new Point({
-        latitude: arpt.position.latitudeDeg,
-        longitude: arpt.position.longitudeDeg,
-      });
-
-    const depPos = pointFromArpt(route.from);
-    const arrPos = pointFromArpt(route.to);
-
-    const linePath: Polyline = new Polyline({
-      paths: [
-        [depPos.x, depPos.y],
-        [arrPos.x, arrPos.y],
-      ],
-    });
-
-    const lineSymbol: SimpleLineSymbol = new SimpleLineSymbol({
-      width: 2,
-    });
-
-    const geodesicLine: Polyline = geometryEngine.geodesicDensify(
-      linePath,
-      10_000
-    );
-
-    const symbol: SimpleMarkerSymbol = new SimpleMarkerSymbol({
-      style: "diamond",
-      size: "10px",
-    });
-
-    view.graphics.add(new Graphic(depPos, symbol));
-    view.graphics.add(new Graphic(arrPos, symbol));
-    view.graphics.add(new Graphic(geodesicLine, lineSymbol));
-
-    let nameProps = {
-      color: textColor,
-      text: "DEP",
-      yoffset: 7,
-      font: { size: 8, family: "sans-serif" },
-    };
-
-    const depMarker: TextSymbol = new TextSymbol(nameProps);
-    nameProps.text = "ARR";
-    const arrMarker: TextSymbol = new TextSymbol(nameProps);
-
-    view.graphics.add(new Graphic(depPos, depMarker));
-    view.graphics.add(new Graphic(arrPos, arrMarker));
   }
 </script>
 

@@ -1,18 +1,12 @@
-import { loadModules } from "esri-loader";
 import type Map from "esri/Map";
 import type GraphicsLayer from "esri/layers/GraphicsLayer";
 import type { Airport } from '../MainPanel/RouteInfo/types';
 import type { SimpleLineSymbol, TextSymbol } from 'esri/symbols';
 import type { Point, Polyline } from 'esri/geometry';
+import { loadModules } from "esri-loader";
+import Layer from './layer';
 
-export class AirportRunways {
-    readonly layer: GraphicsLayer;
-
-    private constructor(map: Map, layer: GraphicsLayer) {
-        this.layer = layer;
-        map.layers.add(this.layer);
-    }
-
+export class AirportRunways extends Layer {
     static async initAsync(map: Map): Promise<AirportRunways> {
         const [GraphicsLayer] = await loadModules([
             "esri/layers/GraphicsLayer",
@@ -81,10 +75,6 @@ export class AirportRunways {
             const leText: TextSymbol = new TextSymbol(nameProps);
             this.layer.graphics.add(new Graphic(lePos, leText));
         }
-    }
-
-    clear() {
-        this.layer.graphics.removeAll();
     }
 }
 
