@@ -5,8 +5,8 @@ extern crate rocket;
 extern crate rocket_contrib;
 
 mod airport_data;
+mod api;
 mod path;
-mod server_route;
 
 use anyhow::{Context, Result};
 use rocket::config::{Config, Environment};
@@ -32,7 +32,7 @@ async fn main() -> Result<()> {
     rocket::custom(config)
         .manage(airports)
         .mount("/", StaticFiles::from("frontend/public/"))
-        .mount("/api", routes![server_route::search_routes::search_routes])
+        .mount("/api", routes![api::search_routes::search_routes])
         .launch()
         .await
         .context("failed to initialize Rocket")
