@@ -8,25 +8,17 @@ mod airport_data;
 mod path;
 mod server_route;
 
-use anyhow::Result;
-use anyhow::{anyhow, Context};
+use anyhow::{Context, Result};
 use rocket::config::{Config, Environment};
 use rocket_contrib::serve::StaticFiles;
 
 #[rocket::main]
 async fn main() -> Result<()> {
-    if let Err(err) = airport_data::ensure_updated() {
-        return Err(anyhow!("airport data update failed: {}", err));
-    }
+    airport_data::ensure_updated().context("failed to update airport data")?;
 
     println!("loading airport data..");
-
-    let airports = match airport_data::Airport::load_all() {
-        Ok(airports) => airports,
-        Err(err) => return Err(anyhow!("error loading airport data: {}", err)),
-    };
-
-    println!("finished loading airport data..");
+    let airports = airport_data::Airport::load_all().context("failed to load airport data")?;
+    println!("finished loading airport data");
 
     let config = {
         let env = Environment::active().context("failed to get Rocket config")?;
@@ -43,5 +35,5 @@ async fn main() -> Result<()> {
         .mount("/api", routes![server_route::search_routes::search_routes])
         .launch()
         .await
-        .with_context(|| anyhow!("failed to initialize Rocket"))
+        .context("failed to initialize Rocket")
 }
