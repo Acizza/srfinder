@@ -1,10 +1,18 @@
 # srfinder
 
-This is a web-based program to find direct flight routes for flight simulators that match specified filters. It can be useful when you are not sure where you want to fly from and/or to.
+This is a web-based program to find direct routes for flight simulators that match specified filters. It can be useful when you are not sure where you want to fly from and/or to.
 
-Homepage:
+The frontend is made with [Svelte](https://svelte.dev/) and the backend with [Rust](https://www.rust-lang.org/) and [Rocket](https://rocket.rs/).
 
-![Screenshot showing homepage](res/homepage.png?raw=true)
+# Screenshots
+
+Homepage with dark theme:
+
+![Screenshot showing dark homepage](res/homepage_dark.png?raw=true)
+
+Homepage with light theme:
+
+![Screenshot showing light homepage](res/homepage_light.png?raw=true)
 
 Showing a found route on a map:
 
@@ -13,8 +21,6 @@ Showing a found route on a map:
 Showing the runways of an airport and its frequency / runway information:
 
 ![Screenshot showing airport runways](res/airport_info.png?raw=true)
-
-The frontend is made with [Svelte](https://svelte.dev/) and the backend with [Rust](https://www.rust-lang.org/) and [Rocket](https://rocket.rs/).
 
 # Building
 
@@ -41,9 +47,9 @@ From within the project directory, navigate to the `frontend` folder and run the
 
 # Usage
 
-First, launch the web server executable named `srfinder` located in the `target/release/` folder.
+First, launch executable named `srfinder` in the `target/release/` folder to start the web server, and navigate to `localhost:8000` in your web browser.
 
-You can then open `localhost:8000` in your web browser. Please note that the project has only been tested in Firefox.
+Navigation within the site should be fairly straightfoward. You can hover over most filters to find out more about which each one does, and can change the site theme / which units to use by clicking the cog icon in the bottom right corner.
 
 # Data Source
 
