@@ -1,54 +1,26 @@
-mod data;
+pub mod our_airports;
 
-pub use self::data::AirportType;
-
-use self::data::DataType;
-use crate::path::FilePath;
 use anyhow::{anyhow, Result};
 use chrono::{Duration, NaiveDate, Utc};
+use serde::de::{Deserialize, Deserializer, Visitor};
+use serde::ser::{Serialize, Serializer};
 use serde_derive::Serialize;
 use std::borrow::Cow;
 use std::collections::HashMap;
-use std::convert::{TryFrom, TryInto};
+use std::fmt;
 use std::fs::{self, File};
 use std::io::{self, BufWriter};
 use std::path::{Path, PathBuf};
+use std::result;
 
-const BASE_URL: &str = "https://ourairports.com/data";
+pub trait AirportData {
+    fn is_up_to_date(&self) -> bool;
+    fn update(&mut self) -> Result<()>;
 
-fn validated_dir() -> Result<PathBuf> {
-    FilePath::LocalData.validated_subdir("airport_data/")
+    fn load(&self) -> Result<Vec<Airport>>;
 }
 
-pub fn ensure_updated() -> Result<()> {
-    let base_dir = validated_dir()?;
-    let mut last_update = LastUpdate::load(&base_dir);
-
-    if !last_update.needs_update() {
-        return Ok(());
-    }
-
-    download_latest(&base_dir)?;
-    last_update.set_to_today()?;
-
-    Ok(())
-}
-
-fn download_latest<P>(dir: P) -> Result<()>
-where
-    P: AsRef<Path>,
-{
-    println!("updating airport data");
-
-    for dtype in &DataType::ALL {
-        download_file(dtype.filename(), &dir)?;
-    }
-
-    println!("finished updating airport data");
-    Ok(())
-}
-
-fn download_file<S, P>(name: S, dir: P) -> Result<()>
+fn download_file<S, P>(url: &str, name: S, dir: P) -> Result<()>
 where
     S: AsRef<str>,
     P: AsRef<Path>,
@@ -61,7 +33,7 @@ where
     let path = dir.join(name);
     let backup = Backup::create(&path)?;
 
-    let resp = attohttpc::get(format!("{}/{}", BASE_URL, name))
+    let resp = attohttpc::get(format!("{}/{}", url, name))
         .timeout(Duration::seconds(15).to_std().unwrap())
         .send()?;
 
@@ -208,68 +180,85 @@ pub struct Airport {
     pub country_name: String,
 }
 
-impl Airport {
-    const ICAO_MAX_LEN: usize = 4;
-
-    pub fn load_all() -> Result<Vec<Self>> {
-        let dir = validated_dir()?;
-
-        let airports = data::Airport::from_dir(&dir)?;
-        let mut runways = data::Runway::from_dir(&dir)?;
-        let mut frequencies = data::Frequency::from_dir(&dir)?;
-        let countries = data::Country::from_dir(&dir)?;
-
-        let mut results = Vec::with_capacity(airports.len());
-
-        for airport in airports {
-            if airport.icao.len() > Self::ICAO_MAX_LEN {
-                continue;
-            }
-
-            let runways = match runways.remove(&airport.id) {
-                Some(runways) => runways,
-                None => continue,
-            };
-
-            let frequencies = frequencies
-                .remove(&airport.id)
-                .map(|freqs| {
-                    freqs
-                        .into_iter()
-                        .filter_map(|(kind, freq)| {
-                            kind.try_into().map(|kind| (kind, freq.mhz)).ok()
-                        })
-                        .collect()
-                })
-                .unwrap_or_else(HashMap::new);
-
-            let country = match countries.iter().find(|c| c.code == airport.country_code) {
-                Some(country) => country,
-                None => continue,
-            };
-
-            let result = Self {
-                icao: airport.icao,
-                class: airport.class,
-                position: Position::new(airport.lat_deg, airport.lon_deg),
-                runways: runways.into_iter().filter_map(Runway::from_data).collect(),
-                frequencies,
-                country_name: country.name.clone(),
-            };
-
-            results.push(result);
-        }
-
-        results.shrink_to_fit();
-        results.sort_unstable_by(|x, y| x.icao.cmp(&y.icao));
-
-        Ok(results)
-    }
-}
-
 impl PartialEq for Airport {
     fn eq(&self, other: &Self) -> bool {
         self.icao == other.icao
+    }
+}
+
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum AirportType {
+    Large,
+    Medium,
+    Small,
+    Closed,
+    Heliport,
+    SeaplaneBase,
+    Unknown,
+}
+
+impl AirportType {
+    fn from_str(value: &str) -> Self {
+        match value {
+            "large_airport" => Self::Large,
+            "medium_airport" => Self::Medium,
+            "small_airport" => Self::Small,
+            "closed" => Self::Closed,
+            "heliport" => Self::Heliport,
+            "seaplane_base" => Self::SeaplaneBase,
+            _ => Self::Unknown,
+        }
+    }
+}
+
+impl Default for AirportType {
+    fn default() -> Self {
+        Self::Unknown
+    }
+}
+
+impl<'de> Deserialize<'de> for AirportType {
+    fn deserialize<D>(deserializer: D) -> result::Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct ArptTypeVisitor;
+
+        impl<'de> Visitor<'de> for ArptTypeVisitor {
+            type Value = AirportType;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("an airport type")
+            }
+
+            fn visit_str<E>(self, value: &str) -> result::Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                Ok(AirportType::from_str(value))
+            }
+        }
+
+        deserializer.deserialize_str(ArptTypeVisitor)
+    }
+}
+
+impl Serialize for AirportType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let value = match self {
+            Self::Large => "large",
+            Self::Medium => "medium",
+            Self::Small => "small",
+            Self::Closed => "closed",
+            Self::Heliport => "heliport",
+            Self::SeaplaneBase => "seaplaneBase",
+            Self::Unknown => "unknown",
+        };
+
+        serializer.serialize_str(value)
     }
 }
 
@@ -303,27 +292,6 @@ pub struct Runway {
     pub le_marker: Option<RunwayMarker>,
 }
 
-impl Runway {
-    fn from_data(source: data::Runway) -> Option<Self> {
-        let he_marker = match (source.le_ident, source.le_lat_deg, source.le_lon_deg) {
-            (Some(name), Some(lat), Some(lon)) => Some(RunwayMarker::new(name, lat, lon)),
-            _ => None,
-        };
-
-        let le_marker = match (source.he_ident, source.he_lat_deg, source.he_lon_deg) {
-            (Some(name), Some(lat), Some(lon)) => Some(RunwayMarker::new(name, lat, lon)),
-            _ => None,
-        };
-
-        Some(Self {
-            length_ft: source.length_ft,
-            width_ft: source.width_ft,
-            he_marker,
-            le_marker,
-        })
-    }
-}
-
 #[derive(Debug, Serialize)]
 pub struct RunwayMarker {
     pub name: String,
@@ -351,23 +319,4 @@ pub enum FrequencyType {
     Ground,
     Tower,
     Unicom,
-}
-
-impl TryFrom<data::FrequencyType> for FrequencyType {
-    type Error = ();
-
-    fn try_from(value: data::FrequencyType) -> Result<Self, Self::Error> {
-        use data::FrequencyType as DFT;
-
-        match value {
-            DFT::Atis => Ok(Self::Atis),
-            DFT::Arrival => Ok(Self::Arrival),
-            DFT::Departure => Ok(Self::Departure),
-            DFT::ArrivalDeparture => Ok(Self::ArrivalDeparture),
-            DFT::Ground => Ok(Self::Ground),
-            DFT::Tower => Ok(Self::Tower),
-            DFT::Unicom => Ok(Self::Unicom),
-            DFT::Other => Err(()),
-        }
-    }
 }
