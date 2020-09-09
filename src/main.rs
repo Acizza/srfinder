@@ -14,12 +14,6 @@ use rocket_contrib::serve::StaticFiles;
 
 #[rocket::main]
 async fn main() -> Result<()> {
-    airport_data::ensure_updated().context("failed to update airport data")?;
-
-    println!("loading airport data..");
-    let airports = airport_data::Airport::load_all().context("failed to load airport data")?;
-    println!("finished loading airport data");
-
     let config = {
         let env = Environment::active().context("failed to get Rocket config")?;
 
@@ -28,6 +22,12 @@ async fn main() -> Result<()> {
             .finalize()
             .context("failed to build Rocket config")?
     };
+
+    airport_data::ensure_updated().context("failed to update airport data")?;
+
+    println!("loading airport data..");
+    let airports = airport_data::Airport::load_all().context("failed to load airport data")?;
+    println!("finished loading airport data");
 
     rocket::custom(config)
         .manage(airports)
