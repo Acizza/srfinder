@@ -19,8 +19,8 @@
   let map: Map | undefined;
   let view: MapView | undefined;
 
-  let routeLine: RouteLine;
-  let airportRunways: AirportRunways;
+  let routeLine: RouteLine | undefined;
+  let airportRunways: AirportRunways | undefined;
 
   let textColor: string;
   let basemap: string;
@@ -92,7 +92,7 @@
     });
 
     // Set our scale to be at the edge of the runway layer
-    const scale = airportRunways.layer.minScale / 2 || 100_000;
+    const scale = airportRunways ? airportRunways.layer.minScale / 2 : 100_000;
 
     view.goTo({ center, scale });
   }
@@ -100,17 +100,17 @@
   async function drawRouteAndRunways(route: Route | undefined): Promise<void> {
     if (drawingRoute) return;
 
-    routeLine.clear();
-    airportRunways.clear();
+    routeLine?.clear();
+    airportRunways?.clear();
 
     if (!route) return;
 
     drawingRoute = true;
 
     const result = Promise.all([
-      routeLine.draw(route, textColor),
-      airportRunways.draw(route.from, textColor),
-      airportRunways.draw(route.to, textColor),
+      routeLine?.draw(route, textColor),
+      airportRunways?.draw(route.from, textColor),
+      airportRunways?.draw(route.to, textColor),
     ]);
 
     return result.then(() => {}).finally(() => (drawingRoute = false));
