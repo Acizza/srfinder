@@ -28,10 +28,14 @@ async fn main() -> Result<()> {
 
     println!("finished loading airport data..");
 
-    let config = Config::build(Environment::active().unwrap())
-        .workers(1)
-        .finalize()
-        .context("failed to build Rocket config")?;
+    let config = {
+        let env = Environment::active().context("failed to get Rocket config")?;
+
+        Config::build(env)
+            .workers(1)
+            .finalize()
+            .context("failed to build Rocket config")?
+    };
 
     rocket::custom(config)
         .manage(airports)
