@@ -70,8 +70,10 @@
 
     view.ui.add(basemapToggle, "bottom-right");
 
-    routeLine = await RouteLine.initAsync(map);
+    // Order matters here for drawing.
+    // We want our route line to draw on top of airport runways.
     airportRunways = await AirportRunways.initAsync(map);
+    routeLine = await RouteLine.initAsync(map);
   });
 
   onDestroy(() => {
