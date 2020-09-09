@@ -9,6 +9,7 @@ use chrono::{Duration, NaiveDate, Utc};
 use serde_derive::Serialize;
 use std::borrow::Cow;
 use std::collections::HashMap;
+use std::convert::{TryFrom, TryInto};
 use std::fs::{self, File};
 use std::io::{self, BufWriter};
 use std::path::{Path, PathBuf};
@@ -230,10 +231,17 @@ impl Airport {
                 None => continue,
             };
 
-            let frequencies = match frequencies.remove(&airport.id) {
-                Some(frequencies) => frequencies,
-                None => HashMap::new(),
-            };
+            let frequencies = frequencies
+                .remove(&airport.id)
+                .map(|freqs| {
+                    freqs
+                        .into_iter()
+                        .filter_map(|(kind, freq)| {
+                            kind.try_into().map(|kind| (kind, freq.mhz)).ok()
+                        })
+                        .collect()
+                })
+                .unwrap_or_else(HashMap::new);
 
             let country = match countries.iter().find(|c| c.code == airport.country_code) {
                 Some(country) => country,
@@ -245,10 +253,7 @@ impl Airport {
                 class: airport.class,
                 position: Position::new(airport.lat_deg, airport.lon_deg),
                 runways: runways.into_iter().filter_map(Runway::from_data).collect(),
-                frequencies: frequencies
-                    .into_iter()
-                    .map(|(freq_type, freq)| (freq_type.into(), freq.mhz))
-                    .collect(),
+                frequencies,
                 country_name: country.name.clone(),
             };
 
@@ -348,19 +353,21 @@ pub enum FrequencyType {
     Unicom,
 }
 
-// TODO: return None when the source type is the Other variant
-impl From<data::FrequencyType> for FrequencyType {
-    fn from(source: data::FrequencyType) -> Self {
+impl TryFrom<data::FrequencyType> for FrequencyType {
+    type Error = ();
+
+    fn try_from(value: data::FrequencyType) -> Result<Self, Self::Error> {
         use data::FrequencyType as DFT;
 
-        match source {
-            DFT::Atis => Self::Atis,
-            DFT::Arrival => Self::Arrival,
-            DFT::Departure => Self::Departure,
-            DFT::ArrivalDeparture => Self::ArrivalDeparture,
-            DFT::Ground => Self::Ground,
-            DFT::Tower => Self::Tower,
-            DFT::Unicom | DFT::Other => Self::Unicom,
+        match value {
+            DFT::Atis => Ok(Self::Atis),
+            DFT::Arrival => Ok(Self::Arrival),
+            DFT::Departure => Ok(Self::Departure),
+            DFT::ArrivalDeparture => Ok(Self::ArrivalDeparture),
+            DFT::Ground => Ok(Self::Ground),
+            DFT::Tower => Ok(Self::Tower),
+            DFT::Unicom => Ok(Self::Unicom),
+            DFT::Other => Err(()),
         }
     }
 }
