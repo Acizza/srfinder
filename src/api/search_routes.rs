@@ -188,46 +188,27 @@ impl AirportFilters {
             return smallvec![&airports[index]];
         }
 
-        // TODO: convert to macro
-        match (
-            self.airport_type,
-            &self.runway_length,
-            self.countries.as_slice(),
-        ) {
-            (AirportType::Unknown, None, []) => Self::airport_matches(|_| true, airports),
-            (arpt_type, None, []) => {
-                Self::airport_matches(|arpt| arpt.class == arpt_type, airports)
-            }
-            (AirportType::Unknown, Some(len), []) => {
-                Self::airport_matches(|arpt| len.fits_any(&arpt.runways), airports)
-            }
-            (arpt_type, Some(len), []) => Self::airport_matches(
-                |arpt| arpt.class == arpt_type && len.fits_any(&arpt.runways),
-                airports,
-            ),
-            (AirportType::Unknown, Some(len), countries) => Self::airport_matches(
-                |arpt| {
-                    len.fits_any(&arpt.runways) && Self::list_has_any(&arpt.country_name, countries)
-                },
-                airports,
-            ),
-            (arpt_type, Some(len), countries) => Self::airport_matches(
-                |arpt| {
-                    arpt.class == arpt_type
-                        && len.fits_any(&arpt.runways)
-                        && Self::list_has_any(&arpt.country_name, countries)
-                },
-                airports,
-            ),
-            (AirportType::Unknown, None, countries) => Self::airport_matches(
-                |arpt| Self::list_has_any(&arpt.country_name, countries),
-                airports,
-            ),
-            (arpt_type, None, countries) => Self::airport_matches(
-                |arpt| arpt.class == arpt_type && Self::list_has_any(&arpt.country_name, countries),
-                airports,
-            ),
-        }
+        type MatchClosure<'a> = Box<dyn Fn(&Airport) -> bool + 'a>;
+
+        let type_matches: MatchClosure = match self.airport_type {
+            AirportType::Unknown => Box::new(|_| true),
+            kind => Box::new(move |arpt| arpt.class == kind),
+        };
+
+        let runway_len_matches: MatchClosure = match self.runway_length {
+            Some(len) => Box::new(move |arpt| len.fits_any(&arpt.runways)),
+            None => Box::new(|_| true),
+        };
+
+        let country_matches: MatchClosure = match self.countries.as_slice() {
+            [] => Box::new(|_| true),
+            countries => Box::new(move |arpt| Self::list_has_any(&arpt.country_name, countries)),
+        };
+
+        Self::airport_matches(
+            |arpt| type_matches(arpt) && runway_len_matches(arpt) && country_matches(arpt),
+            airports,
+        )
     }
 
     fn airport_matches<F>(matcher: F, airports: &[Airport]) -> AirportList
