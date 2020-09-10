@@ -45,7 +45,6 @@
     margin-bottom: 1em;
     padding: 0.25em;
     font-size: 1.4em;
-    width: 60%;
     align-self: center;
     cursor: pointer;
   }
