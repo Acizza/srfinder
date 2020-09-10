@@ -1121,7 +1121,6 @@ dependencies = [
  "rocket_contrib",
  "serde",
  "serde_derive",
- "smallvec",
 ]
 
 [[package]]

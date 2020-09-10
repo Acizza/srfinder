@@ -3,7 +3,6 @@ use rand::seq::SliceRandom;
 use rocket::State;
 use rocket_contrib::json::{Json, JsonValue};
 use serde_derive::{Deserialize, Serialize};
-use smallvec::{smallvec, SmallVec};
 use std::fmt;
 use std::ptr;
 
@@ -63,7 +62,7 @@ pub fn search_routes<'a>(filters: Json<Filters>, airports: State<'a, Vec<Airport
 }
 
 #[inline(always)]
-fn random_airport_set(airports: &[Airport]) -> AirportList {
+fn random_airport_set(airports: &[Airport]) -> Vec<&Airport> {
     airports
         .choose_multiple(&mut rand::thread_rng(), MAX_AIRPORTS_TO_GET)
         .collect()
@@ -160,8 +159,6 @@ pub struct Filters {
     pub time_or_dist: Option<TimeOrDistance>,
 }
 
-type AirportList<'a> = SmallVec<[&'a Airport; 1]>;
-
 #[derive(Debug, Deserialize)]
 pub struct AirportFilters {
     pub icao: Option<String>,
@@ -174,7 +171,7 @@ pub struct AirportFilters {
 }
 
 impl AirportFilters {
-    pub fn matching_airports<'a>(&self, airports: &'a [Airport]) -> AirportList<'a> {
+    pub fn matching_airports<'a>(&self, airports: &'a [Airport]) -> Vec<&'a Airport> {
         if let Some(icao) = &self.icao {
             let index = airports
                 .binary_search_by(|arpt| arpt.icao.as_str().cmp(icao.as_str()))
@@ -182,10 +179,10 @@ impl AirportFilters {
 
             let index = match index {
                 Some(index) => index,
-                None => return SmallVec::new(),
+                None => return Vec::new(),
             };
 
-            return smallvec![&airports[index]];
+            return vec![&airports[index]];
         }
 
         type MatchClosure<'a> = Box<dyn Fn(&Airport) -> bool + 'a>;
@@ -211,11 +208,11 @@ impl AirportFilters {
         )
     }
 
-    fn airport_matches<F>(matcher: F, airports: &[Airport]) -> AirportList
+    fn airport_matches<F>(matcher: F, airports: &[Airport]) -> Vec<&Airport>
     where
         F: Fn(&Airport) -> bool,
     {
-        let mut results = SmallVec::new();
+        let mut results = Vec::new();
 
         for airport in airports {
             if !matcher(airport) {
