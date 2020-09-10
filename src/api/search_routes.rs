@@ -304,6 +304,8 @@ enum TimeOrDistance {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::airport_data::RunwayMarker;
+    use std::collections::HashMap;
 
     #[test]
     fn range_within() {
@@ -337,5 +339,196 @@ mod tests {
 
         assert_eq!(RunwayLength::LessThan(1000).fits(999), true);
         assert_eq!(RunwayLength::LessThan(1000).fits(1000), false);
+    }
+
+    fn get_airports() -> Vec<Airport> {
+        // San Francisco
+        let ksfo = Airport {
+            icao: "KSFO".into(),
+            class: AirportType::Large,
+            position: Position::new(37.618, -122.375),
+            runways: vec![Runway {
+                length_ft: Some(7500),
+                width_ft: Some(200),
+                he_marker: Some(RunwayMarker::new("01L".into(), 0.0, 0.0)),
+                le_marker: Some(RunwayMarker::new("19R".into(), 0.0, 0.0)),
+            }],
+            frequencies: HashMap::new(),
+            country_name: "United States".into(),
+        };
+
+        // Sacramento Executive
+        let ksac = Airport {
+            icao: "KSAC".into(),
+            class: AirportType::Medium,
+            position: Position::new(38.512, -121.492),
+            runways: vec![Runway {
+                length_ft: Some(3836),
+                width_ft: Some(100),
+                he_marker: Some(RunwayMarker::new("12".into(), 0.0, 0.0)),
+                le_marker: Some(RunwayMarker::new("30".into(), 0.0, 0.0)),
+            }],
+            frequencies: HashMap::new(),
+            country_name: "United States".into(),
+        };
+
+        // Narita
+        let rjaa = Airport {
+            icao: "RJAA".into(),
+            class: AirportType::Large,
+            position: Position::new(35.764, 140.386),
+            runways: vec![Runway {
+                length_ft: Some(8202),
+                width_ft: Some(196),
+                he_marker: Some(RunwayMarker::new("16L".into(), 0.0, 0.0)),
+                le_marker: Some(RunwayMarker::new("34R".into(), 0.0, 0.0)),
+            }],
+            frequencies: HashMap::new(),
+            country_name: "Japan".into(),
+        };
+
+        vec![ksfo, ksac, rjaa]
+    }
+
+    fn display_airports(airports: Vec<&Airport>) -> Vec<&String> {
+        airports.into_iter().map(|arpt| &arpt.icao).collect()
+    }
+
+    macro_rules! assert_expected_icaos {
+        ($result:expr, $expected:expr) => {
+            let result = $result;
+
+            assert!(
+                !result.is_empty(),
+                "expected to get airports {:?}, got nothing",
+                $expected
+            );
+
+            assert_eq!(
+                $expected.len(),
+                result.len(),
+                "expected to get {} airport(s) ({:?}), got {} ({:?})",
+                $expected.len(),
+                $expected,
+                result.len(),
+                display_airports(result)
+            );
+
+            let has_expected_arpts = result
+                .iter()
+                .all(|found| $expected.contains(&found.icao.as_str()));
+
+            assert!(
+                has_expected_arpts,
+                "expected to get airports {:?}, got {:?}",
+                $expected,
+                display_airports(result)
+            );
+        };
+    }
+
+    #[test]
+    fn filter_icao() {
+        const EXPECTED_ICAO: &'static str = "KSAC";
+
+        let airports = get_airports();
+
+        let filter = AirportFilters {
+            icao: Some(EXPECTED_ICAO.into()),
+            airport_type: AirportType::Unknown,
+            runway_length: None,
+            countries: vec![],
+        };
+
+        assert_expected_icaos!(filter.matching_airports(&airports[..]), [EXPECTED_ICAO]);
+    }
+
+    #[test]
+    fn filter_airport_type() {
+        const EXPECTED_TYPE: AirportType = AirportType::Large;
+        const EXPECTED_ICAOS: [&'static str; 2] = ["KSFO", "RJAA"];
+
+        let airports = get_airports();
+
+        let filter = AirportFilters {
+            icao: None,
+            airport_type: EXPECTED_TYPE,
+            runway_length: None,
+            countries: vec![],
+        };
+
+        assert_expected_icaos!(filter.matching_airports(&airports[..]), EXPECTED_ICAOS);
+    }
+
+    #[test]
+    fn filter_runway_length_gt() {
+        const EXPECTED_ICAOS: [&'static str; 2] = ["KSFO", "RJAA"];
+
+        let airports = get_airports();
+
+        let filter = AirportFilters {
+            icao: None,
+            airport_type: AirportType::Unknown,
+            runway_length: Some(RunwayLength::GreaterThan(7000)),
+            countries: vec![],
+        };
+
+        assert_expected_icaos!(filter.matching_airports(&airports[..]), EXPECTED_ICAOS);
+    }
+
+    #[test]
+    fn filter_runway_length_eq() {
+        const EXPECTED_ICAOS: [&'static str; 1] = ["KSAC"];
+
+        let airports = get_airports();
+
+        let filter = AirportFilters {
+            icao: None,
+            airport_type: AirportType::Unknown,
+            runway_length: Some(RunwayLength::Equal(3836)),
+            countries: vec![],
+        };
+
+        assert_expected_icaos!(filter.matching_airports(&airports[..]), EXPECTED_ICAOS);
+    }
+
+    #[test]
+    fn filter_runway_length_lt() {
+        const EXPECTED_ICAOS: [&'static str; 2] = ["KSFO", "KSAC"];
+
+        let airports = get_airports();
+
+        let filter = AirportFilters {
+            icao: None,
+            airport_type: AirportType::Unknown,
+            runway_length: Some(RunwayLength::LessThan(7501)),
+            countries: vec![],
+        };
+
+        assert_expected_icaos!(filter.matching_airports(&airports[..]), EXPECTED_ICAOS);
+    }
+
+    #[test]
+    fn filter_countries() {
+        let airports = get_airports();
+
+        let mut filter = AirportFilters {
+            icao: None,
+            airport_type: AirportType::Unknown,
+            runway_length: None,
+            countries: vec!["United States".into()],
+        };
+
+        assert_expected_icaos!(filter.matching_airports(&airports[..]), ["KSFO", "KSAC"]);
+
+        filter.countries = vec!["Japan".into()];
+        assert_expected_icaos!(filter.matching_airports(&airports[..]), ["RJAA"]);
+
+        filter.countries = vec!["United States".into(), "Japan".into()];
+
+        assert_expected_icaos!(
+            filter.matching_airports(&airports[..]),
+            ["KSFO", "KSAC", "RJAA"]
+        );
     }
 }
