@@ -4,7 +4,9 @@
   export let value: string = "";
 
   export function parse(): string[] | undefined {
-    return value.length > 0 ? value.split(",") : undefined;
+    return value.length > 0
+      ? value.split(",").map((str) => str.trim())
+      : undefined;
   }
 </script>
 
