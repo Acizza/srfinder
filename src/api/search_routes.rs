@@ -111,9 +111,9 @@ impl<'a> Route<'a> {
 }
 
 #[derive(Copy, Clone, Debug, Default, Deserialize, Serialize, PartialEq, PartialOrd)]
-pub struct Time {
-    pub hour: u8,
-    pub minutes: u8,
+struct Time {
+    hour: u8,
+    minutes: u8,
 }
 
 impl Time {
@@ -152,26 +152,26 @@ impl Speed {
 
 #[derive(Debug, Deserialize)]
 pub struct Filters {
-    pub speed: Speed,
-    pub departure: Option<AirportFilters>,
-    pub arrival: Option<AirportFilters>,
+    speed: Speed,
+    departure: Option<AirportFilters>,
+    arrival: Option<AirportFilters>,
     #[serde(rename = "timeDist", default)]
-    pub time_or_dist: Option<TimeOrDistance>,
+    time_or_dist: Option<TimeOrDistance>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct AirportFilters {
-    pub icao: Option<String>,
+struct AirportFilters {
+    icao: Option<String>,
     #[serde(rename = "airportType", default)]
-    pub airport_type: AirportType,
+    airport_type: AirportType,
     #[serde(rename = "runwayLength")]
-    pub runway_length: Option<RunwayLength>,
+    runway_length: Option<RunwayLength>,
     #[serde(default)]
-    pub countries: Vec<String>,
+    countries: Vec<String>,
 }
 
 impl AirportFilters {
-    pub fn matching_airports<'a>(&self, airports: &'a [Airport]) -> Vec<&'a Airport> {
+    fn matching_airports<'a>(&self, airports: &'a [Airport]) -> Vec<&'a Airport> {
         if let Some(icao) = &self.icao {
             let index = airports
                 .binary_search_by(|arpt| arpt.icao.as_str().cmp(icao.as_str()))
@@ -294,7 +294,7 @@ where
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "lowercase")]
 #[serde(tag = "type", content = "value")]
-pub enum TimeOrDistance {
+enum TimeOrDistance {
     #[serde(rename = "time")]
     Time(Range<Time>),
     #[serde(rename = "dist")]
