@@ -185,25 +185,27 @@ impl AirportFilters {
             return vec![&airports[index]];
         }
 
-        type MatchClosure<'a> = Box<dyn Fn(&Airport) -> bool + 'a>;
-
-        let type_matches: MatchClosure = match self.airport_type {
-            AirportType::Unknown => Box::new(|_| true),
-            kind => Box::new(move |arpt| arpt.class == kind),
+        let type_filter = match self.airport_type {
+            AirportType::Unknown => OptionalFilter::Passthrough,
+            kind => OptionalFilter::Evaluate(move |arpt| arpt.class == kind),
         };
 
-        let runway_len_matches: MatchClosure = match self.runway_length {
-            Some(len) => Box::new(move |arpt| len.fits_any(&arpt.runways)),
-            None => Box::new(|_| true),
+        let runway_len_filter = match self.runway_length {
+            Some(len) => OptionalFilter::Evaluate(move |arpt| len.fits_any(&arpt.runways)),
+            None => OptionalFilter::Passthrough,
         };
 
-        let country_matches: MatchClosure = match self.countries.as_slice() {
-            [] => Box::new(|_| true),
-            countries => Box::new(move |arpt| Self::list_has_any(&arpt.country_name, countries)),
+        let country_filter = match self.countries.as_slice() {
+            [] => OptionalFilter::Passthrough,
+            countries => OptionalFilter::Evaluate(move |arpt| {
+                Self::list_has_any(&arpt.country_name, countries)
+            }),
         };
 
         Self::airport_matches(
-            |arpt| type_matches(arpt) && runway_len_matches(arpt) && country_matches(arpt),
+            |arpt| {
+                type_filter.eval(arpt) && runway_len_filter.eval(arpt) && country_filter.eval(arpt)
+            },
             airports,
         )
     }
@@ -232,6 +234,26 @@ impl AirportFilters {
     #[inline(always)]
     fn list_has_any(name: &str, list: &[String]) -> bool {
         list.iter().any(|x| x.eq_ignore_ascii_case(name))
+    }
+}
+
+enum OptionalFilter<F>
+where
+    F: Fn(&Airport) -> bool,
+{
+    Evaluate(F),
+    Passthrough,
+}
+
+impl<F> OptionalFilter<F>
+where
+    F: Fn(&Airport) -> bool,
+{
+    fn eval(&self, airport: &Airport) -> bool {
+        match self {
+            Self::Evaluate(func) => func(airport),
+            Self::Passthrough => true,
+        }
     }
 }
 
