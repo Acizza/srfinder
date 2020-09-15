@@ -80,6 +80,10 @@
 </script>
 
 <style>
+  table {
+    border-spacing: 0;
+  }
+
   table :global(.sort-icon) {
     width: 12px;
     height: 12px;

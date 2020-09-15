@@ -99,7 +99,6 @@
 <style>
   :global(.route-viewer-table) {
     width: 100%;
-    border-spacing: 0;
   }
 
   td:not(:last-child) {
