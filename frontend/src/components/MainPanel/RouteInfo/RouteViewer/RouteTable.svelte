@@ -6,6 +6,7 @@
     DistanceUnit,
     DistanceUnitKind,
   } from "../../../../settings/units";
+  import SortableTable from "./SortableTable.svelte";
 
   export let routes: Route[] = [];
   export let selectedRoute: Route | undefined = undefined;
@@ -42,28 +43,65 @@
     // Since our unit changed, we need to redraw our routes
     routes = routes;
   }
+
+  const enum HeaderKind {
+    From,
+    To,
+    Distance,
+    Time,
+  }
+
+  $: headers = [
+    { name: "From", index: HeaderKind.From },
+    { name: "To", index: HeaderKind.To },
+    { name: distUnitName, index: HeaderKind.Distance },
+    { name: "Time", index: HeaderKind.Time },
+  ];
+
+  function sortComparer(headerIndex: number): (a: Route, b: Route) => number {
+    function cmpBy<T, V>(key: (value: T) => V): (a: T, b: T) => number {
+      return (a: T, b: T) => {
+        const first = key(a);
+        const second = key(b);
+
+        if (first < second) return -1;
+        if (first > second) return 1;
+
+        return 0;
+      };
+    }
+
+    let cmp: (a: Route, b: Route) => number;
+
+    switch (headerIndex as HeaderKind) {
+      case HeaderKind.From:
+        cmp = cmpBy((value) => value.from.icao);
+        break;
+      case HeaderKind.To:
+        cmp = cmpBy((value) => value.to.icao);
+        break;
+      case HeaderKind.Distance:
+        cmp = (a, b) => a.distance - b.distance;
+        break;
+      case HeaderKind.Time:
+        cmp = (a, b) => {
+          const [fst, snd] = [a.time, b.time];
+          return fst.hour * 60 - snd.hour * 60 + (fst.minutes - snd.minutes);
+        };
+
+        break;
+    }
+
+    return cmp;
+  }
 </script>
 
 <style>
-  table {
+  :global(.route-viewer-table) {
     width: 100%;
     border-spacing: 0;
   }
 
-  thead {
-    position: sticky;
-    top: 0;
-    background-color: var(--tab-color);
-    cursor: default;
-  }
-
-  th {
-    padding: 0.5em;
-    font-weight: normal;
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  th:not(:last-child),
   td:not(:last-child) {
     border-right: 1px solid var(--border-color);
   }
@@ -79,10 +117,7 @@
     cursor: pointer;
   }
 
-  tr.selected {
-    background-color: var(--secondary-hover-color);
-  }
-
+  tr.selected,
   tr:hover {
     background-color: var(--secondary-hover-color);
   }
@@ -92,27 +127,24 @@
   }
 </style>
 
-<table class="route-viewer">
-  <thead>
-    <th>From</th>
-    <th>To</th>
-    <th>{distUnitName}</th>
-    <th>Time</th>
-  </thead>
-  <tbody>
-    {#each routes as route}
-      <tr
-        on:mouseover={() => (selectedRoute = route)}
-        class:selected={selectedRoute === route}>
-        <td class="clickable" on:click={() => viewAirport(route.from)}>
-          {route.from.icao}
-        </td>
-        <td class="clickable" on:click={() => viewAirport(route.to)}>
-          {route.to.icao}
-        </td>
-        <td>{DistanceUnit.toCurrent(route.distance)}</td>
-        <td>{routeTime(route)}</td>
-      </tr>
-    {/each}
-  </tbody>
-</table>
+<SortableTable
+  {headers}
+  className="route-viewer-table"
+  comparer={sortComparer}
+  data={routes}
+  let:sortedData>
+  {#each sortedData as route}
+    <tr
+      on:mouseover={() => (selectedRoute = route)}
+      class:selected={selectedRoute === route}>
+      <td class="clickable" on:click={() => viewAirport(route.from)}>
+        {route.from.icao}
+      </td>
+      <td class="clickable" on:click={() => viewAirport(route.to)}>
+        {route.to.icao}
+      </td>
+      <td>{DistanceUnit.toCurrent(route.distance)}</td>
+      <td>{routeTime(route)}</td>
+    </tr>
+  {/each}
+</SortableTable>
