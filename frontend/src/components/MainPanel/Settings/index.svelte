@@ -10,6 +10,7 @@
     display: flex;
     flex-direction: column;
     flex: 1 0;
+    overflow: hidden auto;
   }
 
   h1 {
@@ -31,6 +32,7 @@
   .misc-settings :global(label) {
     grid-column: 1 / 2;
     align-self: center;
+    padding-right: 0.5em;
   }
 
   .misc-settings :global(select) {
@@ -43,7 +45,7 @@
   }
 </style>
 
-<div class="settings-panel">
+<div class="settings-panel scrollbar">
   <h1>Settings</h1>
   <div class="misc-settings">
     <Theme />
