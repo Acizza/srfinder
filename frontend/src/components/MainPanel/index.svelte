@@ -29,7 +29,7 @@
   .main-panel {
     display: flex;
     flex-direction: column;
-    flex: 1 0 15em;
+    flex-basis: 16em;
     border-left: 3px solid var(--border-color);
     height: 100vh;
     overflow: hidden;

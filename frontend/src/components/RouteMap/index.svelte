@@ -120,7 +120,7 @@
 <style>
   .route-map {
     display: flex;
-    flex: 1 1 85%;
+    flex: 1 1;
   }
 
   :global(.route-map .esri-view-surface::after) {
